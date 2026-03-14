@@ -42,7 +42,7 @@
         <div class="card-body">
           <h3><a href="{% url 'blogs' post.slug %}" class="text-dark">{{ post.title }}</a></h3>
           <small class="mb-1 text-muted">{{ post.created_at | timesince }} ago | {{ post.author }}</small>
-          <p class="card-text">{{ post.short_description | truncatechars:25 }}</p>
+          <p class="card-text">{{ post.short_description | truncatechars:50 }}</p>
         </div>
       </div>
       {% endfor %}
