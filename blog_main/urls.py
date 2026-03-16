@@ -1,8 +1,7 @@
-"""
-URL configuration for blog_main project.
+"""blog_main URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
+    https://docs.djangoproject.com/en/4.1/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -20,16 +19,19 @@ from . import views
 from django.conf.urls.static import static
 from django.conf import settings
 from blogs import views as BlogsView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('category/', include('blogs.urls')),
-    path('blogs/<slug:slug>/', BlogsView.blogs, name='blogs'),
     path('blogs/search/', BlogsView.search, name='search'),
-    path('register/', views.register, name='register'),
-    path('login/', views.login, name= 'login'),
-    path('logout/', views.logout, name='logout'),
+    path('blogs/<slug:slug>/', BlogsView.blogs, name='blogs'),
+    # Search endpoint
     
-    # dashboard
+    path('register/', views.register, name='register'),
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+
+    # Dashboards
     path('dashboard/', include('dashboards.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
