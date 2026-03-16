@@ -5,6 +5,13 @@
             Dashboard
         </a>
 
+        {% if perms.auth.view_user %}
+        <a href="{% url 'users' %}" class="nav-link text-dark {% if '/users/' in request.path %} bg-warning {% endif %}">
+            Users
+        </a>
+        {% endif %}
+
+
         <a href="{% url 'categories' %}" class="nav-link text-dark {% if '/categories/' in request.path %} bg-warning {% endif %}">
             Categories
         </a>
