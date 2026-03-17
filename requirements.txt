@@ -1,6 +1,8 @@
 asgiref==3.11.1
+certifi==2026.2.25
 crispy-bootstrap4==2026.2
 Django==6.0.3
 django-crispy-forms==2.6
 pillow==12.1.1
+python-dotenv==1.2.2
 sqlparse==0.5.5
