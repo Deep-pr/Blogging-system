@@ -132,3 +132,26 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+import ssl
+import certifi
+import os
+
+# ── Email (console for development — prints to terminal) ───────
+# EMAIL_BACKEND    = 'django.core.mail.backends.console.EmailBackend'
+# DEFAULT_FROM_EMAIL = 'Django Blog <noreply@djangoblog.com>'
+
+# ── For production (Gmail SMTP) — uncomment and fill in ────────
+EMAIL_BACKEND     = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST        = 'smtp.gmail.com'
+EMAIL_PORT        = 587
+EMAIL_USE_TLS     = True
+EMAIL_HOST_USER   = 'futureflux24@gmail.com'
+EMAIL_HOST_PASSWORD = 'lzmirmcrtopvjrwu'
+DEFAULT_FROM_EMAIL  = 'Django Blog <futureflux24@gmail.com>'
+
+
+
+
+os.environ['SSL_CERT_FILE'] = certifi.where()
+os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()

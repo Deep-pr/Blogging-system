@@ -1,29 +1,259 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 {% load crispy_forms_tags %}
 
-<div class="row">
-    <!-- Left sidebar -->
-    <!-- load the sidebar here -->
-    {% include 'dashboard/sidebar.html' %}
+<div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
 
-    <!-- Right side content -->
-    <div class="col-md-9">
-        {% if perms.auth.add_user %}
-        <h2>Edit User</h2>
-        
-        <form action="#" method="POST" >
-            {% csrf_token %}
-            {{ form | crispy }}
-            <button type="submit" class="btn btn-warning">Submit</button>
-        </form>
-        <br>
-        {% else %}
-        <h5>You do not have permission to view this page</h5>
-        {% endif %}
+  <!-- ══════════════════════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════════════════════ -->
+  {% include 'dashboard/sidebar.html' %}
+
+
+  <!-- ══════════════════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════════════════ -->
+  <main class="flex-1 min-w-0">
+
+    {% if perms.auth.add_user %}
+
+    <!-- Page header -->
+    <div class="flex items-center gap-4 mb-8 pb-6 border-b" style="border-color:#e5d5bf;">
+      <a href="{% url 'users' %}"
+         class="w-9 h-9 rounded-lg flex items-center justify-center border transition-all duration-200 hover:-translate-x-0.5 flex-shrink-0"
+         style="border-color:#e5d5bf; background:#fff; color:#7c6f5e;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </a>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest mb-0.5" style="color:#d97706;">Admin Panel · Users</p>
+        <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">Edit User</h1>
+      </div>
     </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+      <!-- ── Form card ── -->
+      <div class="xl:col-span-2">
+        <div class="bg-white rounded-2xl border overflow-hidden"
+             style="border-color:#e5d5bf; box-shadow:0 4px 24px rgba(26,18,8,0.08);">
+
+          <!-- Card header -->
+          <div class="px-6 py-4 border-b flex items-center gap-3"
+               style="background: linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                 style="background:rgba(217,119,6,0.2); border:1px solid rgba(217,119,6,0.3);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#fbbf24;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white">Edit User Details</p>
+              <p class="text-xs" style="color:#a89070;">Update the fields below and save changes</p>
+            </div>
+          </div>
+
+          <!-- Form body -->
+          <div class="p-6">
+            <form action="#" method="POST">
+              {% csrf_token %}
+
+              <div class="edit-user-form">
+                {{ form|crispy }}
+              </div>
+
+              <!-- Form actions -->
+              <div class="flex items-center gap-3 mt-6 pt-5 border-t" style="border-color:#f5ede0;">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                        style="background: linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 14px rgba(217,119,6,0.3);">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Save Changes
+                </button>
+                <a href="{% url 'users' %}"
+                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold border transition-all duration-200 hover:-translate-y-0.5"
+                   style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
+                  Cancel
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Side info panel ── -->
+      <div class="xl:col-span-1 flex flex-col gap-5">
+
+        <!-- Tips card -->
+        <div class="rounded-2xl border p-5"
+             style="background: linear-gradient(135deg,#fffcf7,#fef3c7); border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs flex-shrink-0"
+                 style="background:#d97706;">
+              💡
+            </div>
+            <h4 class="font-display font-bold text-sm" style="color:#1a1208;">Editing Tips</h4>
+          </div>
+          <ul class="text-xs leading-relaxed space-y-2.5" style="color:#7c6f5e;">
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              Leave the password field blank to keep the existing password unchanged.
+            </li>
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              Only superusers can grant or revoke superuser or staff permissions.
+            </li>
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              Deactivating a user prevents them from logging in without deleting their data.
+            </li>
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              Changes take effect immediately after saving.
+            </li>
+          </ul>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="rounded-2xl border p-5"
+             style="background:#fff; border-color:#fecaca; box-shadow:0 2px 12px rgba(26,18,8,0.04);">
+          <div class="flex items-center gap-2 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#dc2626;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            <h4 class="font-display font-bold text-sm" style="color:#991b1b;">Danger Zone</h4>
+          </div>
+          <p class="text-xs mb-4 leading-relaxed" style="color:#7c6f5e;">
+            Permanently delete this user and all associated data. This action cannot be undone.
+          </p>
+          <a href="{% url 'delete_user' form.instance.id %}"
+             class="inline-flex items-center gap-2 w-full justify-center py-2 px-4 rounded-lg text-xs font-bold border transition-all duration-200 hover:-translate-y-0.5"
+             style="border-color:#fecaca; color:#dc2626; background:#fef2f2;"
+             onclick="return confirm('Permanently delete this user? This cannot be undone.')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            Delete This User
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    {% else %}
+    <!-- ── No permission state ── -->
+    <div class="flex flex-col items-center justify-center py-24 text-center">
+      <div class="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+           style="background: linear-gradient(135deg,#fee2e2,#fef2f2);">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="color:#dc2626;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+      </div>
+      <h2 class="font-display text-2xl font-bold mb-2" style="color:#1a1208;">Access Denied</h2>
+      <p class="text-sm max-w-xs mb-6" style="color:#7c6f5e;">You don't have permission to edit users.</p>
+      <a href="{% url 'dashboard' %}"
+         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white"
+         style="background: linear-gradient(135deg,#d97706,#b45309);">
+        Back to Dashboard
+      </a>
+    </div>
+    {% endif %}
+
+  </main>
 </div>
+
+<!-- Crispy form field styles -->
+<style>
+  .edit-user-form label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #7c6f5e;
+    margin-bottom: 5px;
+  }
+
+  .edit-user-form input[type="text"],
+  .edit-user-form input[type="email"],
+  .edit-user-form input[type="password"],
+  .edit-user-form select,
+  .edit-user-form textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e5d5bf;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #1a1208;
+    background: #fffcf7;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .edit-user-form input:focus,
+  .edit-user-form select:focus,
+  .edit-user-form textarea:focus {
+    border-color: #d97706;
+    box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
+    background: #fff;
+  }
+
+  .edit-user-form .is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important;
+  }
+
+  .edit-user-form .invalid-feedback,
+  .edit-user-form .text-danger {
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: 4px;
+  }
+
+  .edit-user-form .helptext,
+  .edit-user-form small {
+    font-size: 0.72rem;
+    color: #a89070;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .edit-user-form .mb-3,
+  .edit-user-form .form-group {
+    margin-bottom: 1.1rem;
+  }
+
+  .edit-user-form input[type="checkbox"] {
+    accent-color: #d97706;
+    width: 15px;
+    height: 15px;
+  }
+
+  /* Checkbox label inline */
+  .edit-user-form .form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #fffcf7;
+    border: 1px solid #e5d5bf;
+    margin-bottom: 8px;
+  }
+
+  .edit-user-form .form-check label {
+    margin-bottom: 0;
+    text-transform: none;
+    font-size: 0.85rem;
+    letter-spacing: 0;
+    color: #3d2b0a;
+    cursor: pointer;
+  }
+</style>
 
 {% endblock %}

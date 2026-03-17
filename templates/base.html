@@ -3,73 +3,357 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Django Blogs</title>
-    <link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
-    <link href="{% static 'css/blog.css' %}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FutureFlux</title>
 
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  </head>
-<body>
-    <div class="container">
-      <header class="blog-header py-3">
-        <div class="row flex-nowrap justify-content-between align-items-center">
-          <div class="col-4 pt-1">
-            <a class="blog-header-logo text-dark" href="/">Django Blog</a>
-          </div>
-          <div class="col-4">
-            <form action="{% url 'search' %}" method="GET">
-              <div class="input-group">
-                <input class="form-control" type="text" name="keyword" value="{{ keyword }}" placeholder="Enter search term..." aria-label="Enter search term..." aria-describedby="button-search" />
-                <button type="submit" class="btn btn-warning" id="button-search" type="button">Go!</button>
-            </div>
-            </form>
-          </div>
-          <div class="col-4 d-flex justify-content-end align-items-center">
-            {% if not user.is_authenticated %}
-            <a class="btn btn-sm btn-warning" href="{% url 'login' %}">Login</a> &nbsp;
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'register' %}">Register</a>
-            {% else %}
-            <span> <a href="{% url 'dashboard' %}">Dashboard</a> &nbsp;</span>
-            &emsp;
-            <span> <a href="{% url 'logout' %}">Logout</a> </span>
-           {% comment %} <a class="btn btn-sm btn-warning" href="{% url 'logout' %}">Logout</a> {% endcomment %}
- 
+  <!-- Google Fonts: Playfair Display + DM Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-            {% endif %}
-          </div>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Playfair Display"', 'Georgia', 'serif'],
+            body: ['"DM Sans"', 'sans-serif'],
+          },
+          colors: {
+            ink: '#1a1208',
+            cream: '#fdf8f0',
+            parchment: '#f5ede0',
+            amber: {
+              DEFAULT: '#d97706',
+              light: '#fbbf24',
+              dark: '#92400e',
+            },
+            muted: '#7c6f5e',
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease forwards',
+            'slide-up': 'slideUp 0.5s ease forwards',
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp: { '0%': { opacity: '0', transform: 'translateY(16px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Keep your custom CSS link */
+    /* @import url("{% static 'css/blog.css' %}"); */
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: #fdf8f0;
+      color: #1a1208;
+    }
+
+    .font-display { font-family: 'Playfair Display', Georgia, serif; }
+
+    /* Decorative top bar */
+    .top-bar {
+      background: repeating-linear-gradient(
+        90deg,
+        #d97706 0px,
+        #d97706 40px,
+        #92400e 40px,
+        #92400e 80px,
+        #fbbf24 80px,
+        #fbbf24 120px
+      );
+      height: 5px;
+    }
+
+    /* Logo hover shimmer */
+    .logo-link {
+      background: linear-gradient(90deg, #1a1208 0%, #d97706 50%, #1a1208 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: background-position 0.6s ease;
+    }
+    .logo-link:hover { background-position: right center; }
+
+    /* Search bar */
+    .search-input {
+      border: 1.5px solid #e5d5bf;
+      background: #fff9f0;
+      border-radius: 2px 0 0 2px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: #d97706;
+      box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
+    }
+
+    /* Category nav */
+    .cat-link {
+      position: relative;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7c6f5e;
+      padding: 6px 0;
+      transition: color 0.2s;
+    }
+    .cat-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: #d97706;
+      transition: width 0.3s ease;
+    }
+    .cat-link:hover { color: #1a1208; }
+    .cat-link:hover::after { width: 100%; }
+
+    /* Divider ornament */
+    .ornament {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #d97706;
+    }
+    .ornament::before, .ornament::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #d97706 40%, #d97706 60%, transparent);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid #e5d5bf;
+      background: #1a1208;
+      color: #c8b89a;
+    }
+
+    /* Scroll-in animations */
+    .animate-fade { animation: fadeIn 0.7s ease forwards; }
+    .animate-up { animation: slideUp 0.6s ease forwards; }
+
+    /* Buttons */
+    .btn-amber {
+      background: #d97706;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      padding: 8px 18px;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-amber:hover { background: #b45309; transform: translateY(-1px); }
+
+    .btn-outline {
+      border: 1.5px solid #d97706;
+      color: #d97706;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      padding: 7px 16px;
+      border-radius: 2px;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover { background: #d97706; color: #fff; transform: translateY(-1px); }
+
+    /* Mobile menu */
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: flex; }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+  <!-- Decorative top stripe -->
+  <div class="top-bar w-full"></div>
+
+  <!-- ═══════════════════════════════════════ HEADER ═══════════════════════════════════════ -->
+  <header class="bg-cream border-b border-amber-100 sticky top-0 z-50 shadow-sm" style="background:#fdf8f0;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between py-4 gap-4">
+
+        <!-- Logo -->
+        <div class="flex-shrink-0">
+          <a href="/" class="logo-link font-display text-2xl md:text-3xl font-black tracking-tight no-underline">
+            FutureFlux
+          </a>
+          <p class="text-xs text-amber-600 font-body font-medium tracking-widest uppercase mt-0.5 hidden sm:block" style="color:#d97706;">
+            Stories worth reading
+          </p>
         </div>
-      </header>
 
-      <div class="nav-scroller py-1 mb-2">
-        <nav class="nav d-flex justify-content-between">
-          {% for cat in categories %}
-          <a class="p-2 text-muted" href="{% url 'posts_by_category' cat.id %}">{{ cat.category_name }}</a>
-         {% endfor %}
-        </nav>
+        <!-- Search (desktop) -->
+        <form action="{% url 'search' %}" method="GET"
+              class="hidden md:flex flex-1 max-w-sm mx-4">
+          <input
+            class="search-input flex-1 px-4 py-2 text-sm font-body"
+            type="text"
+            name="keyword"
+            value="{{ keyword }}"
+            placeholder="Search articles…"
+          />
+          <button type="submit" class="btn-amber rounded-l-none" style="border-radius:0 2px 2px 0;">
+            <i class="fa fa-search"></i>
+          </button>
+        </form>
+
+        <!-- Auth Links (desktop) -->
+        <div class="hidden md:flex items-center gap-3">
+          {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn-amber">Login</a>
+            <a href="{% url 'register' %}" class="btn-outline">Register</a>
+          {% else %}
+            <a href="{% url 'dashboard' %}"
+               class="flex items-center gap-1.5 text-sm font-semibold text-ink hover:text-amber-600 transition-colors"
+               style="color:#1a1208;">
+              <i class="fa-solid fa-gauge-high text-amber-500"></i>
+              Dashboard
+            </a>
+            <span class="text-muted" style="color:#e5d5bf;">|</span>
+            <a href="{% url 'logout' %}"
+               class="flex items-center gap-1.5 text-sm font-semibold hover:text-amber-600 transition-colors"
+               style="color:#7c6f5e;">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              Logout
+            </a>
+          {% endif %}
+        </div>
+
+        <!-- Hamburger (mobile) -->
+        <button id="menu-toggle" class="md:hidden p-2 rounded text-ink focus:outline-none" style="color:#1a1208;">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
       </div>
 
-      {% block content %}
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="flex-col gap-3 pb-4 md:hidden">
+        <form action="{% url 'search' %}" method="GET" class="flex">
+          <input
+            class="search-input flex-1 px-4 py-2 text-sm"
+            type="text" name="keyword" value="{{ keyword }}"
+            placeholder="Search articles…"
+          />
+          <button type="submit" class="btn-amber" style="border-radius:0 2px 2px 0;">
+            <i class="fa fa-search"></i>
+          </button>
+        </form>
+        <div class="flex items-center gap-3 pt-1">
+          {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn-amber">Login</a>
+            <a href="{% url 'register' %}" class="btn-outline">Register</a>
+          {% else %}
+            <a href="{% url 'dashboard' %}" class="text-sm font-semibold" style="color:#1a1208;">Dashboard</a>
+            <a href="{% url 'logout' %}" class="text-sm font-semibold" style="color:#7c6f5e;">Logout</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
 
-      
-      {% endblock %}
+  <!-- ═══════════════════════════════════════ CATEGORY NAV ══════════════════════════════════ -->
+  <nav class="bg-white border-b" style="border-color:#e5d5bf; background:#fffcf7;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-6 overflow-x-auto py-3 scrollbar-hide">
+        <a href="/" class="cat-link flex-shrink-0">All</a>
+        {% for cat in categories %}
+          <a class="cat-link flex-shrink-0" href="{% url 'posts_by_category' cat.id %}">
+            {{ cat.category_name }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </nav>
 
+  <!-- ═══════════════════════════════════════ MAIN CONTENT ══════════════════════════════════ -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 animate-up">
+    {% block content %}
+    {% endblock %}
+  </main>
 
+  <!-- ═══════════════════════════════════════ FOOTER ════════════════════════════════════════ -->
+  <footer style="background:#1a1208; color:#c8b89a;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
+      <!-- Top row -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-8">
 
+        <!-- Brand -->
+        <div>
+          <p class="font-display text-2xl font-bold text-white mb-1">FutureFlux</p>
+          <p class="text-sm" style="color:#a89070;">Stories, ideas & perspectives.</p>
+        </div>
 
+        <!-- Quick links -->
+        <div class="flex gap-8 text-sm">
+          <div>
+            <p class="text-xs uppercase tracking-widest font-semibold mb-3" style="color:#d97706;">Navigate</p>
+            <ul class="space-y-2">
+              <li><a href="/" class="hover:text-white transition-colors">Home</a></li>
+              {% if user.is_authenticated %}
+              <li><a href="{% url 'dashboard' %}" class="hover:text-white transition-colors">Dashboard</a></li>
+              <li><a href="{% url 'logout' %}" class="hover:text-white transition-colors">Logout</a></li>
+              {% else %}
+              <li><a href="{% url 'login' %}" class="hover:text-white transition-colors">Login</a></li>
+              <li><a href="{% url 'register' %}" class="hover:text-white transition-colors">Register</a></li>
+              {% endif %}
+            </ul>
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-widest font-semibold mb-3" style="color:#d97706;">Categories</p>
+            <ul class="space-y-2">
+              {% for cat in categories %}
+              <li>
+                <a href="{% url 'posts_by_category' cat.id %}" class="hover:text-white transition-colors">
+                  {{ cat.category_name }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
 
+      <!-- Divider -->
+      <div class="ornament my-6" style="color:#5c4a30;">
+        <span class="font-display italic text-sm" style="color:#a89070;">✦</span>
+      </div>
 
+      <!-- Bottom row -->
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-3 text-xs" style="color:#7c6050;">
+        <p>
+          Crafted with <span style="color:#d97706;">♥</span> by
+          <a href="/" class="font-semibold hover:text-white transition-colors" style="color:#c8b89a;">deepprasadsah</a>
+        </p>
+        <p>© {% now "Y" %} FutureFlux. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
 
+  <!-- Mobile menu toggle script -->
+  <script>
+    const toggle = document.getElementById('menu-toggle');
+    const menu   = document.getElementById('mobile-menu');
+    toggle.addEventListener('click', () => menu.classList.toggle('open'));
+  </script>
 
-
-
-      <footer class="blog-footer">
-  <p>Django blog built with � by <a href="/">deepprasadsah</a></p>
-</footer>
 </body>
 </html>

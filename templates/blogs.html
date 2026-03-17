@@ -2,95 +2,350 @@
 
 {% block content %}
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Post content-->
-            <article>
-                <!-- Post header-->
-                <header class="mb-4">
-                    <!-- Post title-->
-                    <h1 class="fw-bolder mb-1">{{ single_blog.title }}</h1>
-                    <!-- Post meta content-->
-                    <div class="text-muted fst-italic mb-2">Posted on {{ single_blog.created_at }} by {{ single_blog.author }}</div>
-                    <!-- Post category-->
-                    <a class="badge bg-warning text-decoration-none text-light" href="#!">{{ single_blog.category }}</a>
-                </header>
-                <!-- Preview image figure-->
-                <figure class="mb-4"><img class="img-fluid rounded" src="{{ single_blog.featured_image.url }}" alt="..." /></figure>
-                <!-- Post content-->
-                <section class="mb-5">
-                    <p class="fs-5 mb-4">{{ single_blog.short_description }}</p>
-                    <p class="fs-5 mb-4">{{ single_blog.blog_body }}</p>
+<div class="max-w-7xl mx-auto">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-                    <!-- Comments -->
-                    <h4>Comments ({{ comments_count }})</h4>
-                    {% if comments %}
-                        {% for comment in comments %}
-                            <div class="card mt-1">
-                                <div class="card-body">
-                                    <p class="card-text mb-0">{{ comment }}</p>
-                                    <span>
-                                        <small>By {{ comment.user }}</small>
-                                        <small>| {{ comment.created_at | timesince }} ago</small>
-                                    </span>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                    No comments yet.
-                    {% endif %}
-                    <br>
-                    <div class="form-group">
-                        {% if user.is_authenticated %}
-                        <form action="" method="POST">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <textarea name="comment" class="form-control" placeholder="Write your comment"></textarea>
-                                <input type="submit" value="Submit" class="btn btn-primary mt-2">
-                            </div>
+    <!-- ══════════════════════════════════════════════════════
+         MAIN ARTICLE — left 2/3
+    ═══════════════════════════════════════════════════════ -->
+    <article class="lg:col-span-2">
 
-                        </form>
-                        {% else %}
-                        <p>Please <span><a href="{% url 'login' %}">login</a></span> to write a comment!</p>
-                        {% endif %}
-                    </div>
+      <!-- Breadcrumb -->
+      <div class="flex items-center gap-2 text-xs mb-6" style="color:#a89070;">
+        <a href="/" class="hover:text-amber-600 transition-colors" style="color:#a89070;">Home</a>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+        <a href="{% url 'posts_by_category' single_blog.category.id %}"
+           class="hover:text-amber-600 transition-colors" style="color:#a89070;">
+          {{ single_blog.category }}
+        </a>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+        <span class="font-semibold truncate max-w-xs" style="color:#1a1208;">{{ single_blog.title|truncatewords:6 }}</span>
+      </div>
 
-                </section>
-            </article>
+      <!-- Post header -->
+      <header class="mb-8">
+
+        <!-- Category badge -->
+        <a href="{% url 'posts_by_category' single_blog.category.id %}"
+           class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4"
+           style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+          </svg>
+          {{ single_blog.category }}
+        </a>
+
+        <!-- Title -->
+        <h1 class="font-display text-3xl md:text-4xl lg:text-5xl font-black leading-tight mb-5"
+            style="color:#1a1208;">
+          {{ single_blog.title }}
+        </h1>
+
+        <!-- Author + date row -->
+        <div class="flex items-center gap-4 pb-5 border-b" style="border-color:#e5d5bf;">
+          <!-- Avatar -->
+          <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+               style="background: linear-gradient(135deg, #d97706, #92400e);">
+            {{ single_blog.author|slice:":1"|upper }}
+          </div>
+          <div>
+            <p class="text-sm font-semibold" style="color:#1a1208;">{{ single_blog.author }}</p>
+            <p class="text-xs" style="color:#a89070;">
+              Published on {{ single_blog.created_at|date:"F j, Y" }}
+            </p>
+          </div>
+          <!-- Reading time estimate (decorative) -->
+          <div class="ml-auto hidden sm:flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full"
+               style="background:#fdf8f0; color:#7c6f5e; border:1px solid #e5d5bf;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+            Article
+          </div>
         </div>
-        <!-- Side widgets-->
-        <div class="col-lg-4">
-            
-            <!-- Categories widget-->
-            <div class="card mb-4 p-3">
-                <h4 class="font-italic">Categories</h4>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <ul class="list-unstyled mb-0">
-                                {% for cat in categories %}
-                                <li><a href="{% url 'posts_by_category' cat.id %}">{{ cat.category_name }}</a></li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+      </header>
+
+      <!-- Featured image -->
+      {% if single_blog.featured_image %}
+      <figure class="mb-8 rounded-2xl overflow-hidden shadow-lg">
+        <img src="{{ single_blog.featured_image.url }}"
+             alt="{{ single_blog.title }}"
+             class="w-full object-cover max-h-96">
+      </figure>
+      {% endif %}
+
+      <!-- Short description / intro -->
+      <div class="mb-6 px-5 py-4 rounded-xl border-l-4"
+           style="background:#fffcf7; border-left-color:#d97706; border-top:1px solid #e5d5bf; border-right:1px solid #e5d5bf; border-bottom:1px solid #e5d5bf;">
+        <p class="text-base leading-relaxed font-medium italic" style="color:#3d2b0a;">
+          {{ single_blog.short_description }}
+        </p>
+      </div>
+
+      <!-- Blog body -->
+      <div class="blog-body prose max-w-none mb-10 text-base leading-relaxed" style="color:#3d2b0a;">
+        {{ single_blog.blog_body|linebreaks }}
+      </div>
+
+      <!-- Decorative divider -->
+      <div class="flex items-center gap-4 my-10">
+        <div class="flex-1 h-px" style="background:#e5d5bf;"></div>
+        <span class="font-display text-xl" style="color:#d97706;">✦</span>
+        <div class="flex-1 h-px" style="background:#e5d5bf;"></div>
+      </div>
+
+
+      <!-- ══════════════════════════════════════════════════
+           COMMENTS SECTION
+      ═══════════════════════════════════════════════════ -->
+      <section>
+        <!-- Header -->
+        <div class="flex items-center gap-3 mb-6">
+          <h3 class="font-display text-2xl font-bold" style="color:#1a1208;">
+            Comments
+          </h3>
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold text-white"
+                style="background:#d97706;">
+            {{ comments_count }}
+          </span>
+        </div>
+
+        <!-- Comment list -->
+        {% if comments %}
+        <div class="flex flex-col gap-4 mb-8">
+          {% for comment in comments %}
+          <div class="flex gap-3 p-4 rounded-xl border bg-white"
+               style="border-color:#e5d5bf; box-shadow:0 1px 6px rgba(26,18,8,0.05);">
+
+            <!-- Avatar -->
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                 style="background: linear-gradient(135deg, #92400e, #d97706);">
+              {{ comment.user|slice:":1"|upper }}
             </div>
-            <!-- Side widget-->
-            {% if social_links %}
-            <div class="card mb-4 p-3">
-                <h4 class="font-italic">Follow Us</h4>
-                <ol class="list-unstyled">
-                    {% for i in social_links %}
-                    <li><a href="{{ i.link }}" target="_blank">{{ i.platform }}</a></li>
-                    {% endfor %}
-                </ol>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="text-sm font-semibold" style="color:#1a1208;">{{ comment.user }}</span>
+                <span style="color:#e5d5bf;">·</span>
+                <span class="text-xs" style="color:#a89070;">{{ comment.created_at|timesince }} ago</span>
+              </div>
+              <p class="text-sm leading-relaxed" style="color:#3d2b0a;">{{ comment }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- No comments yet -->
+        <div class="flex flex-col items-center py-10 rounded-xl border border-dashed mb-8 text-center"
+             style="border-color:#e5d5bf;">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-3 opacity-25" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#d97706;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <p class="font-display font-semibold text-base mb-1" style="color:#1a1208;">No comments yet</p>
+          <p class="text-sm" style="color:#a89070;">Be the first to share your thoughts!</p>
+        </div>
+        {% endif %}
+
+        <!-- Comment form -->
+        <div class="rounded-xl border bg-white overflow-hidden"
+             style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+
+          <!-- Form header -->
+          <div class="px-5 py-4 border-b flex items-center gap-2"
+               style="background:#fffcf7; border-color:#e5d5bf;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+            <h4 class="font-display font-bold text-base" style="color:#1a1208;">Leave a Comment</h4>
+          </div>
+
+          <div class="p-5">
+            {% if user.is_authenticated %}
+            <!-- Authenticated user form -->
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                   style="background: linear-gradient(135deg, #d97706, #b45309);">
+                {{ user.username|slice:":1"|upper }}
+              </div>
+              <div>
+                <p class="text-xs font-semibold" style="color:#1a1208;">{{ user.username }}</p>
+                <p class="text-xs" style="color:#a89070;">Commenting as yourself</p>
+              </div>
+            </div>
+
+            <form action="" method="POST">
+              {% csrf_token %}
+              <textarea
+                name="comment"
+                rows="4"
+                placeholder="Share your thoughts on this article…"
+                class="w-full px-4 py-3 text-sm rounded-lg border outline-none resize-none transition-all duration-200"
+                style="border:1.5px solid #e5d5bf; background:#fffcf7; color:#1a1208; font-family:'DM Sans',sans-serif;"
+                onfocus="this.style.borderColor='#d97706'; this.style.boxShadow='0 0 0 3px rgba(217,119,6,0.15)'"
+                onblur="this.style.borderColor='#e5d5bf'; this.style.boxShadow='none'"
+              ></textarea>
+
+              <div class="flex justify-end mt-3">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                        style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow:0 4px 14px rgba(217,119,6,0.3);">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                  </svg>
+                  Post Comment
+                </button>
+              </div>
+            </form>
+
+            {% else %}
+            <!-- Guest prompt -->
+            <div class="flex flex-col sm:flex-row items-center gap-4 py-4">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                   style="background:#fef3c7;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" style="color:#d97706;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+              </div>
+              <div class="text-center sm:text-left">
+                <p class="text-sm font-semibold mb-0.5" style="color:#1a1208;">Join the conversation</p>
+                <p class="text-xs" style="color:#7c6f5e;">Sign in to leave a comment on this article.</p>
+              </div>
+              <div class="flex gap-2 sm:ml-auto">
+                <a href="{% url 'login' %}"
+                   class="px-4 py-2 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
+                   style="background:#d97706;">
+                  Login
+                </a>
+                <a href="{% url 'register' %}"
+                   class="px-4 py-2 rounded-lg text-sm font-bold border transition-all duration-200 hover:-translate-y-0.5"
+                   style="border-color:#d97706; color:#d97706;">
+                  Register
+                </a>
+              </div>
             </div>
             {% endif %}
+          </div>
         </div>
-    </div>
+      </section>
+
+    </article>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         SIDEBAR — right 1/3
+    ═══════════════════════════════════════════════════════ -->
+    <aside class="lg:col-span-1 flex flex-col gap-6 lg:mt-16">
+
+      <!-- Categories widget -->
+      <div class="rounded-xl border bg-white overflow-hidden"
+           style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+        <div class="px-5 py-4 border-b flex items-center gap-2"
+             style="background: linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#fbbf24;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+          </svg>
+          <h4 class="font-display font-bold text-sm text-white">Categories</h4>
+        </div>
+        <ul class="divide-y" style="border-color:#f5ede0;">
+          {% for cat in categories %}
+          <li>
+            <a href="{% url 'posts_by_category' cat.id %}"
+               class="flex items-center justify-between px-5 py-3 text-sm font-medium transition-all duration-150 hover:pl-6 group"
+               style="color:#3d2b0a;">
+              <span class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors"
+                      style="background:#d97706;"></span>
+                {{ cat.category_name }}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Social links widget -->
+      {% if social_links %}
+      <div class="rounded-xl border bg-white overflow-hidden"
+           style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+        <div class="px-5 py-4 border-b flex items-center gap-2"
+             style="background:#fffcf7; border-color:#e5d5bf;">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <h4 class="font-display font-bold text-sm" style="color:#1a1208;">Follow Us</h4>
+        </div>
+        <ul class="p-4 flex flex-col gap-2">
+          {% for i in social_links %}
+          <li>
+            <a href="{{ i.link }}" target="_blank"
+               class="flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 group"
+               style="background:#fdf8f0; color:#1a1208; border:1px solid #e5d5bf;">
+              <span class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                      style="background:#d97706;">
+                  {{ i.platform|slice:":1"|upper }}
+                </span>
+                {{ i.platform }}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#d97706;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Back to top (sticky feel) -->
+      <button onclick="window.scrollTo({top:0,behavior:'smooth'})"
+              class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border text-xs font-bold uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5"
+              style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+        </svg>
+        Back to Top
+      </button>
+
+    </aside>
+  </div>
 </div>
- 
+
+<!-- Blog body typography styles -->
+<style>
+  .blog-body p  { margin-bottom: 1.25rem; }
+  .blog-body h2 { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:800; color:#1a1208; margin:2rem 0 1rem; }
+  .blog-body h3 { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:#1a1208; margin:1.5rem 0 0.75rem; }
+  .blog-body a  { color:#d97706; text-decoration:underline; }
+  .blog-body a:hover { color:#92400e; }
+  .blog-body blockquote {
+    border-left: 4px solid #d97706;
+    padding: 0.75rem 1.25rem;
+    margin: 1.5rem 0;
+    background: #fffcf7;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: #3d2b0a;
+  }
+  .blog-body ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+  .blog-body ol { list-style: decimal; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+  .blog-body li { margin-bottom: 0.4rem; }
+  .blog-body img { border-radius: 12px; margin: 1.5rem 0; max-width:100%; }
+  .blog-body code {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+</style>
 
 {% endblock %}

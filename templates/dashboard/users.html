@@ -1,55 +1,274 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 
-<div class="row">
-    <!-- Left sidebar -->
-    <!-- load the sidebar here -->
-    {% include 'dashboard/sidebar.html' %}
+<div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
 
-    <!-- Right side content -->
-    <div class="col-md-9">
-      {% if perms.auth.view_user %}
-        <h2>All Users</h2>
-        <a href="{% url 'add_user' %}" class="btn btn-dark text-light float-right mb-2">Add User</a>
-        <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Full Name</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Active</th>
-                <th>Staff</th>
-                <th>Superuser</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for user in users %}
-              <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ user.first_name }} {{ user.last_name }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{% if user.is_active %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
-                <td>{% if user.is_staff %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
-                <td>{% if user.is_superuser %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
-                <td>
-                    <a href="{% url 'edit_user' user.id %}"><i class="fa fa-edit text-success"></i></a>
-                    &nbsp;
-                    <a href="{% url 'delete_user' user.id %}"><i class="fa fa-trash text-danger"></i></a>
-                </td>
-              </tr>
-            {% endfor %}
-              
-            </tbody>
-          </table>
-          {% else %}
-          <h5>You do not have permission to view this page</h5>
-        {% endif %}
+  {% include 'dashboard/sidebar.html' %}
+
+  <main class="flex-1 min-w-0">
+
+    {% if perms.auth.view_user %}
+
+    <!-- Page header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b"
+         style="border-color:#e5d5bf;">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Admin Panel</p>
+        <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">All Users</h1>
+        <p class="text-sm mt-1" style="color:#7c6f5e;">
+          <span class="font-bold" style="color:#1a1208;">{{ users|length }}</span>
+          registered user{{ users|length|pluralize }}
+        </p>
+      </div>
+      <a href="{% url 'add_user' %}"
+         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg self-start sm:self-auto"
+         style="background: linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 14px rgba(217,119,6,0.3);">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add User
+      </a>
     </div>
+
+
+    <!-- ── Desktop table ── -->
+    <div class="hidden md:block rounded-2xl border overflow-hidden bg-white"
+         style="border-color:#e5d5bf; box-shadow:0 2px 16px rgba(26,18,8,0.07);">
+      <table class="w-full text-sm">
+        <thead>
+          <tr style="background: linear-gradient(135deg,#1a1208,#3d2b0a);">
+            <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">#</th>
+            <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">User</th>
+            <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Email</th>
+            <th class="px-5 py-3.5 text-center text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Active</th>
+            <th class="px-5 py-3.5 text-center text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Staff</th>
+            <th class="px-5 py-3.5 text-center text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Superuser</th>
+            <th class="px-5 py-3.5 text-center text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y" style="border-color:#f5ede0;">
+          {% for user in users %}
+          <tr class="transition-colors duration-150 hover:bg-amber-50">
+
+            <!-- # -->
+            <td class="px-5 py-4 text-xs font-medium" style="color:#a89070;">{{ forloop.counter }}</td>
+
+            <!-- User -->
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0"
+                     style="background: linear-gradient(135deg,#d97706,#92400e);">
+                  {{ user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                  <p class="font-semibold text-sm leading-tight" style="color:#1a1208;">
+                    {% if user.first_name or user.last_name %}
+                      {{ user.first_name }} {{ user.last_name }}
+                    {% else %}—{% endif %}
+                  </p>
+                  <p class="text-xs" style="color:#a89070;">@{{ user.username }}</p>
+                </div>
+              </div>
+            </td>
+
+            <!-- Email -->
+            <td class="px-5 py-4 text-sm" style="color:#3d2b0a;">{{ user.email|default:"—" }}</td>
+
+            <!-- Active -->
+            <td class="px-5 py-4 text-center">
+              {% if user.is_active %}
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full" style="background:#d1fae5;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" style="color:#059669;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+              </span>
+              {% else %}
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full" style="background:#fee2e2;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" style="color:#dc2626;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </span>
+              {% endif %}
+            </td>
+
+            <!-- Staff -->
+            <td class="px-5 py-4 text-center">
+              {% if user.is_staff %}
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full" style="background:#d1fae5;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" style="color:#059669;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+              </span>
+              {% else %}
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full" style="background:#fee2e2;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" style="color:#dc2626;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </span>
+              {% endif %}
+            </td>
+
+            <!-- Superuser -->
+            <td class="px-5 py-4 text-center">
+              {% if user.is_superuser %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold"
+                    style="background:#fef3c7; color:#92400e;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                </svg>
+                Yes
+              </span>
+              {% else %}
+              <span class="text-xs" style="color:#c8b89a;">—</span>
+              {% endif %}
+            </td>
+
+            <!-- Actions -->
+            <td class="px-5 py-4">
+              <div class="flex items-center justify-center gap-2">
+                {% if request.user.is_superuser or not user.is_superuser %}
+                  <a href="{% url 'edit_user' user.id %}"
+                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 hover:-translate-y-0.5"
+                     style="border-color:#d1fae5; color:#059669; background:#f0fdf4;">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                    Edit
+                  </a>
+                  <a href="{% url 'delete_user' user.id %}"
+                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 hover:-translate-y-0.5"
+                     style="border-color:#fee2e2; color:#dc2626; background:#fef2f2;"
+                     onclick="return confirm('Are you sure you want to delete {{ user.username }}?')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Delete
+                  </a>
+                {% else %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border"
+                        style="background:#fef3c7; color:#92400e; border-color:#fde68a;">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    Protected
+                  </span>
+                {% endif %}
+              </div>
+            </td>
+
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="px-5 py-16 text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#d97706;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <p class="font-display font-semibold text-base mb-1" style="color:#1a1208;">No users found</p>
+              <p class="text-xs" style="color:#a89070;">Add your first user to get started.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- ── Mobile cards ── -->
+    <div class="md:hidden flex flex-col gap-4">
+      {% for user in users %}
+      <div class="bg-white rounded-xl border p-4"
+           style="border-color:#e5d5bf; box-shadow:0 2px 10px rgba(26,18,8,0.06);">
+
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0"
+                 style="background: linear-gradient(135deg,#d97706,#92400e);">
+              {{ user.username|slice:":1"|upper }}
+            </div>
+            <div>
+              <p class="font-semibold text-sm" style="color:#1a1208;">
+                {% if user.first_name or user.last_name %}{{ user.first_name }} {{ user.last_name }}{% else %}—{% endif %}
+              </p>
+              <p class="text-xs" style="color:#a89070;">@{{ user.username }}</p>
+            </div>
+          </div>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+                style="background:#fef3c7; color:#92400e;">#{{ forloop.counter }}</span>
+        </div>
+
+        <p class="text-xs mb-3 truncate" style="color:#7c6f5e;">{{ user.email|default:"No email" }}</p>
+
+        <!-- Badges -->
+        <div class="flex flex-wrap gap-1.5 mb-4">
+          <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+                style="background:{% if user.is_active %}#d1fae5{% else %}#fee2e2{% endif %}; color:{% if user.is_active %}#059669{% else %}#dc2626{% endif %};">
+            {% if user.is_active %}✓ Active{% else %}✗ Inactive{% endif %}
+          </span>
+          <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+                style="background:{% if user.is_staff %}#d1fae5{% else %}#f3f4f6{% endif %}; color:{% if user.is_staff %}#059669{% else %}#9ca3af{% endif %};">
+            {% if user.is_staff %}✓ Staff{% else %}Not Staff{% endif %}
+          </span>
+          {% if user.is_superuser %}
+          <span class="text-xs px-2 py-0.5 rounded-full font-medium" style="background:#fef3c7; color:#92400e;">
+            ★ Superuser
+          </span>
+          {% endif %}
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2">
+          {% if request.user.is_superuser or not user.is_superuser %}
+            <a href="{% url 'edit_user' user.id %}"
+               class="flex-1 text-center py-2 rounded-lg text-xs font-bold border transition-all"
+               style="border-color:#d1fae5; color:#059669; background:#f0fdf4;">
+              Edit
+            </a>
+            <a href="{% url 'delete_user' user.id %}"
+               class="flex-1 text-center py-2 rounded-lg text-xs font-bold border transition-all"
+               style="border-color:#fee2e2; color:#dc2626; background:#fef2f2;"
+               onclick="return confirm('Delete {{ user.username }}?')">
+              Delete
+            </a>
+          {% else %}
+            <span class="flex-1 text-center py-2 rounded-lg text-xs font-bold border"
+                  style="background:#fef3c7; color:#92400e; border-color:#fde68a;">
+              🔒 Protected
+            </span>
+          {% endif %}
+        </div>
+
+      </div>
+      {% empty %}
+      <div class="text-center py-12 rounded-xl border border-dashed" style="border-color:#e5d5bf;">
+        <p class="font-display font-semibold" style="color:#1a1208;">No users found</p>
+      </div>
+      {% endfor %}
+    </div>
+
+
+    {% else %}
+    <!-- No permission -->
+    <div class="flex flex-col items-center justify-center py-24 text-center">
+      <div class="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+           style="background: linear-gradient(135deg,#fee2e2,#fef2f2);">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="color:#dc2626;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+      </div>
+      <h2 class="font-display text-2xl font-bold mb-2" style="color:#1a1208;">Access Denied</h2>
+      <p class="text-sm max-w-xs mb-6" style="color:#7c6f5e;">
+        You don't have permission to view this page. Please contact a superuser.
+      </p>
+      <a href="{% url 'dashboard' %}"
+         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white"
+         style="background: linear-gradient(135deg,#d97706,#b45309);">
+        Back to Dashboard
+      </a>
+    </div>
+    {% endif %}
+
+  </main>
 </div>
 
 {% endblock %}

@@ -2,22 +2,228 @@
 
 {% block content %}
 {% load crispy_forms_tags %}
-    <div class="row">
 
-     {% include 'dashboard/sidebar.html' %}
+<div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
+
+  <!-- ══════════════════════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════════════════════ -->
+  {% include 'dashboard/sidebar.html' %}
 
 
-<div class="col-md-9">
-    <h2>Add New Category</h2>
+  <!-- ══════════════════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════════════════ -->
+  <main class="flex-1 min-w-0">
 
-    <form action="{% url 'add_category' %}" method="POST" style="width: 500px;">
-        {% csrf_token %} 
-        {{ form | crispy }}
-        <button type="submit" class="btn btn-warning">Submit</button>
-    </form>
-    <br>
+    <!-- Page header -->
+    <div class="flex items-center gap-4 mb-8 pb-6 border-b" style="border-color:#e5d5bf;">
+      <a href="{% url 'categories' %}"
+         class="w-9 h-9 rounded-lg flex items-center justify-center border transition-all duration-200 hover:-translate-x-0.5 flex-shrink-0"
+         style="border-color:#e5d5bf; background:#fff; color:#7c6f5e;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </a>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest mb-0.5" style="color:#d97706;">Admin Panel · Categories</p>
+        <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">Add New Category</h1>
+      </div>
+    </div>
 
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+      <!-- ── Form card (2/3) ── -->
+      <div class="xl:col-span-2">
+        <div class="bg-white rounded-2xl border overflow-hidden"
+             style="border-color:#e5d5bf; box-shadow:0 4px 24px rgba(26,18,8,0.08);">
+
+          <!-- Card header -->
+          <div class="px-6 py-4 border-b flex items-center gap-3"
+               style="background: linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                 style="background:rgba(217,119,6,0.2); border:1px solid rgba(217,119,6,0.3);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#fbbf24;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white">New Category</p>
+              <p class="text-xs" style="color:#a89070;">Fill in the details below to create a new category</p>
+            </div>
+          </div>
+
+          <!-- Form body -->
+          <div class="p-6">
+            <form action="{% url 'add_category' %}" method="POST">
+              {% csrf_token %}
+
+              <div class="add-category-form">
+                {{ form|crispy }}
+              </div>
+
+              <!-- Form actions -->
+              <div class="flex flex-wrap items-center gap-3 mt-6 pt-5 border-t" style="border-color:#f5ede0;">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                        style="background: linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 14px rgba(217,119,6,0.3);">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Create Category
+                </button>
+                <a href="{% url 'categories' %}"
+                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold border transition-all duration-200 hover:-translate-y-0.5"
+                   style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
+                  Cancel
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ── Side panel (1/3) ── -->
+      <div class="xl:col-span-1 flex flex-col gap-5">
+
+        <!-- Tips card -->
+        <div class="rounded-2xl border p-5"
+             style="background: linear-gradient(135deg,#fffcf7,#fef3c7); border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-base">💡</span>
+            <h4 class="font-display font-bold text-sm" style="color:#1a1208;">Tips</h4>
+          </div>
+          <ul class="text-xs leading-relaxed space-y-2.5" style="color:#7c6f5e;">
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              Keep category names short and descriptive — they appear in the nav bar and on post cards.
+            </li>
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              Use broad, topic-level names like "Technology" or "Travel" rather than overly specific tags.
+            </li>
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              The new category will be available immediately when creating or editing posts.
+            </li>
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              You can rename or delete the category at any time from the Categories list.
+            </li>
+          </ul>
+        </div>
+
+        <!-- Existing categories -->
+        <div class="rounded-2xl border overflow-hidden"
+             style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+          <div class="px-4 py-3 border-b flex items-center justify-between"
+               style="background:#fffcf7; border-color:#e5d5bf;">
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+              </svg>
+              <h4 class="font-display font-bold text-sm" style="color:#1a1208;">Existing Categories</h4>
+            </div>
+            <a href="{% url 'categories' %}"
+               class="text-xs font-semibold hover:underline" style="color:#d97706;">
+              View all →
+            </a>
+          </div>
+          <div class="bg-white p-4">
+            {% if categories %}
+            <ul class="flex flex-col gap-1.5">
+              {% for cat in categories %}
+              <li class="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
+                  style="background:#fdf8f0;">
+                <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#d97706;"></span>
+                <span class="text-sm font-medium flex-1" style="color:#3d2b0a;">{{ cat.category_name }}</span>
+                <a href="{% url 'edit_category' cat.id %}"
+                   class="text-xs font-semibold hover:underline flex-shrink-0 transition-colors"
+                   style="color:#a89070;">
+                  Edit
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <div class="text-center py-6">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#d97706;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+              </svg>
+              <p class="text-xs" style="color:#a89070;">No categories yet. Create your first one!</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
 </div>
 
-</div>
+<!-- Crispy form field styles -->
+<style>
+  .add-category-form label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #7c6f5e;
+    margin-bottom: 5px;
+  }
+
+  .add-category-form input[type="text"],
+  .add-category-form input[type="email"],
+  .add-category-form select,
+  .add-category-form textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e5d5bf;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #1a1208;
+    background: #fffcf7;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .add-category-form input:focus,
+  .add-category-form select:focus,
+  .add-category-form textarea:focus {
+    border-color: #d97706;
+    box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
+    background: #fff;
+  }
+
+  .add-category-form .is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important;
+  }
+
+  .add-category-form .invalid-feedback,
+  .add-category-form .text-danger {
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: 4px;
+  }
+
+  .add-category-form .helptext,
+  .add-category-form small {
+    font-size: 0.72rem;
+    color: #a89070;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .add-category-form .mb-3,
+  .add-category-form .form-group {
+    margin-bottom: 1.1rem;
+  }
+</style>
+
 {% endblock %}

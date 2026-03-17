@@ -1,1 +1,104 @@
-<p>Sorry, the page you are looking for does not exist.</p>
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center py-16 px-4"
+     style="background: linear-gradient(135deg, #fdf8f0 0%, #fef3c7 50%, #fdf8f0 100%);">
+
+  <div class="max-w-2xl w-full text-center">
+
+    <!-- Giant 404 -->
+    <div class="relative inline-block mb-6 select-none">
+      <span class="font-display font-black leading-none"
+            style="font-size: clamp(7rem, 20vw, 12rem); color: transparent;
+                   -webkit-text-stroke: 3px #e5d5bf;
+                   letter-spacing: -0.04em;">
+        404
+      </span>
+      <!-- Amber glow fill overlay -->
+      <span class="absolute inset-0 flex items-center justify-center font-display font-black leading-none pointer-events-none"
+            style="font-size: clamp(7rem, 20vw, 12rem);
+                   background: linear-gradient(135deg, #d97706 0%, #fbbf24 50%, #92400e 100%);
+                   -webkit-background-clip: text;
+                   -webkit-text-fill-color: transparent;
+                   background-clip: text;
+                   letter-spacing: -0.04em;
+                   opacity: 0.18;">
+        404
+      </span>
+    </div>
+
+    <!-- Decorative divider -->
+    <div class="flex items-center justify-center gap-3 mb-8">
+      <div class="h-px w-16" style="background: linear-gradient(90deg, transparent, #d97706);"></div>
+      <span class="font-display text-xl" style="color:#d97706;">✦</span>
+      <div class="h-px w-16" style="background: linear-gradient(90deg, #d97706, transparent);"></div>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="font-display text-3xl md:text-4xl font-black mb-4" style="color:#1a1208;">
+      Page Not Found
+    </h1>
+
+    <!-- Message -->
+    <p class="text-base md:text-lg leading-relaxed max-w-md mx-auto mb-10" style="color:#7c6f5e;">
+      The page you're looking for has wandered off the map.
+      It may have been moved, deleted, or perhaps it never existed.
+    </p>
+
+    <!-- Action buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+      <a href="/"
+         class="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl w-full sm:w-auto justify-center"
+         style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow:0 4px 18px rgba(217,119,6,0.35);">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        Back to Home
+      </a>
+
+      <form action="{% url 'search' %}" method="GET"
+            class="flex w-full sm:w-auto">
+        <input
+          type="text"
+          name="keyword"
+          placeholder="Search articles…"
+          class="flex-1 sm:w-48 px-4 py-3 text-sm border outline-none transition-all duration-200"
+          style="border: 1.5px solid #e5d5bf; border-right:none; border-radius:8px 0 0 8px;
+                 background:#fffcf7; color:#1a1208; font-family:'DM Sans',sans-serif;"
+          onfocus="this.style.borderColor='#d97706'; this.style.boxShadow='0 0 0 3px rgba(217,119,6,0.15)'"
+          onblur="this.style.borderColor='#e5d5bf'; this.style.boxShadow='none'"
+        />
+        <button type="submit"
+                class="px-4 py-3 text-white text-sm font-bold transition-all duration-200 hover:opacity-90"
+                style="background:#d97706; border-radius:0 8px 8px 0;">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- Category pills -->
+    {% if categories %}
+    <div class="rounded-2xl border px-6 py-6"
+         style="background:#fff; border-color:#e5d5bf; box-shadow:0 4px 24px rgba(26,18,8,0.07);">
+      <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color:#a89070;">
+        Or explore a category
+      </p>
+      <div class="flex flex-wrap gap-2 justify-center">
+        {% for cat in categories %}
+        <a href="{% url 'posts_by_category' cat.id %}"
+           class="px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+           style="border-color:#e5d5bf; color:#3d2b0a; background:#fffcf7;">
+          {{ cat.category_name }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

@@ -2,25 +2,308 @@
 
 {% block content %}
 {% load crispy_forms_tags %}
-    <div class="row">
 
-     {% include 'dashboard/sidebar.html' %}
+<div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
+
+  <!-- ══════════════════════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════════════════════ -->
+  {% include 'dashboard/sidebar.html' %}
 
 
-<div class="col-md-9">
+  <!-- ══════════════════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════════════════ -->
+  <main class="flex-1 min-w-0">
+
     {% if perms.auth.add_user %}
-    <h2>Add New User</h2>
 
-    <form action="{% url 'add_user' %}" method="POST">
-        {% csrf_token %}
-        {{ form | crispy }}
-        <button type="submit" class="btn btn-warning">Submit</button>
-    </form>
-    <br>
+    <!-- Page header -->
+    <div class="flex items-center gap-4 mb-8 pb-6 border-b" style="border-color:#e5d5bf;">
+      <a href="{% url 'users' %}"
+         class="w-9 h-9 rounded-lg flex items-center justify-center border transition-all duration-200 hover:-translate-x-0.5 flex-shrink-0"
+         style="border-color:#e5d5bf; background:#fff; color:#7c6f5e;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </a>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest mb-0.5" style="color:#d97706;">Admin Panel · Users</p>
+        <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">Add New User</h1>
+      </div>
+    </div>
+
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+      <!-- ── Form card (2/3) ── -->
+      <div class="xl:col-span-2">
+        <div class="bg-white rounded-2xl border overflow-hidden"
+             style="border-color:#e5d5bf; box-shadow:0 4px 24px rgba(26,18,8,0.08);">
+
+          <!-- Card header -->
+          <div class="px-6 py-4 border-b flex items-center gap-3"
+               style="background: linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                 style="background:rgba(217,119,6,0.2); border:1px solid rgba(217,119,6,0.3);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#fbbf24;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white">New User Details</p>
+              <p class="text-xs" style="color:#a89070;">Fill in the details below to create a new account</p>
+            </div>
+          </div>
+
+          <!-- Form body -->
+          <div class="p-6">
+            <form action="{% url 'add_user' %}" method="POST">
+              {% csrf_token %}
+
+              <div class="add-user-form">
+                {{ form|crispy }}
+              </div>
+
+              <!-- Form actions -->
+              <div class="flex flex-wrap items-center gap-3 mt-6 pt-5 border-t" style="border-color:#f5ede0;">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                        style="background: linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 14px rgba(217,119,6,0.3);">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                  </svg>
+                  Create User
+                </button>
+                <a href="{% url 'users' %}"
+                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold border transition-all duration-200 hover:-translate-y-0.5"
+                   style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
+                  Cancel
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ── Side panel (1/3) ── -->
+      <div class="xl:col-span-1 flex flex-col gap-5">
+
+        <!-- Role overview card -->
+        <div class="rounded-2xl border overflow-hidden"
+             style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+          <div class="px-4 py-3 border-b flex items-center gap-2"
+               style="background: linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#fbbf24;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            <h4 class="font-display font-bold text-sm text-white">Role Permissions</h4>
+          </div>
+          <div class="bg-white divide-y" style="border-color:#f5ede0;">
+
+            <!-- Regular user -->
+            <div class="p-4 flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                   style="background:#f3f4f6;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#6b7280;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-xs font-bold mb-0.5" style="color:#1a1208;">Regular User</p>
+                <p class="text-xs leading-relaxed" style="color:#7c6f5e;">Can read posts and leave comments. No access to the admin panel.</p>
+              </div>
+            </div>
+
+            <!-- Staff -->
+            <div class="p-4 flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                   style="background:#fef3c7;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-xs font-bold mb-0.5" style="color:#1a1208;">Staff</p>
+                <p class="text-xs leading-relaxed" style="color:#7c6f5e;">Can log in to the admin panel and manage posts and categories.</p>
+              </div>
+            </div>
+
+            <!-- Superuser -->
+            <div class="p-4 flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                   style="background:#fef3c7;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#92400e;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-xs font-bold mb-0.5" style="color:#1a1208;">Superuser</p>
+                <p class="text-xs leading-relaxed" style="color:#7c6f5e;">Full access — manage users, permissions, and all content.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tips card -->
+        <div class="rounded-2xl border p-5"
+             style="background: linear-gradient(135deg,#fffcf7,#fef3c7); border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-base">💡</span>
+            <h4 class="font-display font-bold text-sm" style="color:#1a1208;">Tips</h4>
+          </div>
+          <ul class="text-xs leading-relaxed space-y-2.5" style="color:#7c6f5e;">
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              Choose a strong password — at least 8 characters with letters and numbers.
+            </li>
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              The username must be unique. Use lowercase letters, numbers, or underscores.
+            </li>
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              Grant Staff access only to trusted users who need to manage content.
+            </li>
+            <li class="flex gap-2">
+              <span style="color:#d97706; flex-shrink:0;">✦</span>
+              The user will be active immediately and can log in right away.
+            </li>
+          </ul>
+        </div>
+
+        <!-- Quick link to users list -->
+        <a href="{% url 'users' %}"
+           class="flex items-center justify-between px-5 py-3.5 rounded-xl border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md group"
+           style="border-color:#e5d5bf; box-shadow:0 2px 8px rgba(26,18,8,0.05);">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                 style="background:#fef3c7;">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <span class="text-sm font-semibold" style="color:#1a1208;">View All Users</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+
+      </div>
+    </div>
+
     {% else %}
-    <h5>You do not have permission to add a user.</h5>
+    <!-- ── No permission state ── -->
+    <div class="flex flex-col items-center justify-center py-24 text-center">
+      <div class="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+           style="background: linear-gradient(135deg,#fee2e2,#fef2f2);">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="color:#dc2626;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+      </div>
+      <h2 class="font-display text-2xl font-bold mb-2" style="color:#1a1208;">Access Denied</h2>
+      <p class="text-sm max-w-xs mb-6" style="color:#7c6f5e;">You don't have permission to add new users. Contact a superuser for access.</p>
+      <a href="{% url 'dashboard' %}"
+         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white"
+         style="background: linear-gradient(135deg,#d97706,#b45309);">
+        Back to Dashboard
+      </a>
+    </div>
     {% endif %}
+
+  </main>
 </div>
 
-</div>
+<!-- Crispy form field styles -->
+<style>
+  .add-user-form label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #7c6f5e;
+    margin-bottom: 5px;
+  }
+
+  .add-user-form input[type="text"],
+  .add-user-form input[type="email"],
+  .add-user-form input[type="password"],
+  .add-user-form select,
+  .add-user-form textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e5d5bf;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #1a1208;
+    background: #fffcf7;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .add-user-form input:focus,
+  .add-user-form select:focus,
+  .add-user-form textarea:focus {
+    border-color: #d97706;
+    box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
+    background: #fff;
+  }
+
+  .add-user-form .is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important;
+  }
+
+  .add-user-form .invalid-feedback,
+  .add-user-form .text-danger {
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: 4px;
+  }
+
+  .add-user-form .helptext,
+  .add-user-form small {
+    font-size: 0.72rem;
+    color: #a89070;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .add-user-form .mb-3,
+  .add-user-form .form-group {
+    margin-bottom: 1.1rem;
+  }
+
+  .add-user-form input[type="checkbox"] {
+    accent-color: #d97706;
+    width: 15px;
+    height: 15px;
+  }
+
+  .add-user-form .form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #fffcf7;
+    border: 1px solid #e5d5bf;
+    margin-bottom: 8px;
+  }
+
+  .add-user-form .form-check label {
+    margin-bottom: 0;
+    text-transform: none;
+    font-size: 0.85rem;
+    letter-spacing: 0;
+    color: #3d2b0a;
+    cursor: pointer;
+  }
+</style>
+
 {% endblock %}

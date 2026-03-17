@@ -7,7 +7,7 @@ class RegisterForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ('email','username', 'password1', 'password2')
+        fields = ('email','username','first_name', 'last_name', 'password1', 'password2')
 
     # def save(self, commit=True):
     #     user = super().save(commit=False)
