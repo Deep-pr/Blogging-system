@@ -178,12 +178,6 @@ certifi==2026.2.25
 
 ---
 
-## Screenshots
-
-> Add screenshots of your home page, dashboard, and mobile view here.
-
----
-
 ## License
 
 MIT License — feel free to use and modify.
