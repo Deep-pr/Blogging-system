@@ -186,3 +186,38 @@ def delete_user(request, pk):
 
     user.delete()
     return redirect('users')
+
+def add_user(request):
+    if request.method == 'POST':
+        form = AddUserForm(request.POST, request=request)  # ← add request=request
+        if form.is_valid():
+            form.save()
+            return redirect('users')
+        else:
+            print(form.errors)
+    form = AddUserForm(request=request)                    # ← add request=request
+    context = {'form': form}
+    return render(request, 'dashboard/add_user.html', context)
+
+
+def edit_user(request, pk):
+    user = get_object_or_404(User, pk=pk)
+
+    if not can_modify_user(request.user, user):
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        form = EditUserForm(request.POST, instance=user, request=request)  # ← add request=request
+        if form.is_valid():
+            updated_user = form.save(commit=False)
+            # Block manager from granting superuser
+            if not request.user.is_superuser:
+                updated_user.is_superuser = False
+            updated_user.save()
+            form.save_m2m()
+            return redirect('users')
+    else:
+        form = EditUserForm(instance=user, request=request)  # ← add request=request
+
+    context = {'form': form}
+    return render(request, 'dashboard/edit_user.html', context)
