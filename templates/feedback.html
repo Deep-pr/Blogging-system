@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load crispy_forms_tags %}
+
+<div class="max-w-3xl mx-auto">
+  <div class="mb-8">
+    <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color:#d97706;">Feedback</p>
+    <h1 class="font-display text-3xl md:text-4xl font-black" style="color:#1a1208;">Send Feedback</h1>
+    <p class="text-sm mt-2 max-w-2xl" style="color:#7c6f5e;">
+      Share bugs, suggestions, content issues, or anything else that would help improve the site.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded-2xl border overflow-hidden"
+           style="border-color:#e5d5bf; box-shadow:0 4px 24px rgba(26,18,8,0.08);">
+        <div class="px-6 py-4 border-b flex items-center gap-3"
+             style="background: linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+               style="background:rgba(217,119,6,0.2); border:1px solid rgba(217,119,6,0.3);">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#fbbf24;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h6m-6 4h8M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-white">Feedback Form</p>
+            <p class="text-xs" style="color:#a89070;">Tell us what happened and where you noticed it</p>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <form action="{% url 'feedback' %}" method="POST">
+            {% csrf_token %}
+            <div class="feedback-form">
+              {{ form|crispy }}
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 mt-6 pt-5 border-t" style="border-color:#f5ede0;">
+              <button type="submit"
+                      class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                      style="background: linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 14px rgba(217,119,6,0.3);">
+                Send Feedback
+              </button>
+              <a href="/"
+                 class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold border transition-all duration-200 hover:-translate-y-0.5"
+                 style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
+                Back to Home
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-1 flex flex-col gap-5">
+      <div class="rounded-2xl border p-5"
+           style="background: linear-gradient(135deg,#fffcf7,#fef3c7); border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+        <h4 class="font-display font-bold text-sm mb-4" style="color:#1a1208;">Helpful Tips</h4>
+        <ul class="text-xs leading-relaxed space-y-2.5" style="color:#7c6f5e;">
+          <li>Choose the feedback type that best matches the issue.</li>
+          <li>Include the page URL if the feedback relates to a specific screen.</li>
+          <li>Be specific so the team can review and fix it faster.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-2xl border p-5 bg-white"
+           style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+        <h4 class="font-display font-bold text-sm mb-3" style="color:#1a1208;">What You Can Send</h4>
+        <div class="flex flex-wrap gap-2">
+          <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background:#fee2e2; color:#b91c1c;">Bug</span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background:#dbeafe; color:#1d4ed8;">Suggestion</span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background:#fef3c7; color:#92400e;">Content issue</span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background:#f3f4f6; color:#4b5563;">General feedback</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .feedback-form label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #7c6f5e;
+    margin-bottom: 5px;
+  }
+
+  .feedback-form input[type="text"],
+  .feedback-form input[type="email"],
+  .feedback-form select,
+  .feedback-form textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e5d5bf;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #1a1208;
+    background: #fffcf7;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .feedback-form input:focus,
+  .feedback-form select:focus,
+  .feedback-form textarea:focus {
+    border-color: #d97706;
+    box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
+    background: #fff;
+  }
+
+  .feedback-form .invalid-feedback,
+  .feedback-form .text-danger {
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: 4px;
+  }
+
+  .feedback-form .helptext,
+  .feedback-form small {
+    font-size: 0.72rem;
+    color: #a89070;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .feedback-form .mb-3,
+  .feedback-form .form-group {
+    margin-bottom: 1.1rem;
+  }
+</style>
+{% endblock %}

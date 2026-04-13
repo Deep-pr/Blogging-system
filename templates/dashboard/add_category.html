@@ -139,11 +139,17 @@
                   style="background:#fdf8f0;">
                 <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#d97706;"></span>
                 <span class="text-sm font-medium flex-1" style="color:#3d2b0a;">{{ cat.category_name }}</span>
+                {% if cat.id in manageable_category_ids %}
                 <a href="{% url 'edit_category' cat.id %}"
                    class="text-xs font-semibold hover:underline flex-shrink-0 transition-colors"
                    style="color:#a89070;">
                   Edit
                 </a>
+                {% else %}
+                <span class="text-xs font-semibold flex-shrink-0" style="color:#c8b89a;">
+                  View only
+                </span>
+                {% endif %}
               </li>
               {% endfor %}
             </ul>

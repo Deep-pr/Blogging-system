@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load crispy_forms_tags %}
+
+<div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
+
+  {% include 'dashboard/sidebar.html' %}
+
+  <main class="flex-1 min-w-0">
+    <div class="flex items-center gap-4 mb-8 pb-6 border-b" style="border-color:#e5d5bf;">
+      <a href="{% url 'dashboard_feedback' %}"
+         class="w-9 h-9 rounded-lg flex items-center justify-center border transition-all duration-200 hover:-translate-x-0.5 flex-shrink-0"
+         style="border-color:#e5d5bf; background:#fff; color:#7c6f5e;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </a>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest mb-0.5" style="color:#d97706;">Dashboard · Feedback</p>
+        <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">Edit Feedback</h1>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div class="xl:col-span-2">
+        <div class="bg-white rounded-2xl border overflow-hidden"
+             style="border-color:#e5d5bf; box-shadow:0 4px 24px rgba(26,18,8,0.08);">
+          <div class="px-6 py-4 border-b flex items-center gap-3"
+               style="background: linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                 style="background:rgba(217,119,6,0.2); border:1px solid rgba(217,119,6,0.3);">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#fbbf24;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5h2m-1 0v14m-7-7h14"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white">Feedback Details</p>
+              <p class="text-xs" style="color:#a89070;">Review the submission and update its status</p>
+            </div>
+          </div>
+
+          <div class="p-6">
+            <form action="{% url 'edit_feedback' feedback_item.id %}" method="POST">
+              {% csrf_token %}
+              <div class="feedback-edit-form">
+                {{ form|crispy }}
+              </div>
+
+              <div class="flex flex-wrap items-center gap-3 mt-6 pt-5 border-t" style="border-color:#f5ede0;">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                        style="background: linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 14px rgba(217,119,6,0.3);">
+                  Save Changes
+                </button>
+                <a href="{% url 'dashboard_feedback' %}"
+                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold border transition-all duration-200 hover:-translate-y-0.5"
+                   style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
+                  Back to Feedback
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="xl:col-span-1 flex flex-col gap-5">
+        <div class="rounded-2xl border p-5 bg-white"
+             style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+          <h4 class="font-display font-bold text-sm mb-4" style="color:#1a1208;">Submission Info</h4>
+          <div class="space-y-3 text-sm">
+            <div>
+              <p class="text-xs uppercase tracking-wider" style="color:#a89070;">Submitted</p>
+              <p style="color:#3d2b0a;">{{ feedback_item.created_at|date:"M j, Y g:i A" }}</p>
+            </div>
+            {% if feedback_item.user %}
+            <div>
+              <p class="text-xs uppercase tracking-wider" style="color:#a89070;">Linked User</p>
+              <p style="color:#3d2b0a;">@{{ feedback_item.user.username }}</p>
+            </div>
+            {% endif %}
+            {% if feedback_item.page_url %}
+            <div>
+              <p class="text-xs uppercase tracking-wider" style="color:#a89070;">Page URL</p>
+              <p class="break-all" style="color:#3d2b0a;">{{ feedback_item.page_url }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+  .feedback-edit-form label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #7c6f5e;
+    margin-bottom: 5px;
+  }
+
+  .feedback-edit-form input[type="text"],
+  .feedback-edit-form input[type="email"],
+  .feedback-edit-form select,
+  .feedback-edit-form textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e5d5bf;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #1a1208;
+    background: #fffcf7;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .feedback-edit-form input:focus,
+  .feedback-edit-form select:focus,
+  .feedback-edit-form textarea:focus {
+    border-color: #d97706;
+    box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
+    background: #fff;
+  }
+
+  .feedback-edit-form .invalid-feedback,
+  .feedback-edit-form .text-danger {
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: 4px;
+  }
+
+  .feedback-edit-form .helptext,
+  .feedback-edit-form small {
+    font-size: 0.72rem;
+    color: #a89070;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .feedback-edit-form .mb-3,
+  .feedback-edit-form .form-group {
+    margin-bottom: 1.1rem;
+  }
+</style>
+
+{% endblock %}

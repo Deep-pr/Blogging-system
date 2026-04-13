@@ -12,8 +12,8 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b"
          style="border-color:#e5d5bf;">
       <div>
-        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Admin Panel</p>
-        <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">All Posts</h1>
+        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Dashboard</p>
+        <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">Posts</h1>
         <p class="text-sm mt-1" style="color:#7c6f5e;">
           <span class="font-bold" style="color:#1a1208;">{{ posts|length }}</span>
           post{{ posts|length|pluralize }} total
@@ -40,7 +40,6 @@
             <th class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-widest w-10" style="color:#a89070;">#</th>
             <th class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Title</th>
             <th class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Category</th>
-            <th class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Author</th>
             <th class="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Status</th>
             <th class="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Featured</th>
             <th class="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-widest min-w-[160px]" style="color:#a89070;">Actions</th>
@@ -76,6 +75,7 @@
                   <p class="font-semibold text-sm truncate leading-snug" style="color:#1a1208;">
                     {{ post.title }}
                   </p>
+                  <p class="text-xs" style="color:#a89070;">by {{ post.author.username }}</p>
                   <a href="{% url 'blogs' post.slug %}" target="_blank"
                      class="text-xs hover:underline transition-colors"
                      style="color:#a89070;">
@@ -94,19 +94,6 @@
                 </svg>
                 {{ post.category }}
               </span>
-            </td>
-
-            <!-- Author -->
-            <td class="px-4 py-4">
-              <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                     style="background: linear-gradient(135deg,#d97706,#92400e);">
-                  {{ post.author.username|slice:":1"|upper }}
-                </div>
-                <span class="text-sm font-medium truncate" style="color:#3d2b0a;">
-                  {{ post.author.username }}
-                </span>
-              </div>
             </td>
 
             <!-- Status -->
@@ -173,7 +160,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="7" class="px-5 py-16 text-center">
+            <td colspan="6" class="px-5 py-16 text-center">
               <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
                    style="background:#fef3c7;">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#d97706;">
@@ -222,6 +209,7 @@
               <span class="text-xs font-bold flex-shrink-0 px-1.5 py-0.5 rounded"
                     style="background:#fef3c7; color:#92400e;">#{{ forloop.counter }}</span>
             </div>
+            <p class="text-xs mt-1" style="color:#a89070;">by {{ post.author.username }}</p>
             <a href="{% url 'blogs' post.slug %}" target="_blank"
                class="text-xs hover:underline" style="color:#d97706;">
               View →
@@ -265,13 +253,13 @@
           <a href="{% url 'edit_post' post.id %}"
              class="flex-1 text-center py-2 rounded-lg text-xs font-bold border transition-all"
              style="border-color:#d1fae5; color:#059669; background:#f0fdf4;">
-            ✏️ Edit
+            Edit
           </a>
           <a href="{% url 'delete_post' post.id %}"
              class="flex-1 text-center py-2 rounded-lg text-xs font-bold border transition-all"
              style="border-color:#fee2e2; color:#dc2626; background:#fef2f2;"
              onclick="return confirm('Delete this post?')">
-            🗑️ Delete
+            Delete
           </a>
         </div>
       </div>

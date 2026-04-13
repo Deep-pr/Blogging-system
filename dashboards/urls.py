@@ -3,6 +3,10 @@ from . import views
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
+    path('profile/', views.my_profile, name='my_profile'),
+    path('profile/edit/', views.edit_my_profile, name='edit_my_profile'),
+    path('feedback/', views.feedback_list, name='dashboard_feedback'),
+    path('feedback/edit/<int:pk>/', views.edit_feedback, name='edit_feedback'),
     
     path('categories/', views.categories, name='categories'),
     path('categories/add/', views.add_category, name='add_category'),

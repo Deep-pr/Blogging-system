@@ -30,27 +30,28 @@
         <p class="text-sm" style="color:#7c6f5e;">Sign in to continue to FutureFlux</p>
       </div>
 
-      <!-- Messages / Errors -->
+      <!-- ══ Unverified banner — always renders independently of flash messages ══ -->
+      {% if unverified %}
+      <div class="flex items-start gap-3 px-4 py-3 rounded-lg mb-5 text-sm border relative z-10"
+           style="background:#fffbeb; border-color:#fcd34d; color:#92400e;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mt-0.5 flex-shrink-0" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+        <span>
+          Your email is not verified yet.&nbsp;
+          <a href="{% url 'resend_verification' %}" class="font-bold underline" style="color:#d97706;">
+            Resend verification email →
+          </a>
+        </span>
+      </div>
+      {% endif %}
+
+      <!-- ══ Django flash messages (general errors) ══ -->
       {% if messages %}
-      <!-- Unverified account banner -->
-{% if unverified %}
-<div class="flex items-start gap-3 px-4 py-3 rounded-lg mb-5 text-sm border"
-     style="background:#fffbeb; border-color:#fcd34d; color:#92400e;">
-  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mt-0.5 flex-shrink-0" fill="none"
-       viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-    <path stroke-linecap="round" stroke-linejoin="round"
-          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-  </svg>
-  <span>
-    Email not verified yet. &nbsp;
-    <a href="{% url 'resend_verification' %}" class="font-semibold underline" style="color:#d97706;">
-      Resend verification email →
-    </a>
-  </span>
-</div>
-{% endif %}
         {% for message in messages %}
-        <div class="flex items-start gap-3 px-4 py-3 rounded-lg mb-5 text-sm border"
+        <div class="flex items-start gap-3 px-4 py-3 rounded-lg mb-5 text-sm border relative z-10"
              style="background:#fef2f2; border-color:#fecaca; color:#b91c1c;">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
@@ -105,16 +106,13 @@
 
     </div>
 
-    <!-- Footer note -->
     <p class="text-center text-xs mt-4" style="color:#a89070;">
       Protected by secure authentication &nbsp;·&nbsp;
       <a href="#" class="underline hover:text-amber-600 transition-colors" style="color:#d97706;">Privacy Policy</a>
     </p>
-
   </div>
 </div>
 
-<!-- Crispy form field styles matching the site theme -->
 <style>
   .login-form label {
     display: block;
@@ -125,7 +123,6 @@
     color: #7c6f5e;
     margin-bottom: 5px;
   }
-
   .login-form input[type="text"],
   .login-form input[type="email"],
   .login-form input[type="password"] {
@@ -140,43 +137,16 @@
     outline: none;
     font-family: 'DM Sans', sans-serif;
   }
-
   .login-form input:focus {
     border-color: #d97706;
     box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
     background: #fff;
   }
-
-  .login-form .is-invalid {
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important;
-  }
-
-  .login-form .invalid-feedback,
-  .login-form .text-danger {
-    font-size: 0.75rem;
-    color: #ef4444;
-    margin-top: 4px;
-  }
-
-  .login-form .helptext,
-  .login-form small {
-    font-size: 0.72rem;
-    color: #a89070;
-    margin-top: 4px;
-    display: block;
-  }
-
-  .login-form .mb-3,
-  .login-form .form-group {
-    margin-bottom: 1.1rem;
-  }
-
-  .login-form input[type="checkbox"] {
-    accent-color: #d97706;
-    width: 15px;
-    height: 15px;
-  }
+  .login-form .is-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important; }
+  .login-form .invalid-feedback, .login-form .text-danger { font-size: 0.75rem; color: #ef4444; margin-top: 4px; }
+  .login-form .helptext, .login-form small { font-size: 0.72rem; color: #a89070; margin-top: 4px; display: block; }
+  .login-form .mb-3, .login-form .form-group { margin-bottom: 1.1rem; }
+  .login-form input[type="checkbox"] { accent-color: #d97706; width: 15px; height: 15px; }
 </style>
 
 {% endblock %}

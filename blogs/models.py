@@ -7,6 +7,7 @@ from datetime import timedelta
 
 class Category(models.Model):
     category_name = models.CharField(max_length=50, unique=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='categories')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

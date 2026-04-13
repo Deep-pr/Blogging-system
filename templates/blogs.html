@@ -23,7 +23,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
         </svg>
-        <span class="font-semibold truncate max-w-xs" style="color:#1a1208;">{{ single_blog.title|truncatewords:6 }}</span>
+        <span class="font-semibold truncate max-w-xs" style="color:#1a1208;">
+          {{ single_blog.title|truncatewords:6 }}
+        </span>
       </div>
 
       <!-- Post header -->
@@ -47,18 +49,25 @@
 
         <!-- Author + date row -->
         <div class="flex items-center gap-4 pb-5 border-b" style="border-color:#e5d5bf;">
-          <!-- Avatar -->
+          {% if single_blog.author.profile.profile_image %}
+          <img src="{{ single_blog.author.profile.profile_image.url }}"
+               alt="{{ single_blog.author.username }}"
+               class="w-10 h-10 rounded-full object-cover flex-shrink-0 border"
+               style="border-color:#e5d5bf;">
+          {% else %}
           <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
                style="background: linear-gradient(135deg, #d97706, #92400e);">
-            {{ single_blog.author|slice:":1"|upper }}
+            {{ single_blog.author.username|slice:":1"|upper }}
           </div>
+          {% endif %}
           <div>
-            <p class="text-sm font-semibold" style="color:#1a1208;">{{ single_blog.author }}</p>
+            <p class="text-sm font-semibold" style="color:#1a1208;">
+              {{ single_blog.author.username }}
+            </p>
             <p class="text-xs" style="color:#a89070;">
               Published on {{ single_blog.created_at|date:"F j, Y" }}
             </p>
           </div>
-          <!-- Reading time estimate (decorative) -->
           <div class="ml-auto hidden sm:flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full"
                style="background:#fdf8f0; color:#7c6f5e; border:1px solid #e5d5bf;">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -103,11 +112,10 @@
            COMMENTS SECTION
       ═══════════════════════════════════════════════════ -->
       <section>
+
         <!-- Header -->
         <div class="flex items-center gap-3 mb-6">
-          <h3 class="font-display text-2xl font-bold" style="color:#1a1208;">
-            Comments
-          </h3>
+          <h3 class="font-display text-2xl font-bold" style="color:#1a1208;">Comments</h3>
           <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold text-white"
                 style="background:#d97706;">
             {{ comments_count }}
@@ -122,16 +130,27 @@
                style="border-color:#e5d5bf; box-shadow:0 1px 6px rgba(26,18,8,0.05);">
 
             <!-- Avatar -->
+            {% if comment.user.profile.profile_image %}
+            <img src="{{ comment.user.profile.profile_image.url }}"
+                 alt="{{ comment.user.username }}"
+                 class="w-9 h-9 rounded-full object-cover flex-shrink-0 border"
+                 style="border-color:#e5d5bf;">
+            {% else %}
             <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                  style="background: linear-gradient(135deg, #92400e, #d97706);">
-              {{ comment.user|slice:":1"|upper }}
+              {{ comment.user.username|slice:":1"|upper }}
             </div>
+            {% endif %}
 
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1.5">
-                <span class="text-sm font-semibold" style="color:#1a1208;">{{ comment.user }}</span>
+                <span class="text-sm font-semibold" style="color:#1a1208;">
+                  {{ comment.user.username }}
+                </span>
                 <span style="color:#e5d5bf;">·</span>
-                <span class="text-xs" style="color:#a89070;">{{ comment.created_at|timesince }} ago</span>
+                <span class="text-xs" style="color:#a89070;">
+                  {{ comment.created_at|timesince }} ago
+                </span>
               </div>
               <p class="text-sm leading-relaxed" style="color:#3d2b0a;">{{ comment }}</p>
             </div>
@@ -151,7 +170,7 @@
         </div>
         {% endif %}
 
-        <!-- Comment form -->
+        <!-- Comment form card -->
         <div class="rounded-xl border bg-white overflow-hidden"
              style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
 
@@ -168,10 +187,17 @@
             {% if user.is_authenticated %}
             <!-- Authenticated user form -->
             <div class="flex items-center gap-3 mb-4">
+              {% if current_user_profile and current_user_profile.profile_image %}
+              <img src="{{ current_user_profile.profile_image.url }}"
+                   alt="{{ user.username }}"
+                   class="w-8 h-8 rounded-full object-cover flex-shrink-0 border"
+                   style="border-color:#e5d5bf;">
+              {% else %}
               <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                    style="background: linear-gradient(135deg, #d97706, #b45309);">
                 {{ user.username|slice:":1"|upper }}
               </div>
+              {% endif %}
               <div>
                 <p class="text-xs font-semibold" style="color:#1a1208;">{{ user.username }}</p>
                 <p class="text-xs" style="color:#a89070;">Commenting as yourself</p>
@@ -231,8 +257,8 @@
             {% endif %}
           </div>
         </div>
-      </section>
 
+      </section>
     </article>
 
 
@@ -258,8 +284,7 @@
                class="flex items-center justify-between px-5 py-3 text-sm font-medium transition-all duration-150 hover:pl-6 group"
                style="color:#3d2b0a;">
               <span class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors"
-                      style="background:#d97706;"></span>
+                <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#d97706;"></span>
                 {{ cat.category_name }}
               </span>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
@@ -305,7 +330,7 @@
       </div>
       {% endif %}
 
-      <!-- Back to top (sticky feel) -->
+      <!-- Back to top -->
       <button onclick="window.scrollTo({top:0,behavior:'smooth'})"
               class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border text-xs font-bold uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5"
               style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
@@ -319,7 +344,7 @@
   </div>
 </div>
 
-<!-- Blog body typography styles -->
+<!-- Blog body typography -->
 <style>
   .blog-body p  { margin-bottom: 1.25rem; }
   .blog-body h2 { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:800; color:#1a1208; margin:2rem 0 1rem; }

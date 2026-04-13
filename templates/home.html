@@ -54,13 +54,13 @@
 
 
 <!-- ══════════════════════════════════════════════════════════
-     FEATURED POSTS GRID
+     MORE TO EXPLORE
 ════════════════════════════════════════════════════════════ -->
 <div class="mb-12">
   <div class="flex items-center gap-4 mb-6">
-    <h2 class="font-display text-2xl font-bold" style="color:#1a1208;">Featured Posts</h2>
+    <h2 class="font-display text-2xl font-bold" style="color:#1a1208;">More To Explore</h2>
     <div class="flex-1 h-px" style="background: linear-gradient(90deg, #d97706 0%, transparent 100%);"></div>
-    <span class="text-xs font-bold uppercase tracking-widest px-2 py-1 rounded" style="background:#fef3c7; color:#92400e;">Editor's Picks</span>
+    <span class="text-xs font-bold uppercase tracking-widest px-2 py-1 rounded" style="background:#fef3c7; color:#92400e;">Handpicked</span>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -83,10 +83,23 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            {{ post.created_at|timesince }} ago
+            {{ post.category }}
           </span>
           <span style="color:#e5d5bf;">·</span>
-          <span class="text-xs font-semibold" style="color:#7c6f5e;">{{ post.author }}</span>
+          <span class="inline-flex items-center gap-2 min-w-0">
+            {% if post.author.profile.profile_image %}
+            <img src="{{ post.author.profile.profile_image.url }}"
+                 alt="{{ post.author.username }}"
+                 class="w-5 h-5 rounded-full object-cover flex-shrink-0 border"
+                 style="border-color:#e5d5bf;">
+            {% else %}
+            <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+                  style="background: linear-gradient(135deg, #d97706, #92400e);">
+              {{ post.author.username|slice:":1"|upper }}
+            </span>
+            {% endif %}
+            <span class="text-xs font-semibold truncate" style="color:#7c6f5e;">{{ post.author }}</span>
+          </span>
         </div>
 
         <h3 class="font-display text-lg font-bold leading-snug mb-2">
@@ -148,7 +161,20 @@
               {{ post.created_at|timesince }} ago
             </span>
             <span style="color:#e5d5bf;">·</span>
-            <span class="text-xs font-semibold truncate" style="color:#7c6f5e;">{{ post.author }}</span>
+            <span class="inline-flex items-center gap-2 min-w-0">
+              {% if post.author.profile.profile_image %}
+              <img src="{{ post.author.profile.profile_image.url }}"
+                   alt="{{ post.author.username }}"
+                   class="w-5 h-5 rounded-full object-cover flex-shrink-0 border"
+                   style="border-color:#e5d5bf;">
+              {% else %}
+              <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+                    style="background: linear-gradient(135deg, #d97706, #92400e);">
+                {{ post.author.username|slice:":1"|upper }}
+              </span>
+              {% endif %}
+              <span class="text-xs font-semibold truncate" style="color:#7c6f5e;">{{ post.author }}</span>
+            </span>
           </div>
 
           <h3 class="font-display text-lg font-bold leading-snug mb-1.5">

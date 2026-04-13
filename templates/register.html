@@ -31,7 +31,7 @@
       </div>
 
       <!-- Form -->
-      <form action="{% url 'register' %}" method="POST" class="relative z-10">
+      <form action="{% url 'register' %}" method="POST" enctype="multipart/form-data" class="relative z-10">
         {% csrf_token %}
 
         <div class="register-form">
@@ -95,6 +95,7 @@
   .register-form input[type="text"],
   .register-form input[type="email"],
   .register-form input[type="password"],
+  .register-form input[type="file"],
   .register-form input[type="number"],
   .register-form select,
   .register-form textarea {
