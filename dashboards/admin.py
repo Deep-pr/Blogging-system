@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
-from .models import Feedback, Profile
+from .models import Feedback, Notification, Profile
 
 
 class ProfileInline(admin.StackedInline):
@@ -54,6 +54,14 @@ class FeedbackAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('title', 'user', 'is_read', 'created_at')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('title', 'message', 'user__username')
+    readonly_fields = ('created_at',)
 
 
 admin.site.unregister(User)

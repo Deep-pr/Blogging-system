@@ -6,7 +6,13 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FutureFlux</title>
+  <title>{{ page_title|default:"FutureFlux" }}</title>
+  <meta name="description" content="{{ meta_description|default:'Stories, ideas and perspectives worth reading.' }}">
+  {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
+  <meta property="og:title" content="{{ page_title|default:'FutureFlux' }}">
+  <meta property="og:description" content="{{ meta_description|default:'Stories, ideas and perspectives worth reading.' }}">
+  <meta property="og:type" content="website">
+  {% if og_image %}<meta property="og:image" content="{{ og_image }}">{% endif %}
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -55,25 +61,14 @@
 
     body {
       font-family: 'DM Sans', sans-serif;
-      background-color: #fdf8f0;
+      background:
+        radial-gradient(circle at top left, rgba(251, 191, 36, 0.14), transparent 26%),
+        radial-gradient(circle at top right, rgba(217, 119, 6, 0.08), transparent 22%),
+        linear-gradient(180deg, #fffaf3 0%, #fdf8f0 18%, #f7efe2 100%);
       color: #1a1208;
     }
 
     .font-display { font-family: 'Playfair Display', Georgia, serif; }
-
-    /* Decorative top bar */
-    .top-bar {
-      background: repeating-linear-gradient(
-        90deg,
-        #d97706 0px,
-        #d97706 40px,
-        #92400e 40px,
-        #92400e 80px,
-        #fbbf24 80px,
-        #fbbf24 120px
-      );
-      height: 5px;
-    }
 
     /* Logo hover shimmer */
     .logo-link {
@@ -86,12 +81,19 @@
     }
     .logo-link:hover { background-position: right center; }
 
+    .shell-panel {
+      background: rgba(255, 252, 247, 0.8);
+      border: 1px solid rgba(229, 213, 191, 0.9);
+      box-shadow: 0 16px 45px rgba(26, 18, 8, 0.08);
+      backdrop-filter: blur(18px);
+    }
+
     /* Search bar */
     .search-input {
       border: 1.5px solid #e5d5bf;
-      background: #fff9f0;
-      border-radius: 2px 0 0 2px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      background: rgba(255, 249, 240, 0.92);
+      border-radius: 14px 0 0 14px;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
     }
     .search-input:focus {
       outline: none;
@@ -177,16 +179,316 @@
     }
     .btn-outline:hover { background: #d97706; color: #fff; transform: translateY(-1px); }
 
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #3d2b0a;
+      padding: 0.7rem 0.95rem;
+      border-radius: 999px;
+      transition: background 0.2s, color 0.2s, transform 0.2s;
+    }
+    .header-link:hover {
+      background: rgba(217, 119, 6, 0.1);
+      color: #d97706;
+      transform: translateY(-1px);
+    }
+
+    .notification-link {
+      position: relative;
+    }
+
+    .notification-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #ef4444;
+      position: absolute;
+      top: 10px;
+      left: 26px;
+      border: 2px solid #fffaf3;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.12);
+    }
+
+    .mobile-notification-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #ef4444;
+      display: inline-block;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    }
+
+    .theme-toggle-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid rgba(229, 213, 191, 0.95);
+      background: linear-gradient(135deg, #fff8ec 0%, #f6e4bf 100%);
+      color: #92400e;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 8px 24px rgba(26, 18, 8, 0.08);
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+    }
+    .theme-toggle-btn:hover {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 12px 28px rgba(26, 18, 8, 0.12);
+    }
+    .theme-toggle-btn .theme-icon {
+      position: absolute;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+    .theme-toggle-btn .moon-icon {
+      opacity: 0;
+      transform: scale(0.72) rotate(-14deg);
+    }
+    body.dark-mode .theme-toggle-btn {
+      background: linear-gradient(135deg, #172033 0%, #0f172a 100%);
+      color: #fde68a;
+      border-color: rgba(251, 191, 36, 0.24);
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.45);
+    }
+    body.dark-mode .theme-toggle-btn .sun-icon {
+      opacity: 0;
+      transform: scale(0.72) rotate(16deg);
+    }
+    body.dark-mode .theme-toggle-btn .moon-icon {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+
     /* Mobile menu */
     #mobile-menu { display: none; }
     #mobile-menu.open { display: flex; }
+
+    body.dark-mode {
+      background: #0b1220 !important;
+      color: #e5e7eb !important;
+    }
+    body.dark-mode main,
+    body.dark-mode .search-input,
+    body.dark-mode #mobile-menu,
+    body.dark-mode .rounded-xl.border.bg-white,
+    body.dark-mode .rounded-2xl.border.bg-white,
+    body.dark-mode .rounded-3xl.border.bg-white,
+    body.dark-mode .rounded-xl.border.overflow-hidden,
+    body.dark-mode .rounded-2xl.border.overflow-hidden,
+    body.dark-mode .rounded-3xl.border.overflow-hidden,
+    body.dark-mode .bg-white.rounded-b-2xl,
+    body.dark-mode [style*="background:#fff"],
+    body.dark-mode [style*="background:#fffcf7"],
+    body.dark-mode [style*="background:#fdf8f0"],
+    body.dark-mode [style*="background:#fff9f0"],
+    body.dark-mode [style*="background:#fffbeb"],
+    body.dark-mode [style*="background:#fff7ed"],
+    body.dark-mode [style*="background:#fff1f2"],
+    body.dark-mode [style*="background:#f0fdf4"],
+    body.dark-mode [style*="background:#fef3c7"],
+    body.dark-mode [style*="background:#fee2e2"],
+    body.dark-mode [style*="background:#dbeafe"],
+    body.dark-mode [style*="background:#bfdbfe"] {
+      background: #111827 !important;
+      color: #e5e7eb !important;
+      border-color: rgba(251, 191, 36, 0.18) !important;
+      box-shadow: none !important;
+    }
+    body.dark-mode [style*="linear-gradient(135deg, #fdf8f0 0%, #fef3c7 100%)"],
+    body.dark-mode [style*="linear-gradient(135deg, #fdf8f0 0%, #fef3c7 50%, #fdf8f0 100%)"],
+    body.dark-mode [style*="linear-gradient(135deg,#fffcf7,#fef3c7)"],
+    body.dark-mode [style*="linear-gradient(135deg, #fffcf7, #fef3c7)"],
+    body.dark-mode [style*="linear-gradient(135deg,#fef3c7,#fdf8f0)"],
+    body.dark-mode [style*="linear-gradient(135deg, #fef3c7, #fdf8f0)"] {
+      background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+      color: #e5e7eb !important;
+      border-color: rgba(251, 191, 36, 0.18) !important;
+    }
+    body.dark-mode .min-h-screen.flex.items-center.justify-center.py-12.px-4,
+    body.dark-mode .min-h-screen.flex.items-center.justify-center.py-16.px-4 {
+      background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+    }
+    body.dark-mode header,
+    body.dark-mode nav {
+      background: #0f172a !important;
+      color: #e5e7eb !important;
+      border-color: rgba(251, 191, 36, 0.14) !important;
+    }
+    body.dark-mode footer,
+    body.dark-mode [style*="background:#1a1208"],
+    body.dark-mode [style*="background:#3d2b0a"],
+    body.dark-mode [style*="linear-gradient(135deg,#1a1208,#3d2b0a)"],
+    body.dark-mode [style*="linear-gradient(135deg, #1a1208 0%, #3d2b0a 100%)"] {
+      background: linear-gradient(135deg, #111827 0%, #0f172a 100%) !important;
+      color: #f9fafb !important;
+      border-color: rgba(251, 191, 36, 0.18) !important;
+    }
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea,
+    body.dark-mode button[style*="background:#fff"] {
+      background: #1f2937 !important;
+      color: #f9fafb !important;
+      border-color: rgba(251, 191, 36, 0.25) !important;
+    }
+    body.dark-mode [style*="color:#1a1208"],
+    body.dark-mode [style*="color:#3d2b0a"],
+    body.dark-mode [style*="color:#111827"] {
+      color: #f9fafb !important;
+    }
+    body.dark-mode [style*="color:#7c6f5e"],
+    body.dark-mode [style*="color:#a89070"],
+    body.dark-mode [style*="color:#c8b89a"],
+    body.dark-mode [style*="color:#7c6050"],
+    body.dark-mode [style*="color:#6b7280"] {
+      color: #9ca3af !important;
+    }
+    body.dark-mode [style*="color:#059669"] { color: #34d399 !important; }
+    body.dark-mode [style*="color:#dc2626"],
+    body.dark-mode [style*="color:#b91c1c"] { color: #f87171 !important; }
+    body.dark-mode [style*="color:#1d4ed8"],
+    body.dark-mode [style*="color:#2563eb"] { color: #60a5fa !important; }
+    body.dark-mode [style*="background:#d1fae5"] { background: rgba(16, 185, 129, 0.14) !important; }
+    body.dark-mode [style*="background:#fee2e2"],
+    body.dark-mode [style*="background:#fef2f2"] { background: rgba(239, 68, 68, 0.12) !important; }
+    body.dark-mode [style*="background:#dbeafe"] { background: rgba(59, 130, 246, 0.14) !important; }
+    body.dark-mode [style*="border-color:#e5d5bf"],
+    body.dark-mode [style*="border-color:#f5ede0"],
+    body.dark-mode [style*="border-color:#fde68a"],
+    body.dark-mode [style*="border-color:#fcd34d"],
+    body.dark-mode [style*="border-color:#fecaca"],
+    body.dark-mode [class*="border"] {
+      border-color: rgba(251, 191, 36, 0.18) !important;
+    }
+    body.dark-mode .cat-link {
+      color: #9ca3af;
+    }
+    body.dark-mode .cat-link:hover,
+    body.dark-mode .cat-link-active {
+      color: #f9fafb;
+    }
+    body.dark-mode .logo-link {
+      background: linear-gradient(90deg, #f9fafb 0%, #fbbf24 50%, #f9fafb 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    body.dark-mode .btn-outline {
+      border-color: #fbbf24;
+      color: #fbbf24;
+    }
+    body.dark-mode .btn-outline:hover {
+      background: #f59e0b;
+      color: #111827;
+    }
+    body.dark-mode .btn-amber {
+      color: #111827;
+      background: #f59e0b;
+    }
+    body.dark-mode .header-link {
+      color: #e5e7eb;
+    }
+    body.dark-mode .header-link:hover {
+      color: #fde68a;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    body.dark-mode table,
+    body.dark-mode thead,
+    body.dark-mode tbody,
+    body.dark-mode tr,
+    body.dark-mode th,
+    body.dark-mode td {
+      border-color: rgba(251, 191, 36, 0.16) !important;
+      color: #e5e7eb !important;
+      background: transparent !important;
+    }
+    body.dark-mode thead {
+      background: rgba(255, 255, 255, 0.03) !important;
+    }
+    body.dark-mode .divide-y > * + *,
+    body.dark-mode .divide-x > * + *,
+    body.dark-mode [class*="divide-y"] > * + *,
+    body.dark-mode [class*="divide-x"] > * + * {
+      border-color: rgba(251, 191, 36, 0.14) !important;
+    }
+    body.dark-mode .login-form label,
+    body.dark-mode .register-form label,
+    body.dark-mode .feedback-form label,
+    body.dark-mode .add-post-form label,
+    body.dark-mode .edit-post-form label,
+    body.dark-mode .add-category-form label,
+    body.dark-mode .edit-category-form label,
+    body.dark-mode .add-user-form label,
+    body.dark-mode .edit-user-form label,
+    body.dark-mode .feedback-edit-form label,
+    body.dark-mode .profile-form label {
+      color: #cbd5e1 !important;
+    }
+    body.dark-mode .login-form .helptext,
+    body.dark-mode .register-form .helptext,
+    body.dark-mode .feedback-form .helptext,
+    body.dark-mode .add-post-form .helptext,
+    body.dark-mode .edit-post-form .helptext,
+    body.dark-mode .add-category-form .helptext,
+    body.dark-mode .edit-category-form .helptext,
+    body.dark-mode .add-user-form .helptext,
+    body.dark-mode .edit-user-form .helptext,
+    body.dark-mode .feedback-edit-form .helptext,
+    body.dark-mode .profile-form .helptext,
+    body.dark-mode small,
+    body.dark-mode .text-danger,
+    body.dark-mode .invalid-feedback {
+      color: #94a3b8 !important;
+    }
+    body.dark-mode .text-danger,
+    body.dark-mode .invalid-feedback {
+      color: #f87171 !important;
+    }
+    body.dark-mode [style*="background:rgba(217,119,6,0.1)"],
+    body.dark-mode [style*="background:rgba(217,119,6,0.08)"],
+    body.dark-mode [style*="background:rgba(255,255,255,0.06)"] {
+      background: rgba(245, 158, 11, 0.12) !important;
+    }
+    body.dark-mode a:not(.btn-amber):not(.btn-outline) {
+      color: inherit;
+    }
+    body.dark-mode [style*="box-shadow"] {
+      box-shadow: none !important;
+    }
+    body.dark-mode .shell-panel {
+      background: rgba(15, 23, 42, 0.78);
+      border-color: rgba(251, 191, 36, 0.14);
+      box-shadow: 0 18px 50px rgba(2, 6, 23, 0.36);
+    }
+    body.dark-mode .ornament::before,
+    body.dark-mode .ornament::after {
+      background: linear-gradient(90deg, transparent, #f59e0b 40%, #f59e0b 60%, transparent);
+    }
+    body.dark-mode .blog-body blockquote {
+      background: #111827 !important;
+      color: #e5e7eb !important;
+      border-left-color: #f59e0b !important;
+    }
+    body.dark-mode .blog-body code {
+      background: #1f2937 !important;
+      color: #fbbf24 !important;
+    }
+    body.dark-mode .notification-dot {
+      border-color: #0f172a;
+    }
   </style>
+  <script>
+    if (localStorage.getItem('futureflux-theme') === 'dark') {
+      document.documentElement.classList.add('dark-mode-root');
+    }
+  </script>
 </head>
 
 <body class="min-h-screen flex flex-col">
-
-  <!-- Decorative top stripe -->
-  <div class="top-bar w-full"></div>
 
   {% if messages %}
   <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4">
@@ -202,20 +504,20 @@
   {% endif %}
 
   <!-- ═══════════════════════════════════════ HEADER ═══════════════════════════════════════ -->
-  <header class="bg-cream border-b border-amber-100 sticky top-0 z-50 shadow-sm" style="background:#fdf8f0;">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <header class="sticky top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-[28px] shell-panel">
 
     <!-- Row 1: Logo + Desktop search + Desktop auth + Hamburger -->
     <div class="flex items-center justify-between py-4 gap-4">
 
       <!-- Logo -->
       <div class="flex-shrink-0">
-        <a href="/" class="logo-link font-display text-2xl md:text-3xl font-black tracking-tight no-underline">
-          FutureFlux
+        <a href="/" class="inline-flex flex-col no-underline">
+          <span class="logo-link font-display text-2xl md:text-3xl font-black tracking-tight">FutureFlux</span>
+          <span class="text-[10px] sm:text-xs font-body font-semibold tracking-[0.28em] uppercase mt-1" style="color:#d97706;">
+            Journal of bold ideas
+          </span>
         </a>
-        <p class="text-xs font-body font-medium tracking-widest uppercase mt-0.5 hidden sm:block" style="color:#d97706;">
-          Stories worth reading
-        </p>
       </div>
 
       <!-- Search (desktop only) -->
@@ -232,26 +534,40 @@
       </form>
 
       <!-- Auth links (desktop only) -->
-      <div class="hidden md:flex items-center gap-3">
+      <div class="hidden md:flex items-center gap-2">
+        <button id="theme-toggle-desktop" type="button" class="theme-toggle-btn" aria-label="Toggle theme">
+          <span class="theme-icon sun-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21m9-9h-2.25M5.25 12H3m15.114 6.364l-1.591-1.591M7.477 7.477L5.886 5.886m12.228 0l-1.591 1.591M7.477 16.523l-1.591 1.591M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+            </svg>
+          </span>
+          <span class="theme-icon moon-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c0 .236.013.47.038.7A7 7 0 0020.3 12.752c.23.025.464.038.7.038z"/>
+            </svg>
+          </span>
+        </button>
         {% if not user.is_authenticated %}
-          <a href="{% url 'login' %}" class="btn-amber">Login</a>
-          <a href="{% url 'register' %}" class="btn-outline">Register</a>
-          <a href="{% url 'feedback' %}"
-             class="text-sm font-semibold hover:text-amber-600 transition-colors"
-             style="color:#7c6f5e;">
-            Feedback
-          </a>
+          <a href="{% url 'feedback' %}" class="header-link">Feedback</a>
+          <a href="{% url 'login' %}" class="btn-outline" style="border-radius:999px; padding:10px 18px;">Login</a>
+          <a href="{% url 'register' %}" class="btn-amber" style="border-radius:999px; padding:10px 18px;">Register</a>
         {% else %}
-          <a href="{% url 'dashboard' %}"
-             class="flex items-center gap-1.5 text-sm font-semibold hover:text-amber-600 transition-colors"
-             style="color:#1a1208;">
+          <a href="{% url 'dashboard' %}" class="header-link">
             <i class="fa-solid fa-gauge-high text-amber-500"></i>
             Dashboard
           </a>
-          <span style="color:#e5d5bf;">|</span>
-          <a href="{% url 'logout' %}"
-             class="flex items-center gap-1.5 text-sm font-semibold hover:text-amber-600 transition-colors"
-             style="color:#7c6f5e;">
+          <a href="{% url 'notifications' %}" class="header-link notification-link">
+            <i class="fa-regular fa-bell"></i>
+            Notifications
+            {% if unread_notification_count %}
+            <span class="notification-dot" aria-hidden="true"></span>
+            {% endif %}
+          </a>
+          <a href="{% url 'my_profile' %}" class="header-link">
+            <i class="fa-regular fa-user"></i>
+            Profile
+          </a>
+          <a href="{% url 'logout' %}" class="header-link">
             <i class="fa-solid fa-right-from-bracket"></i>
             Logout
           </a>
@@ -259,8 +575,8 @@
       </div>
 
       <!-- Hamburger (mobile only) -->
-      <button id="menu-toggle" class="md:hidden p-2 rounded-lg border focus:outline-none flex-shrink-0"
-              style="border-color:#e5d5bf; color:#1a1208; background:#fff9f0;">
+      <button id="menu-toggle" class="md:hidden p-2.5 rounded-2xl border focus:outline-none flex-shrink-0"
+              style="border-color:#e5d5bf; color:#1a1208; background:rgba(255,249,240,0.92);">
         <i class="fa-solid fa-bars text-lg"></i>
       </button>
     </div>
@@ -273,7 +589,7 @@
         type="text" name="keyword" value="{{ keyword }}"
         placeholder="Search articles…"
       />
-      <button type="submit" class="btn-amber" style="border-radius:0 2px 2px 0; padding:10px 16px;">
+      <button type="submit" class="btn-amber" style="border-radius:0 14px 14px 0; padding:10px 16px;">
         <i class="fa fa-search"></i>
       </button>
     </form>
@@ -285,6 +601,19 @@
       <div class="pt-3">
         {% if not user.is_authenticated %}
           <div class="flex flex-col gap-2">
+            <button id="theme-toggle-mobile" type="button"
+               class="theme-toggle-btn w-full h-12 text-sm font-bold">
+              <span class="theme-icon sun-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21m9-9h-2.25M5.25 12H3m15.114 6.364l-1.591-1.591M7.477 7.477L5.886 5.886m12.228 0l-1.591 1.591M7.477 16.523l-1.591 1.591M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+                </svg>
+              </span>
+              <span class="theme-icon moon-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c0 .236.013.47.038.7A7 7 0 0020.3 12.752c.23.025.464.038.7.038z"/>
+                </svg>
+              </span>
+            </button>
             <a href="{% url 'login' %}"
                class="flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white tracking-wide"
                style="background:#d97706;">
@@ -319,6 +648,19 @@
               </div>
             </div>
             <div class="flex flex-col gap-2">
+              <button id="theme-toggle-mobile-auth" type="button"
+                 class="theme-toggle-btn w-full h-12">
+                <span class="theme-icon sun-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21m9-9h-2.25M5.25 12H3m15.114 6.364l-1.591-1.591M7.477 7.477L5.886 5.886m12.228 0l-1.591 1.591M7.477 16.523l-1.591 1.591M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+                  </svg>
+                </span>
+                <span class="theme-icon moon-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c0 .236.013.47.038.7A7 7 0 0020.3 12.752c.23.025.464.038.7.038z"/>
+                  </svg>
+                </span>
+              </button>
               <a href="{% url 'dashboard' %}"
                  class="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold"
                  style="background:#d97706; color:#fff;">
@@ -336,6 +678,15 @@
                  style="border-color:rgba(217,119,6,0.4); color:#fbbf24; background:rgba(217,119,6,0.08);">
                 <i class="fa-regular fa-message"></i>
                 Feedback
+              </a>
+              <a href="{% url 'notifications' %}"
+                 class="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold border"
+                 style="border-color:rgba(217,119,6,0.4); color:#fbbf24; background:rgba(217,119,6,0.08);">
+                <i class="fa-regular fa-bell"></i>
+                Notifications
+                {% if unread_notification_count %}
+                <span class="mobile-notification-dot" aria-hidden="true"></span>
+                {% endif %}
               </a>
               <a href="{% url 'logout' %}"
                  class="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold border"
@@ -368,7 +719,7 @@
   </div>
 </header>
   <!-- ═══════════════════════════════════════ CATEGORY NAV ══════════════════════════════════ -->
-  <nav class="bg-white border-b" style="border-color:#e5d5bf; background:#fffcf7;">
+  <nav class="mx-3 mt-3 rounded-[24px] shell-panel border-b" style="border-color:#e5d5bf; background:#fffcf7;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center gap-6 overflow-x-auto py-3 scrollbar-hide">
         <a href="/"
@@ -392,16 +743,29 @@
   </main>
 
   <!-- ═══════════════════════════════════════ FOOTER ════════════════════════════════════════ -->
-  <footer style="background:#1a1208; color:#c8b89a;">
+  <footer class="mt-8" style="background:transparent; color:#c8b89a;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="rounded-[32px] px-6 py-10 md:px-10 shell-panel" style="background:linear-gradient(135deg,#1a1208 0%, #2d2114 52%, #4a2f10 100%); color:#c8b89a;">
 
       <!-- Top row -->
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-8">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-start gap-8 mb-8">
 
         <!-- Brand -->
-        <div>
-          <p class="font-display text-2xl font-bold text-white mb-1">FutureFlux</p>
-          <p class="text-sm" style="color:#a89070;">Stories, ideas & perspectives.</p>
+        <div class="max-w-sm">
+          <p class="font-display text-3xl font-black text-white mb-2">FutureFlux</p>
+          <p class="text-sm leading-relaxed" style="color:#d8c19a;">A design-forward publication for ideas, culture, craft, and thoughtful internet writing.</p>
+        </div>
+
+        <div class="w-full md:max-w-sm rounded-2xl border p-5" style="border-color:#3d2b0a; background:rgba(255,255,255,0.02);">
+          <p class="text-xs uppercase tracking-widest font-semibold mb-3" style="color:#d97706;">Newsletter</p>
+          <p class="text-sm mb-4" style="color:#a89070;">Get fresh stories and product updates in your inbox.</p>
+          <form action="{% url 'newsletter_subscribe' %}" method="POST" class="flex flex-col sm:flex-row gap-3">
+            {% csrf_token %}
+            <input type="email" name="email" required placeholder="Your email address"
+                   class="flex-1 px-4 py-2.5 rounded-lg text-sm"
+                   style="background:#2a2013; border:1px solid #5c4a30; color:#fff;">
+            <button type="submit" class="btn-amber" style="border-radius:8px;">Subscribe</button>
+          </form>
         </div>
 
         <!-- Quick links -->
@@ -418,6 +782,7 @@
               <li><a href="{% url 'login' %}" class="hover:text-white transition-colors">Login</a></li>
               <li><a href="{% url 'register' %}" class="hover:text-white transition-colors">Register</a></li>
               <li><a href="{% url 'feedback' %}" class="hover:text-white transition-colors">Feedback</a></li>
+              <li><a href="{% url 'sitemap_xml' %}" class="hover:text-white transition-colors">Sitemap</a></li>
               {% endif %}
             </ul>
           </div>
@@ -449,14 +814,35 @@
         </p>
         <p>© {% now "Y" %} FutureFlux. All rights reserved.</p>
       </div>
+      </div>
     </div>
   </footer>
 
   <!-- Mobile menu toggle script -->
   <script>
+    if (document.documentElement.classList.contains('dark-mode-root')) {
+      document.body.classList.add('dark-mode');
+    }
+
     const toggle = document.getElementById('menu-toggle');
     const menu   = document.getElementById('mobile-menu');
     toggle.addEventListener('click', () => menu.classList.toggle('open'));
+
+    const themeButtons = [
+      document.getElementById('theme-toggle-desktop'),
+      document.getElementById('theme-toggle-mobile'),
+      document.getElementById('theme-toggle-mobile-auth'),
+    ].filter(Boolean);
+
+    themeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem(
+          'futureflux-theme',
+          document.body.classList.contains('dark-mode') ? 'dark' : 'light'
+        );
+      });
+    });
   </script>
 
 </body>

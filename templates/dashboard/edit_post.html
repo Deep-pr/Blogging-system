@@ -30,13 +30,13 @@
         <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">Edit Blog Post</h1>
       </div>
       <!-- Live post link -->
-      <a href="{% url 'blogs' post.slug %}" target="_blank"
+      <a href="{% url 'preview_post' post.id %}" target="_blank"
          class="ml-auto hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold border transition-all duration-200 hover:-translate-y-0.5"
          style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
         </svg>
-        View Live Post
+        Preview Post
       </a>
     </div>
 
@@ -68,6 +68,13 @@
             <form action="{% url 'edit_post' post.id %}" method="POST" enctype="multipart/form-data">
               {% csrf_token %}
 
+              <div class="mb-4 p-3 rounded-xl border flex flex-wrap gap-2" style="border-color:#e5d5bf; background:#fffcf7;">
+                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-wrap="**" style="background:#fff; border:1px solid #e5d5bf;">Bold</button>
+                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-wrap="*" style="background:#fff; border:1px solid #e5d5bf;">Italic</button>
+                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-prefix="## " style="background:#fff; border:1px solid #e5d5bf;">Heading</button>
+                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-prefix="- " style="background:#fff; border:1px solid #e5d5bf;">List</button>
+                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-wrap="> " data-mode="line" style="background:#fff; border:1px solid #e5d5bf;">Quote</button>
+              </div>
               <div class="edit-post-form">
                 {{ form|crispy }}
               </div>
@@ -87,13 +94,13 @@
                    style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
                   Cancel
                 </a>
-                <a href="{% url 'blogs' post.slug %}" target="_blank"
+                <a href="{% url 'preview_post' post.id %}" target="_blank"
                    class="sm:hidden inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold border transition-all duration-200"
                    style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                   </svg>
-                  View Live
+                  Preview
                 </a>
               </div>
             </form>
@@ -316,5 +323,30 @@
     gap: 6px;
   }
 </style>
+
+<script>
+  const editor = document.getElementById('id_blog_body');
+  document.querySelectorAll('.editor-tool').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!editor) return;
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      const selected = editor.value.slice(start, end);
+      const wrap = button.dataset.wrap;
+      const prefix = button.dataset.prefix;
+      const mode = button.dataset.mode;
+      let replacement = selected;
+      if (mode === 'line' && wrap) {
+        replacement = `${wrap}${selected}`;
+      } else if (wrap) {
+        replacement = `${wrap}${selected || 'text'}${wrap}`;
+      } else if (prefix) {
+        replacement = `${prefix}${selected || 'text'}`;
+      }
+      editor.setRangeText(replacement, start, end, 'end');
+      editor.focus();
+    });
+  });
+</script>
 
 {% endblock %}

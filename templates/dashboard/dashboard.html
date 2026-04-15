@@ -35,7 +35,7 @@
 
 
     <!-- ── Stat cards ── -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-10">
 
       <!-- Categories -->
       <div class="relative rounded-2xl overflow-hidden border p-6 group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
@@ -85,6 +85,21 @@
         <p class="text-sm font-semibold" style="color:#7c6f5e;">Total Posts</p>
       </div>
 
+      <div class="relative rounded-2xl overflow-hidden border p-6 group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+           style="background:#fff; border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+        <div class="flex items-start justify-between mb-4">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center"
+               style="background: linear-gradient(135deg,#fee2e2,#fecaca);">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#b45309;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 5v16l7-4 7 4V5a2 2 0 00-2-2H7a2 2 0 00-2 2z"/>
+            </svg>
+          </div>
+          <a href="{% url 'saved_posts' %}" class="text-xs font-bold uppercase tracking-wider hover:underline" style="color:#b45309;">View →</a>
+        </div>
+        <p class="font-display text-4xl font-black mb-1" style="color:#1a1208;">{{ saved_count }}</p>
+        <p class="text-sm font-semibold" style="color:#7c6f5e;">Saved Posts</p>
+      </div>
+
       {% if request.user.is_superuser or request.user.is_staff %}
       <div class="relative rounded-2xl overflow-hidden border p-6 group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
            style="background:#fff; border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
@@ -111,7 +126,7 @@
       {% endif %}
 
       <!-- Quick actions card -->
-      <div class="relative rounded-2xl overflow-hidden border p-6 sm:col-span-2 {% if request.user.is_superuser or request.user.is_staff %}xl:col-span-2{% else %}xl:col-span-1{% endif %}"
+      <div class="relative rounded-2xl overflow-hidden border p-6 sm:col-span-2 {% if request.user.is_superuser or request.user.is_staff %}xl:col-span-4{% else %}xl:col-span-4{% endif %}"
            style="background: linear-gradient(135deg,#1a1208 0%,#3d2b0a 100%); border-color:#3d2b0a; box-shadow:0 2px 12px rgba(26,18,8,0.12);">
         <div class="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-10" style="background:#fbbf24;"></div>
         <div class="absolute -bottom-4 -left-4 w-16 h-16 rounded-full opacity-10" style="background:#d97706;"></div>
@@ -134,6 +149,22 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
             New Category
+          </a>
+          <a href="{% url 'analytics' %}"
+             class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold border transition-all duration-200 hover:-translate-y-0.5"
+             style="border-color:rgba(255,255,255,0.15); color:#ffffff; background:rgba(255,255,255,0.06);">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 3v18m-4-8v8m8-14v14m4-10v10"/>
+            </svg>
+            Analytics
+          </a>
+          <a href="{% url 'notifications' %}"
+             class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold border transition-all duration-200 hover:-translate-y-0.5"
+             style="border-color:rgba(255,255,255,0.15); color:#ffffff; background:rgba(255,255,255,0.06);">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            Notifications
           </a>
           {% if not request.user.is_superuser and not request.user.is_staff %}
           <a href="{% url 'feedback' %}"

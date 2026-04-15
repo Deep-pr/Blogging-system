@@ -1,5 +1,5 @@
 from django import forms
-from blogs.models import Category, Blog
+from blogs.models import Category, Blog, ContentReport
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile, Feedback
@@ -23,9 +23,28 @@ class BlogPostForm(forms.ModelForm):
         ):
             self.fields['category'].queryset = Category.objects.filter(owner=user)
 
+        if self.instance and self.instance.pk and self.instance.scheduled_for:
+            self.initial['scheduled_for'] = self.instance.scheduled_for.strftime('%Y-%m-%dT%H:%M')
+
     class Meta:
         model = Blog
-        fields = ('title', 'category', 'featured_image', 'short_description', 'blog_body', 'status', 'is_featured')
+        fields = (
+            'title',
+            'category',
+            'featured_image',
+            'short_description',
+            'seo_description',
+            'blog_body',
+            'status',
+            'scheduled_for',
+            'is_featured',
+        )
+        widgets = {
+            'short_description': forms.Textarea(attrs={'rows': 3}),
+            'seo_description': forms.TextInput(attrs={'placeholder': 'Optional meta description for search and sharing'}),
+            'blog_body': forms.Textarea(attrs={'rows': 12, 'id': 'id_blog_body'}),
+            'scheduled_for': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
 
 
 class ProfileForm(forms.ModelForm):
@@ -110,6 +129,7 @@ class FeedbackForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        self.fields['email'].required = False
         if user and user.is_authenticated:
             self.fields['name'].initial = user.get_full_name().strip() or user.username
             self.fields['email'].initial = user.email
@@ -123,3 +143,13 @@ class FeedbackManageForm(forms.ModelForm):
         widgets = {
             'message': forms.Textarea(attrs={'rows': 5}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].required = False
+
+
+class ContentReportManageForm(forms.ModelForm):
+    class Meta:
+        model = ContentReport
+        fields = ('status',)

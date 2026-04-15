@@ -1,11 +1,24 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from blogs.models import Blog, Category
+from django.db.models import Count
+from django.utils import timezone
+from blogs.models import AuthorFollow, Blog, Bookmark, Category, ContentReport
 from django.contrib.auth.decorators import login_required
-from .forms import CategoryForm, BlogPostForm, AddUserForm, EditUserForm, ProfileForm, FeedbackManageForm
+from .forms import (
+    CategoryForm,
+    BlogPostForm,
+    AddUserForm,
+    EditUserForm,
+    ProfileForm,
+    FeedbackManageForm,
+    ContentReportManageForm,
+)
 from django.template.defaultfilters import slugify
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from .models import Feedback, Profile
+from django.contrib import messages
+from .models import Feedback, Notification, Profile
+from blogs.services import notify_followers_of_post, publish_scheduled_posts
+from urllib.parse import urlparse
 
 
 # ── Permission helpers ─────────────────────────────────────────
@@ -57,9 +70,18 @@ def can_manage_feedback(user):
     return user.is_superuser
 
 
+def can_view_followers(user):
+    return can_manage_all_content(user) or user.groups.filter(name='Editor').exists()
+
+
+def can_manage_reports(user):
+    return can_manage_all_content(user)
+
+
 # ── Dashboard ──────────────────────────────────────────────────
 @login_required(login_url='login')
 def dashboard(request):
+    publish_scheduled_posts()
     first_login = request.session.pop('first_login', False)
     welcome = 'Welcome' if first_login else 'Welcome back'
 
@@ -70,6 +92,8 @@ def dashboard(request):
         'category_count': category_count,
         'blogs_count': blogs_count,
         'feedback_count': Feedback.objects.count() if can_view_feedback(request.user) else 0,
+        'saved_count': Bookmark.objects.filter(user=request.user).count(),
+        'notification_count': Notification.objects.filter(user=request.user, is_read=False).count(),
         'welcome': welcome,
     }
     return render(request, 'dashboard/dashboard.html', context)
@@ -166,10 +190,19 @@ def add_post(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
+            should_notify_followers = False
+            if post.status == 'Published' and not post.published_at:
+                post.published_at = timezone.now()
+                should_notify_followers = True
+            if post.scheduled_for and post.scheduled_for > timezone.now():
+                post.status = 'Draft'
+                should_notify_followers = False
             post.save()
             title = form.cleaned_data['title']
             post.slug = slugify(title) + '-' + str(post.id)
             post.save()
+            if should_notify_followers:
+                notify_followers_of_post(post)
             return redirect('posts')
         else:
             print(form.errors)
@@ -186,11 +219,22 @@ def edit_post(request, pk):
         raise PermissionDenied
 
     if request.method == 'POST':
+        was_published = post.status == 'Published'
         form = BlogPostForm(request.POST, request.FILES, instance=post, user=request.user)
         if form.is_valid():
             post = form.save()
+            should_notify_followers = False
+            if post.status == 'Published' and not post.published_at:
+                post.published_at = timezone.now()
+            if post.status == 'Published' and not was_published:
+                should_notify_followers = True
+            if post.scheduled_for and post.scheduled_for > timezone.now():
+                post.status = 'Draft'
+                should_notify_followers = False
             post.slug = slugify(form.cleaned_data['title']) + '-' + str(post.id)
             post.save()
+            if should_notify_followers:
+                notify_followers_of_post(post)
             return redirect('posts')
     form = BlogPostForm(instance=post, user=request.user)
     context = {'form': form, 'post': post}
@@ -262,9 +306,21 @@ def edit_feedback(request, pk):
     feedback_item = get_object_or_404(Feedback, pk=pk)
 
     if request.method == 'POST':
+        previous_status = feedback_item.status
         form = FeedbackManageForm(request.POST, instance=feedback_item)
         if form.is_valid():
-            form.save()
+            updated_feedback = form.save()
+            if (
+                updated_feedback.user
+                and previous_status != updated_feedback.status
+                and updated_feedback.status in {Feedback.STATUS_REVIEWED, Feedback.STATUS_RESOLVED}
+            ):
+                Notification.objects.create(
+                    user=updated_feedback.user,
+                    title='Feedback updated',
+                    message=f'Your feedback "{updated_feedback.subject}" is now {updated_feedback.status.lower()}.',
+                    link='/feedback/',
+                )
             return redirect('dashboard_feedback')
     else:
         form = FeedbackManageForm(instance=feedback_item)
@@ -277,51 +333,6 @@ def edit_feedback(request, pk):
 
 
 # ── Users ──────────────────────────────────────────────────────
-def users(request):
-    # Everyone can see all users including superusers
-    users = User.objects.all()
-    context = {'users': users}
-    return render(request, 'dashboard/users.html', context)
-
-
-def add_user(request):
-    if request.method == 'POST':
-        form = AddUserForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('users')
-        else:
-            print(form.errors)
-    form = AddUserForm()
-    context = {'form': form}
-    return render(request, 'dashboard/add_user.html', context)
-
-
-def edit_user(request, pk):
-    user = get_object_or_404(User, pk=pk)
-
-    if not can_modify_user(request.user, user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = EditUserForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            return redirect('users')
-    form = EditUserForm(instance=user)
-    context = {'form': form}
-    return render(request, 'dashboard/edit_user.html', context)
-
-
-def delete_user(request, pk):
-    user = get_object_or_404(User, pk=pk)
-
-    if not can_modify_user(request.user, user):
-        raise PermissionDenied
-
-    user.delete()
-    return redirect('users')
-
 def add_user(request):
     if request.method == 'POST':
         form = AddUserForm(request.POST, request=request)  # ← add request=request
@@ -356,3 +367,205 @@ def edit_user(request, pk):
 
     context = {'form': form}
     return render(request, 'dashboard/edit_user.html', context)
+
+
+@login_required(login_url='login')
+def users(request):
+    users = User.objects.all().select_related('profile')
+    context = {'users': users}
+    return render(request, 'dashboard/users.html', context)
+
+
+@login_required(login_url='login')
+def delete_user(request, pk):
+    user = get_object_or_404(User, pk=pk)
+
+    if not can_modify_user(request.user, user):
+        raise PermissionDenied
+
+    user.delete()
+    return redirect('users')
+
+
+@login_required(login_url='login')
+def preview_post(request, pk):
+    post = get_object_or_404(Blog, pk=pk)
+    if not can_modify_post(request.user, post):
+        raise PermissionDenied
+
+    context = {
+        'single_blog': post,
+        'comments': [],
+        'comments_count': 0,
+        'categories': Category.objects.all().order_by('category_name'),
+        'related_posts': Blog.objects.filter(category=post.category, status='Published').exclude(pk=post.pk)[:3],
+        'reaction_counts': {},
+        'user_reactions': set(),
+        'is_bookmarked': False,
+        'is_preview': True,
+        'page_title': f'Preview: {post.title}',
+        'meta_description': post.meta_description,
+    }
+    return render(request, 'blogs.html', context)
+
+
+@login_required(login_url='login')
+def saved_posts(request):
+    saved_items = Bookmark.objects.filter(user=request.user).select_related('blog__author', 'blog__category')
+    return render(request, 'dashboard/saved_posts.html', {'saved_items': saved_items})
+
+
+@login_required(login_url='login')
+def analytics(request):
+    publish_scheduled_posts()
+    if can_manage_all_content(request.user):
+        posts = Blog.objects.all()
+    else:
+        posts = Blog.objects.filter(author=request.user)
+
+    top_posts = posts.order_by('-view_count', '-updated_at')[:10]
+    top_categories = (
+        posts.values('category__category_name')
+        .annotate(total=Count('id'))
+        .order_by('-total')[:5]
+    )
+
+    context = {
+        'top_posts': top_posts,
+        'top_categories': top_categories,
+        'total_views': sum(post.view_count for post in posts),
+    }
+    return render(request, 'dashboard/analytics.html', context)
+
+
+@login_required(login_url='login')
+def notifications(request):
+    items = Notification.objects.filter(user=request.user)
+    items.update(is_read=True)
+    return render(request, 'dashboard/notifications.html', {'notifications': items})
+
+
+@login_required(login_url='login')
+def open_notification(request, pk):
+    notification = get_object_or_404(Notification, pk=pk, user=request.user)
+    if notification.title == 'New follower':
+        return redirect('followers')
+
+    target = notification.link or '/dashboard/notifications/'
+    path = urlparse(target).path
+
+    if path.startswith('/blogs/'):
+        slug = path.strip('/').split('/')[1] if len(path.strip('/').split('/')) > 1 else ''
+        if slug and not Blog.objects.filter(slug=slug).exists():
+            messages.info(request, 'This post was deleted, so the original notification link is no longer available.')
+            return redirect('notifications')
+
+    if path.startswith('/category/'):
+        parts = path.strip('/').split('/')
+        category_id = parts[1] if len(parts) > 1 else ''
+        if category_id.isdigit() and not Category.objects.filter(pk=category_id).exists():
+            messages.info(request, 'This category is no longer available.')
+            return redirect('notifications')
+
+    if path.startswith('/blogs/authors/'):
+        parts = path.strip('/').split('/')
+        username = parts[2] if len(parts) > 2 else ''
+        if username and not User.objects.filter(username=username).exists():
+            messages.info(request, 'This author profile is no longer available.')
+            return redirect('notifications')
+
+    return redirect(target)
+
+
+@login_required(login_url='login')
+def reports(request):
+    if not can_manage_reports(request.user):
+        raise PermissionDenied
+    report_items = ContentReport.objects.select_related('blog', 'user')
+    return render(
+        request,
+        'dashboard/reports.html',
+        {
+            'report_items': report_items,
+            'can_manage_reports': can_manage_reports(request.user),
+        },
+    )
+
+
+@login_required(login_url='login')
+def edit_report(request, pk):
+    if not can_manage_reports(request.user):
+        raise PermissionDenied
+
+    report_item = get_object_or_404(ContentReport.objects.select_related('blog', 'user'), pk=pk)
+
+    if request.method == 'POST':
+        previous_status = report_item.status
+        form = ContentReportManageForm(request.POST, instance=report_item)
+        if form.is_valid():
+            updated_report = form.save()
+            if (
+                updated_report.user
+                and previous_status != updated_report.status
+                and updated_report.status in {ContentReport.STATUS_REVIEWED, ContentReport.STATUS_RESOLVED}
+            ):
+                Notification.objects.create(
+                    user=updated_report.user,
+                    title='Report updated',
+                    message=f'Your report on "{updated_report.blog.title}" is now {updated_report.status.lower()}.',
+                    link=updated_report.blog.get_absolute_url(),
+                )
+            return redirect('reports')
+    else:
+        form = ContentReportManageForm(instance=report_item)
+
+    return render(
+        request,
+        'dashboard/edit_report.html',
+        {
+            'form': form,
+            'report_item': report_item,
+        },
+    )
+
+
+@login_required(login_url='login')
+def delete_report(request, pk):
+    raise PermissionDenied
+
+
+@login_required(login_url='login')
+def followers(request):
+    if not can_view_followers(request.user):
+        raise PermissionDenied
+
+    if can_manage_all_content(request.user):
+        authors = (
+            User.objects.filter(groups__name='Editor')
+            .distinct()
+            .select_related('profile')
+            .order_by('username')
+        )
+    else:
+        authors = User.objects.filter(pk=request.user.pk).select_related('profile')
+
+    author_sections = []
+    for author in authors:
+        followers_qs = (
+            AuthorFollow.objects.filter(author=author)
+            .select_related('follower__profile')
+            .order_by('-created_at')
+        )
+        author_sections.append(
+            {
+                'author': author,
+                'followers': followers_qs,
+                'count': followers_qs.count(),
+            }
+        )
+
+    context = {
+        'author_sections': author_sections,
+        'is_manager_view': can_manage_all_content(request.user),
+    }
+    return render(request, 'dashboard/followers.html', context)

@@ -1,4 +1,4 @@
-from blogs.models import Blog, Category, EmailVerificationToken
+from blogs.models import Blog, Category, EmailVerificationToken, NewsletterSubscription
 from django.shortcuts import render, redirect
 from about.models import About
 from .forms import RegisterForm
@@ -9,13 +9,17 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse
 from django.http import JsonResponse
-from dashboards.models import Profile
+from django.http import HttpResponse
+from dashboards.models import Notification, Profile
+from dashboards.services import notify_managers
 from dashboards.forms import FeedbackForm
+from blogs.services import publish_scheduled_posts
 
 
 def home(request):
-    featured_posts = Blog.objects.filter(is_featured=True, status='Published').order_by('updated_at')
-    posts = Blog.objects.filter(is_featured=False, status='Published')
+    publish_scheduled_posts()
+    featured_posts = Blog.objects.filter(is_featured=True, status='Published').select_related('author', 'category').order_by('-published_at', '-updated_at')
+    posts = Blog.objects.filter(is_featured=False, status='Published').select_related('author', 'category').order_by('-published_at', '-updated_at')
     try:
         about = About.objects.get()
     except Exception:
@@ -24,6 +28,8 @@ def home(request):
         'about': about,
         'featured_posts': featured_posts,
         'posts': posts,
+        'page_title': 'FutureFlux | Stories Worth Reading',
+        'meta_description': 'Discover thoughtful stories, practical ideas, and fresh perspectives across technology, business, design, and culture.',
     }
     return render(request, 'home.html', context)
 
@@ -40,6 +46,18 @@ def feedback(request):
             if request.user.is_authenticated:
                 feedback_entry.user = request.user
             feedback_entry.save()
+            notify_managers(
+                title='New feedback submitted',
+                message=f'"{feedback_entry.subject}" was submitted for review.',
+                link=reverse('dashboard_feedback'),
+            )
+            if request.user.is_authenticated:
+                Notification.objects.create(
+                    user=request.user,
+                    title='Feedback received',
+                    message='Your feedback has been submitted and is waiting for review.',
+                    link='/feedback/',
+                )
             messages.success(request, 'Thanks for the feedback. We received it and will review it soon.')
             return redirect('feedback')
     else:
@@ -47,6 +65,41 @@ def feedback(request):
 
     context = {'form': form}
     return render(request, 'feedback.html', context)
+
+
+def newsletter_subscribe(request):
+    if request.method == 'POST':
+        email = (request.POST.get('email') or '').strip()
+        if email:
+            subscription, created = NewsletterSubscription.objects.get_or_create(
+                email=email,
+                defaults={'user': request.user if request.user.is_authenticated else None},
+            )
+            if not created and not subscription.is_active:
+                subscription.is_active = True
+                subscription.user = request.user if request.user.is_authenticated else subscription.user
+                subscription.save(update_fields=['is_active', 'user'])
+            messages.success(request, 'You are subscribed to the newsletter now.')
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+
+def sitemap_xml(request):
+    publish_scheduled_posts()
+    urls = ['/', '/feedback/']
+    urls.extend(Blog.objects.filter(status='Published').values_list('slug', flat=True))
+    response_parts = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    base = request.build_absolute_uri('/')[:-1]
+    response_parts.append(f'<url><loc>{base}/</loc></url>')
+    response_parts.append(f'<url><loc>{base}/feedback/</loc></url>')
+    for slug in Blog.objects.filter(status='Published').values_list('slug', flat=True):
+        response_parts.append(f'<url><loc>{base}/blogs/{slug}/</loc></url>')
+    for category_id in Category.objects.values_list('id', flat=True):
+        response_parts.append(f'<url><loc>{base}/category/{category_id}/</loc></url>')
+    response_parts.append('</urlset>')
+    return HttpResponse(''.join(response_parts), content_type='application/xml')
 
 
 # ── Registration ───────────────────────────────────────────────

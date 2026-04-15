@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+  <section class="rounded-[2rem] border overflow-hidden mb-10"
+           style="border-color:#e5d5bf; box-shadow:0 18px 48px rgba(26,18,8,0.08); background:linear-gradient(135deg,#fffdf8 0%,#fff7e6 55%,#fde68a 140%);">
+    <div class="px-7 py-8 md:px-10 md:py-10 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-20 blur-3xl" style="background:#fbbf24;"></div>
+      <div class="absolute -bottom-8 left-0 w-40 h-40 rounded-full opacity-10 blur-3xl" style="background:#d97706;"></div>
+
+      <div class="relative z-10 flex flex-col lg:flex-row lg:items-end gap-8">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-5 flex-1 min-w-0">
+          {% if author_profile_user.profile.profile_image %}
+          <button type="button"
+                  id="author-profile-photo-trigger"
+                  class="relative group w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 flex-shrink-0 focus:outline-none"
+                  style="border-color:rgba(255,255,255,0.9); box-shadow:0 10px 24px rgba(26,18,8,0.14);"
+                  aria-label="View author photo">
+            <img src="{{ author_profile_user.profile.profile_image.url }}" alt="{{ author_profile_user.username }}"
+                 class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105">
+            <span class="absolute inset-0 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                  style="background:rgba(26,18,8,0.42); color:#fff;">
+              View Photo
+            </span>
+          </button>
+          {% else %}
+          <div class="w-28 h-28 md:w-32 md:h-32 rounded-full flex items-center justify-center text-white text-4xl font-black flex-shrink-0 border-4"
+               style="background:linear-gradient(135deg,#d97706,#92400e); border-color:rgba(255,255,255,0.9); box-shadow:0 10px 24px rgba(26,18,8,0.14);">
+            {{ author_profile_user.username|slice:":1"|upper }}
+          </div>
+          {% endif %}
+
+          <div class="min-w-0">
+            <p class="text-xs font-bold uppercase tracking-[0.3em] mb-3" style="color:#d97706;">Author Profile</p>
+            <h1 class="font-display text-4xl md:text-5xl font-black leading-tight" style="color:#1a1208;">
+              {{ author_profile_user.get_full_name|default:author_profile_user.username }}
+            </h1>
+            <p class="text-sm md:text-base mt-3 max-w-2xl leading-relaxed" style="color:#6b5c49;">
+              {{ author_profile_user.profile.bio|default:"This author is sharing thoughtful work on FutureFlux." }}
+            </p>
+            <div class="mt-5 flex flex-wrap items-center gap-3">
+              <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold"
+                    style="background:rgba(254,243,199,0.9); color:#92400e; border:1px solid rgba(217,119,6,0.14);">
+                {{ follower_count }} follower{{ follower_count|pluralize }}
+              </span>
+              <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold"
+                    style="background:rgba(255,255,255,0.75); color:#7c6f5e; border:1px solid rgba(124,111,94,0.12);">
+                {{ posts|length }} published post{{ posts|length|pluralize }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex flex-wrap items-center gap-3">
+          {% if user.is_authenticated and user != author_profile_user %}
+          <form action="{% url 'toggle_follow_author' author_profile_user.username %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="next_url" value="{{ request.path }}">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold transition-all duration-200 hover:-translate-y-0.5"
+                    style="{% if is_following_author %}border:1px solid #d97706; color:#d97706; background:#fffaf0;{% else %}background:linear-gradient(135deg,#d97706,#b45309); color:#fff; box-shadow:0 10px 20px rgba(217,119,6,0.25);{% endif %}">
+              {% if is_following_author %}Unfollow Author{% else %}Follow Author{% endif %}
+            </button>
+          </form>
+          {% elif not user.is_authenticated %}
+          <a href="{% url 'login' %}"
+             class="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
+             style="background:linear-gradient(135deg,#d97706,#b45309); box-shadow:0 10px 20px rgba(217,119,6,0.25);">
+            Sign in to follow
+          </a>
+          {% endif %}
+
+          <a href="/"
+             class="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold border transition-colors"
+             style="border-color:#e5d5bf; color:#7c6f5e; background:rgba(255,255,255,0.78);">
+            Back Home
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-6 flex items-center justify-between gap-4">
+    <div>
+      <p class="author-latest-heading-label text-xs font-bold uppercase tracking-[0.28em] mb-2" style="color:#d97706;">Latest Articles</p>
+      <h2 class="font-display text-3xl font-black" style="color:#1a1208;">Stories by {{ author_profile_user.get_full_name|default:author_profile_user.username }}</h2>
+    </div>
+  </section>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    {% for post in posts %}
+    <article class="author-latest-card group rounded-[1.6rem] overflow-hidden border bg-white"
+             style="border-color:#e5d5bf; box-shadow:0 6px 22px rgba(26,18,8,0.06);">
+      {% if post.featured_image %}
+      <div class="overflow-hidden">
+        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}"
+             class="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105">
+      </div>
+      {% endif %}
+      <div class="p-5">
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <span class="author-card-pill inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider"
+                style="background:#fef3c7; color:#92400e;">
+            {{ post.category }}
+          </span>
+          <span class="author-card-meta text-xs font-semibold" style="color:#a89070;">{{ post.estimated_read_time }} min read</span>
+        </div>
+        <h3 class="author-card-title font-display text-2xl font-bold leading-snug mb-2" style="color:#1a1208;">
+          <a href="{% url 'blogs' post.slug %}">{{ post.title }}</a>
+        </h3>
+        <p class="author-card-copy text-sm leading-relaxed mb-5" style="color:#7c6f5e;">{{ post.short_description|truncatewords:24 }}</p>
+        <div class="flex items-center justify-between gap-3">
+          <span class="author-card-meta text-xs" style="color:#a89070;">{{ post.published_at|default:post.created_at|date:"F j, Y" }}</span>
+          <a href="{% url 'blogs' post.slug %}"
+             class="author-card-link inline-flex items-center gap-2 text-sm font-bold transition-colors"
+             style="color:#d97706;">
+            Read article
+          </a>
+        </div>
+      </div>
+    </article>
+    {% empty %}
+    <div class="author-latest-empty rounded-[1.8rem] border border-dashed p-12 text-center md:col-span-2 xl:col-span-3"
+         style="border-color:#e5d5bf; background:#fff;">
+      <p class="author-empty-title font-display text-3xl font-bold mb-2" style="color:#1a1208;">No published posts yet</p>
+      <p class="author-empty-copy text-sm" style="color:#7c6f5e;">This author hasn’t published anything yet.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  body.dark-mode .author-latest-card {
+    background: #111827 !important;
+    border-color: rgba(251, 191, 36, 0.18) !important;
+    box-shadow: none !important;
+  }
+
+  body.dark-mode .author-card-title,
+  body.dark-mode .author-empty-title {
+    color: #f9fafb !important;
+  }
+
+  body.dark-mode .author-card-meta,
+  body.dark-mode .author-card-copy,
+  body.dark-mode .author-empty-copy {
+    color: #9ca3af !important;
+  }
+
+  body.dark-mode .author-card-link,
+  body.dark-mode .author-latest-heading-label {
+    color: #fbbf24 !important;
+  }
+
+  body.dark-mode .author-card-pill {
+    background: rgba(245, 158, 11, 0.14) !important;
+    color: #fbbf24 !important;
+    border-color: rgba(245, 158, 11, 0.24) !important;
+  }
+
+  body.dark-mode .author-latest-card img {
+    opacity: 0.94;
+  }
+
+  body.dark-mode .author-latest-empty {
+    background: #111827 !important;
+    border-color: rgba(251, 191, 36, 0.18) !important;
+  }
+
+  body.dark-mode [style*="background:linear-gradient(135deg,#fffdf8 0%,#fff7e6 55%,#fde68a 140%)"] {
+    background: linear-gradient(135deg, #111827 0%, #172033 58%, #1f2937 100%) !important;
+    border-color: rgba(251, 191, 36, 0.18) !important;
+    box-shadow: none !important;
+  }
+
+  body.dark-mode [style*="color:#6b5c49"] {
+    color: #cbd5e1 !important;
+  }
+
+  body.dark-mode [style*="background:rgba(254,243,199,0.9)"] {
+    background: rgba(245, 158, 11, 0.14) !important;
+    color: #fbbf24 !important;
+    border-color: rgba(245, 158, 11, 0.28) !important;
+  }
+
+  body.dark-mode [style*="background:rgba(255,255,255,0.75)"],
+  body.dark-mode [style*="background:rgba(255,255,255,0.78)"] {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #e5e7eb !important;
+    border-color: rgba(251, 191, 36, 0.18) !important;
+  }
+
+  body.dark-mode [style*="background:#fef3c7"] {
+    background: rgba(245, 158, 11, 0.14) !important;
+  }
+
+  body.dark-mode [style*="border-color:rgba(255,255,255,0.9)"] {
+    border-color: rgba(251, 191, 36, 0.32) !important;
+  }
+
+  body.dark-mode #author-profile-photo-modal > div > div {
+    background: #111827 !important;
+    border-color: rgba(251, 191, 36, 0.18) !important;
+  }
+
+  body.dark-mode #author-profile-photo-modal img {
+    background: #0f172a !important;
+  }
+
+  body.dark-mode .author-profile-card img {
+    opacity: 0.96;
+  }
+</style>
+
+{% if author_profile_user.profile.profile_image %}
+<div id="author-profile-photo-modal"
+     class="fixed inset-0 z-[70] hidden items-center justify-center px-4 py-6"
+     style="background:rgba(15,23,42,0.82);">
+  <div class="relative w-full max-w-2xl">
+    <button type="button"
+            id="author-profile-photo-close"
+            class="absolute -top-12 right-0 inline-flex h-10 w-10 items-center justify-center rounded-full border text-white transition-colors hover:bg-white/10"
+            style="border-color:rgba(255,255,255,0.28);"
+            aria-label="Close author photo preview">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <div class="overflow-hidden rounded-3xl border bg-white shadow-2xl"
+         style="border-color:rgba(255,255,255,0.18);">
+      <img src="{{ author_profile_user.profile.profile_image.url }}"
+           alt="{{ author_profile_user.username }}"
+           class="block w-full max-h-[80vh] object-contain"
+           style="background:#f8f5ef;">
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const trigger = document.getElementById('author-profile-photo-trigger');
+    const modal = document.getElementById('author-profile-photo-modal');
+    const closeButton = document.getElementById('author-profile-photo-close');
+
+    if (!trigger || !modal || !closeButton) {
+      return;
+    }
+
+    const openModal = () => {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    };
+
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    };
+
+    trigger.addEventListener('click', openModal);
+    closeButton.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}

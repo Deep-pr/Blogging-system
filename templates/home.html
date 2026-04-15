@@ -98,7 +98,7 @@
               {{ post.author.username|slice:":1"|upper }}
             </span>
             {% endif %}
-            <span class="text-xs font-semibold truncate" style="color:#7c6f5e;">{{ post.author }}</span>
+            <a href="{% url 'author_profile' post.author.username %}" class="text-xs font-semibold truncate hover:text-amber-600" style="color:#7c6f5e;">{{ post.author }}</a>
           </span>
         </div>
 
@@ -173,7 +173,7 @@
                 {{ post.author.username|slice:":1"|upper }}
               </span>
               {% endif %}
-              <span class="text-xs font-semibold truncate" style="color:#7c6f5e;">{{ post.author }}</span>
+            <a href="{% url 'author_profile' post.author.username %}" class="text-xs font-semibold truncate hover:text-amber-600" style="color:#7c6f5e;">{{ post.author }}</a>
             </span>
           </div>
 

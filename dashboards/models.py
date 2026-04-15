@@ -38,7 +38,7 @@ class Feedback(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='feedback_entries')
     name = models.CharField(max_length=150)
-    email = models.EmailField()
+    email = models.EmailField(blank=True)
     feedback_type = models.CharField(max_length=30, choices=TYPE_CHOICES, default=TYPE_GENERAL)
     subject = models.CharField(max_length=150)
     message = models.TextField(max_length=1200)
@@ -52,6 +52,21 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"{self.subject} ({self.feedback_type})"
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=150)
+    message = models.TextField(max_length=500)
+    link = models.CharField(max_length=255, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return f'{self.user.username}: {self.title}'
 
 
 @receiver(post_save, sender=User)

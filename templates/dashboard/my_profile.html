@@ -32,9 +32,18 @@
                style="background: linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
             <div class="flex items-center gap-4">
               {% if profile.profile_image %}
-              <img src="{{ profile.profile_image.url }}" alt="{{ profile_user.username }}"
-                   class="w-20 h-20 rounded-full object-cover border"
-                   style="border-color:rgba(251,191,36,0.2);">
+              <button type="button"
+                      id="profile-photo-trigger"
+                      class="relative group focus:outline-none"
+                      aria-label="Open profile photo">
+                <img src="{{ profile.profile_image.url }}" alt="{{ profile_user.username }}"
+                     class="w-20 h-20 rounded-full object-cover border transition-transform duration-200 group-hover:scale-105"
+                     style="border-color:rgba(251,191,36,0.2);">
+                <span class="absolute inset-0 rounded-full flex items-center justify-center text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                      style="background:rgba(26,18,8,0.45); color:#fff;">
+                  Tap to zoom
+                </span>
+              </button>
               {% else %}
               <div class="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold"
                    style="background: linear-gradient(135deg,#d97706,#fbbf24); color:#1a1208;">
@@ -51,6 +60,11 @@
                   {% endif %}
                 </h2>
                 <p class="text-sm mt-1" style="color:#c8b89a;">@{{ profile_user.username }}</p>
+                <a href="{% url 'edit_my_profile' %}"
+                   class="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 hover:-translate-y-0.5"
+                   style="background:rgba(217,119,6,0.18); color:#fbbf24; border:1px solid rgba(217,119,6,0.28);">
+                  Edit Photo
+                </a>
               </div>
             </div>
           </div>
@@ -110,5 +124,61 @@
 
   </main>
 </div>
+
+{% if profile.profile_image %}
+<div id="profile-photo-modal"
+     class="fixed inset-0 z-[70] hidden items-center justify-center px-4"
+     style="background:rgba(26,18,8,0.82);">
+  <button type="button"
+          id="profile-photo-close"
+          class="absolute top-5 right-5 w-10 h-10 rounded-full text-white text-lg font-bold"
+          style="background:rgba(255,255,255,0.14);">
+    ×
+  </button>
+  <div class="max-w-3xl w-full flex flex-col items-center">
+    <img src="{{ profile.profile_image.url }}" alt="{{ profile_user.username }}"
+         class="w-full max-h-[78vh] object-contain rounded-2xl shadow-2xl"
+         style="background:#1a1208;">
+    <a href="{% url 'edit_my_profile' %}"
+       class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-lg text-sm font-bold text-white"
+       style="background: linear-gradient(135deg,#d97706,#b45309);">
+      Edit Photo
+    </a>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const trigger = document.getElementById('profile-photo-trigger');
+    const modal = document.getElementById('profile-photo-modal');
+    const close = document.getElementById('profile-photo-close');
+
+    if (!trigger || !modal || !close) return;
+
+    const openModal = () => {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    };
+
+    trigger.addEventListener('click', openModal);
+    close.addEventListener('click', closeModal);
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && modal.classList.contains('flex')) {
+        closeModal();
+      }
+    });
+  })();
+</script>
+{% endif %}
 
 {% endblock %}

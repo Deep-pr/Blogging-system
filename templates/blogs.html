@@ -2,6 +2,25 @@
 
 {% block content %}
 
+<div class="fixed top-[76px] left-0 w-full h-1 z-40" style="background:rgba(217,119,6,0.12);">
+  <div id="reading-progress" class="h-full w-0 transition-all duration-150" style="background:linear-gradient(90deg,#d97706,#fbbf24);"></div>
+</div>
+
+{% if is_preview %}
+<div class="mb-6 rounded-2xl border px-5 py-4 flex items-center justify-between gap-4"
+     style="background:#fff7ed; border-color:#fdba74;">
+  <div>
+    <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#c2410c;">Preview Mode</p>
+    <p class="text-sm" style="color:#7c2d12;">This draft is only visible to permitted dashboard users.</p>
+  </div>
+  <a href="{% url 'edit_post' single_blog.id %}"
+     class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white"
+     style="background:#d97706;">
+    Back to Edit
+  </a>
+</div>
+{% endif %}
+
 <div class="max-w-7xl mx-auto">
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
@@ -62,18 +81,32 @@
           {% endif %}
           <div>
             <p class="text-sm font-semibold" style="color:#1a1208;">
-              {{ single_blog.author.username }}
+              <a href="{% url 'author_profile' single_blog.author.username %}" class="hover:text-amber-600 transition-colors">
+                {{ single_blog.author.username }}
+              </a>
             </p>
             <p class="text-xs" style="color:#a89070;">
-              Published on {{ single_blog.created_at|date:"F j, Y" }}
+              Published on {{ single_blog.published_at|default:single_blog.created_at|date:"F j, Y" }}
             </p>
           </div>
-          <div class="ml-auto hidden sm:flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full"
-               style="background:#fdf8f0; color:#7c6f5e; border:1px solid #e5d5bf;">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-            </svg>
-            Article
+          <div class="ml-auto hidden sm:flex items-center gap-2 flex-wrap justify-end">
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full"
+                  style="background:#fdf8f0; color:#7c6f5e; border:1px solid #e5d5bf;">
+              {{ single_blog.estimated_read_time }} min read
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full"
+                  style="background:#fdf8f0; color:#7c6f5e; border:1px solid #e5d5bf;">
+              {{ single_blog.view_count }} views
+            </span>
+            <form action="{% url 'toggle_bookmark' single_blog.slug %}" method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="next_url" value="{{ request.path }}#reader-actions">
+              <button type="submit"
+                      class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full"
+                      style="background:{% if is_bookmarked %}#fff7ed{% else %}#fdf8f0{% endif %}; color:#7c6f5e; border:1px solid #e5d5bf;">
+                {% if is_bookmarked %}Saved{% else %}Save Post{% endif %}
+              </button>
+            </form>
           </div>
         </div>
       </header>
@@ -100,6 +133,104 @@
         {{ single_blog.blog_body|linebreaks }}
       </div>
 
+      <section id="reader-actions" class="mb-10 rounded-2xl border bg-white p-5"
+               style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+        <div class="flex flex-col md:flex-row md:items-center gap-4 justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Reader Actions</p>
+            <p class="text-sm" style="color:#7c6f5e;">
+              React to this story, save it for later, or report an issue.
+              {% if not user.is_authenticated %}
+              You can use these actions without logging in.
+              {% endif %}
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {% for reaction in reaction_summary %}
+            <form action="{% url 'react_to_post' single_blog.slug reaction.value %}" method="POST" class="reaction-form">
+              {% csrf_token %}
+              <input type="hidden" name="next_url" value="{{ request.path }}#reader-actions">
+              <button type="submit"
+                      data-reaction-label="{{ reaction.label }}"
+                      data-active="{% if reaction.value in user_reactions %}true{% else %}false{% endif %}"
+                      class="px-3 py-2 rounded-full text-xs font-bold border transition-all duration-150"
+                      style="border-color:#e5d5bf; background:{% if reaction.value in user_reactions %}#fff7ed{% else %}#fffcf7{% endif %}; color:#3d2b0a;">
+                {{ reaction.label }} · {{ reaction.count }}
+              </button>
+            </form>
+            {% endfor %}
+            <button type="button"
+                    onclick="document.getElementById('report-modal').classList.remove('hidden'); document.getElementById('report-modal').classList.add('flex');"
+                    class="px-3 py-2 rounded-full text-xs font-bold border"
+                    style="border-color:#fecaca; background:#fff1f2; color:#be123c;">
+              Report
+            </button>
+          </div>
+        </div>
+        {% if not user.is_authenticated %}
+        <div class="mt-4 pt-4 border-t flex flex-wrap items-center gap-3 text-xs"
+             style="border-color:#f5ede0; color:#a89070;">
+          <span class="font-semibold" style="color:#d97706;">Guest access enabled</span>
+          <span>Likes, reactions, saves, and reports work without an account.</span>
+          <span>Comments still require login.</span>
+        </div>
+        {% endif %}
+      </section>
+
+      <section class="mb-10 rounded-3xl border overflow-hidden bg-white"
+               style="border-color:#e5d5bf; box-shadow:0 4px 24px rgba(26,18,8,0.08);">
+        <div class="p-6 flex items-center gap-4">
+          {% if single_blog.author.profile.profile_image %}
+          <button type="button"
+                  id="author-photo-trigger"
+                  class="relative group w-16 h-16 rounded-full overflow-hidden border flex-shrink-0 focus:outline-none"
+                  style="border-color:#e5d5bf;"
+                  aria-label="View author photo">
+            <img src="{{ single_blog.author.profile.profile_image.url }}" alt="{{ single_blog.author.username }}"
+                 class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105">
+            <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                  style="background:rgba(26,18,8,0.45); color:#fff;">
+              View
+            </span>
+          </button>
+          {% else %}
+          <div class="w-16 h-16 rounded-full flex items-center justify-center text-white font-black text-xl"
+               style="background:linear-gradient(135deg,#d97706,#92400e);">
+            {{ single_blog.author.username|slice:":1"|upper }}
+          </div>
+          {% endif %}
+          <div class="min-w-0">
+            <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">About the author</p>
+            <h3 class="font-display text-2xl font-bold" style="color:#1a1208;">{{ single_blog.author.get_full_name|default:single_blog.author.username }}</h3>
+            <p class="text-sm mt-2" style="color:#7c6f5e;">{{ single_blog.author.profile.bio|default:"This author is sharing thoughtful stories on FutureFlux." }}</p>
+            <div class="mt-3">
+              <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold"
+                    style="background:#fef3c7; color:#92400e;">
+                {{ follower_count }} follower{{ follower_count|pluralize }}
+              </span>
+            </div>
+            <div class="mt-3 flex flex-wrap items-center gap-3">
+              <a href="{% url 'author_profile' single_blog.author.username %}"
+                 class="inline-flex items-center gap-2 text-sm font-bold hover:text-amber-600 transition-colors"
+                 style="color:#d97706;">
+                View author page
+              </a>
+              {% if user.is_authenticated and user != single_blog.author %}
+              <form action="{% url 'toggle_follow_author' single_blog.author.username %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="next_url" value="{{ request.path }}">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold {% if is_following_author %}border{% endif %}"
+                        style="{% if is_following_author %}border-color:#d97706; color:#d97706; background:#fffaf0;{% else %}background:#d97706; color:#fff;{% endif %}">
+                  {% if is_following_author %}Unfollow{% else %}Follow{% endif %}
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Decorative divider -->
       <div class="flex items-center gap-4 my-10">
         <div class="flex-1 h-px" style="background:#e5d5bf;"></div>
@@ -111,7 +242,7 @@
       <!-- ══════════════════════════════════════════════════
            COMMENTS SECTION
       ═══════════════════════════════════════════════════ -->
-      <section>
+      <section id="comments">
 
         <!-- Header -->
         <div class="flex items-center gap-3 mb-6">
@@ -206,6 +337,7 @@
 
             <form action="" method="POST">
               {% csrf_token %}
+              <input type="hidden" name="next_url" value="{{ request.path }}#comments">
               <textarea
                 name="comment"
                 rows="4"
@@ -259,6 +391,30 @@
         </div>
 
       </section>
+
+      {% if related_posts %}
+      <section class="mt-12">
+        <div class="mb-5">
+          <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">More to Explore</p>
+          <h3 class="font-display text-2xl font-bold" style="color:#1a1208;">Related Posts</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {% for post in related_posts %}
+          <a href="{% url 'blogs' post.slug %}" class="rounded-2xl overflow-hidden border bg-white block transition-all duration-200 hover:-translate-y-1"
+             style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+            {% if post.featured_image %}
+            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-40 object-cover">
+            {% endif %}
+            <div class="p-4">
+              <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color:#d97706;">{{ post.category }}</p>
+              <h4 class="font-display text-lg font-bold mb-2" style="color:#1a1208;">{{ post.title }}</h4>
+              <p class="text-sm" style="color:#7c6f5e;">{{ post.short_description|truncatewords:18 }}</p>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
     </article>
 
 
@@ -344,8 +500,130 @@
   </div>
 </div>
 
+{% if single_blog.author.profile.profile_image %}
+<div id="author-photo-modal" class="fixed inset-0 z-[70] hidden items-center justify-center px-4 py-6"
+     style="background:rgba(15,23,42,0.82);">
+  <div class="relative w-full max-w-2xl">
+    <button type="button"
+            id="author-photo-close"
+            class="absolute -top-12 right-0 inline-flex h-10 w-10 items-center justify-center rounded-full border text-white transition-colors hover:bg-white/10"
+            style="border-color:rgba(255,255,255,0.28);"
+            aria-label="Close author photo preview">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <div class="overflow-hidden rounded-3xl border bg-white shadow-2xl"
+         style="border-color:rgba(255,255,255,0.18);">
+      <img src="{{ single_blog.author.profile.profile_image.url }}"
+           alt="{{ single_blog.author.username }}"
+           class="block w-full max-h-[80vh] object-contain"
+           style="background:#f8f5ef;">
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div id="report-modal" class="fixed inset-0 z-50 hidden items-center justify-center px-4"
+     style="background:rgba(15,23,42,0.75);">
+  <div class="w-full max-w-lg rounded-3xl bg-white p-6 border" style="border-color:#e5d5bf;">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-display text-2xl font-bold" style="color:#1a1208;">Report This Post</h3>
+      <button type="button"
+              onclick="document.getElementById('report-modal').classList.add('hidden'); document.getElementById('report-modal').classList.remove('flex');"
+              class="text-sm font-bold" style="color:#7c6f5e;">Close</button>
+    </div>
+    <form action="{% url 'report_post' single_blog.slug %}" method="POST" class="space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="next_url" value="{{ request.path }}#reader-actions">
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-widest mb-2" style="color:#7c6f5e;">Reason</label>
+        <input type="text" name="reason" required class="w-full px-4 py-3 rounded-xl border" style="border-color:#e5d5bf; background:#fffcf7;">
+      </div>
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-widest mb-2" style="color:#7c6f5e;">Details</label>
+        <textarea name="details" rows="4" class="w-full px-4 py-3 rounded-xl border" style="border-color:#e5d5bf; background:#fffcf7;"></textarea>
+      </div>
+      <button type="submit" class="px-5 py-3 rounded-xl text-sm font-bold text-white" style="background:#d97706;">Submit Report</button>
+    </form>
+  </div>
+</div>
+
 <!-- Blog body typography -->
 <style>
+  #reader-actions,
+  #comments {
+    scroll-margin-top: 120px;
+  }
+
+  body.dark-mode #reading-progress {
+    background: linear-gradient(90deg, #f59e0b, #fde68a) !important;
+  }
+
+  body.dark-mode #reader-actions,
+  body.dark-mode #comments > div,
+  body.dark-mode aside > div,
+  body.dark-mode .blog-related-card,
+  body.dark-mode #report-modal > div {
+    background: #111827 !important;
+    border-color: rgba(251, 191, 36, 0.18) !important;
+    box-shadow: none !important;
+  }
+
+  body.dark-mode #reader-actions button,
+  body.dark-mode #comments button,
+  body.dark-mode aside button,
+  body.dark-mode aside a[style*="background:#fdf8f0"],
+  body.dark-mode aside a[style*="background:#fffcf7"] {
+    background: #1f2937 !important;
+    color: #f3f4f6 !important;
+    border-color: rgba(251, 191, 36, 0.22) !important;
+  }
+
+  body.dark-mode .blog-body,
+  body.dark-mode .blog-body p,
+  body.dark-mode .blog-body li,
+  body.dark-mode .blog-body h2,
+  body.dark-mode .blog-body h3,
+  body.dark-mode .blog-body blockquote,
+  body.dark-mode .blog-body code {
+    color: #e5e7eb !important;
+  }
+
+  body.dark-mode .blog-body a {
+    color: #fbbf24 !important;
+  }
+
+  body.dark-mode article header,
+  body.dark-mode article section,
+  body.dark-mode article div[style*="border-b"],
+  body.dark-mode article div[style*="border-top"] {
+    border-color: rgba(251, 191, 36, 0.18) !important;
+  }
+
+  body.dark-mode article [style*="background:#fff7ed"] {
+    background: rgba(245, 158, 11, 0.12) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+  }
+
+  body.dark-mode article [style*="background:#fef3c7"],
+  body.dark-mode article [style*="background:#fff1f2"] {
+    background: #1f2937 !important;
+  }
+
+  body.dark-mode article [style*="color:#92400e"],
+  body.dark-mode article [style*="color:#c2410c"],
+  body.dark-mode article [style*="color:#7c2d12"],
+  body.dark-mode article [style*="color:#be123c"] {
+    color: #fbbf24 !important;
+  }
+
+  body.dark-mode article img,
+  body.dark-mode aside img {
+    opacity: 0.96;
+  }
+
   .blog-body p  { margin-bottom: 1.25rem; }
   .blog-body h2 { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:800; color:#1a1208; margin:2rem 0 1rem; }
   .blog-body h3 { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:#1a1208; margin:1.5rem 0 0.75rem; }
@@ -372,5 +650,117 @@
     font-size: 0.85em;
   }
 </style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ single_blog.title|escapejs }}",
+  "description": "{{ single_blog.meta_description|escapejs }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ single_blog.author.username|escapejs }}"
+  },
+  "datePublished": "{{ single_blog.published_at|default:single_blog.created_at|date:'c' }}",
+  "image": "{% if single_blog.featured_image %}{{ request.scheme }}://{{ request.get_host }}{{ single_blog.featured_image.url }}{% endif %}"
+}
+</script>
+
+<script>
+  (function () {
+    const reactionForms = document.querySelectorAll('.reaction-form');
+
+    reactionForms.forEach((form) => {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const button = form.querySelector('button[type="submit"]');
+        const csrfToken = form.querySelector('input[name="csrfmiddlewaretoken"]');
+        if (!button || !csrfToken) {
+          form.submit();
+          return;
+        }
+
+        const originalLabel = button.textContent;
+        button.disabled = true;
+        button.style.opacity = '0.75';
+
+        try {
+          const response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'X-CSRFToken': csrfToken.value,
+            },
+            body: new FormData(form),
+            credentials: 'same-origin',
+          });
+
+          if (!response.ok) {
+            throw new Error('Reaction request failed');
+          }
+
+          const data = await response.json();
+          button.textContent = `${button.dataset.reactionLabel} · ${data.count}`;
+          button.dataset.active = data.active ? 'true' : 'false';
+          button.style.background = data.active ? '#fff7ed' : '#fffcf7';
+        } catch (error) {
+          button.textContent = originalLabel;
+          form.submit();
+        } finally {
+          button.disabled = false;
+          button.style.opacity = '1';
+        }
+      });
+    });
+
+    const trigger = document.getElementById('author-photo-trigger');
+    const modal = document.getElementById('author-photo-modal');
+    const closeButton = document.getElementById('author-photo-close');
+
+    if (!trigger || !modal || !closeButton) {
+      return;
+    }
+
+    const openModal = () => {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    };
+
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    };
+
+    trigger.addEventListener('click', openModal);
+    closeButton.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+  })();
+
+  const progressBar = document.getElementById('reading-progress');
+  const article = document.querySelector('article');
+  const updateReadingProgress = () => {
+    if (!progressBar || !article) return;
+    const rect = article.getBoundingClientRect();
+    const total = article.offsetHeight - window.innerHeight;
+    const scrolled = Math.min(Math.max(-rect.top, 0), total > 0 ? total : 0);
+    const width = total > 0 ? (scrolled / total) * 100 : 0;
+    progressBar.style.width = `${width}%`;
+  };
+  window.addEventListener('scroll', updateReadingProgress);
+  window.addEventListener('load', updateReadingProgress);
+</script>
 
 {% endblock %}

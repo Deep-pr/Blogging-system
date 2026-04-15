@@ -13,9 +13,14 @@
 
       <div class="relative z-10 flex items-center gap-3">
         {% if current_user_profile and current_user_profile.profile_image %}
-        <img src="{{ current_user_profile.profile_image.url }}" alt="{{ user.username }}"
-             class="w-10 h-10 rounded-full object-cover flex-shrink-0 border"
-             style="border-color:rgba(251,191,36,0.25);">
+        <button type="button"
+                id="sidebar-photo-trigger"
+                class="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2 focus:ring-offset-transparent"
+                style="border-color:rgba(251,191,36,0.25);"
+                aria-label="View profile photo">
+          <img src="{{ current_user_profile.profile_image.url }}" alt="{{ user.username }}"
+               class="w-full h-full object-cover">
+        </button>
         {% else %}
         <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
              style="background: linear-gradient(135deg,#d97706,#fbbf24); color:#1a1208;">
@@ -94,6 +99,54 @@
         My Profile
       </a>
 
+      <a href="{% url 'saved_posts' %}"
+         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
+                {% if '/saved-posts/' in request.path %}active-link{% else %}inactive-link{% endif %}">
+        {% if '/saved-posts/' in request.path %}
+        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
+        {% endif %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 5v16l7-4 7 4V5a2 2 0 00-2-2H7a2 2 0 00-2 2z"/>
+        </svg>
+        Saved Posts
+      </a>
+
+      <a href="{% url 'notifications' %}"
+         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
+                {% if '/notifications/' in request.path %}active-link{% else %}inactive-link{% endif %}">
+        {% if '/notifications/' in request.path %}
+        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
+        {% endif %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+        Notifications
+      </a>
+
+      <a href="{% url 'analytics' %}"
+         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
+                {% if '/analytics/' in request.path %}active-link{% else %}inactive-link{% endif %}">
+        {% if '/analytics/' in request.path %}
+        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
+        {% endif %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 3v18m-4-8v8m8-14v14m4-10v10"/>
+        </svg>
+        Analytics
+      </a>
+
+      <a href="{% url 'followers' %}"
+         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
+                {% if '/followers/' in request.path %}active-link{% else %}inactive-link{% endif %}">
+        {% if '/followers/' in request.path %}
+        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
+        {% endif %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Followers
+      </a>
+
       {% if request.user.is_superuser or request.user.is_staff %}
       <a href="{% url 'dashboard_feedback' %}"
          class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
@@ -105,6 +158,18 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h6m-8 8h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
         </svg>
         Feedback
+      </a>
+
+      <a href="{% url 'reports' %}"
+         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
+                {% if '/reports/' in request.path %}active-link{% else %}inactive-link{% endif %}">
+        {% if '/reports/' in request.path %}
+        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
+        {% endif %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-1.414 1.414M12 9v3m0 4h.01M5.636 5.636l1.414 1.414M4 12h3m10 0h3M6.343 17.657l1.414-1.414m8.486 1.414l-1.414-1.414"/>
+        </svg>
+        Reports
       </a>
       {% endif %}
 
@@ -124,8 +189,87 @@
   </div>
 </aside>
 
+{% if current_user_profile and current_user_profile.profile_image %}
+<div id="sidebar-photo-modal"
+     class="fixed inset-0 z-[70] hidden items-center justify-center px-4 py-6"
+     style="background:rgba(15, 23, 42, 0.82);">
+  <div class="relative w-full max-w-2xl">
+    <button type="button"
+            id="sidebar-photo-close"
+            class="absolute -top-12 right-0 inline-flex h-10 w-10 items-center justify-center rounded-full border text-white transition-colors hover:bg-white/10"
+            style="border-color:rgba(255,255,255,0.28);"
+            aria-label="Close photo preview">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <div class="overflow-hidden rounded-3xl border bg-white shadow-2xl"
+         style="border-color:rgba(255,255,255,0.18);">
+      <img src="{{ current_user_profile.profile_image.url }}"
+           alt="{{ user.username }}"
+           class="block w-full max-h-[80vh] object-contain"
+           style="background:#f8f5ef;">
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const trigger = document.getElementById('sidebar-photo-trigger');
+    const modal = document.getElementById('sidebar-photo-modal');
+    const closeButton = document.getElementById('sidebar-photo-close');
+
+    if (!trigger || !modal || !closeButton) {
+      return;
+    }
+
+    const openModal = () => {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    };
+
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    };
+
+    trigger.addEventListener('click', openModal);
+    closeButton.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+  })();
+</script>
+{% endif %}
+
 <style>
   .active-link  { color: #d97706; background: #fffbeb; }
   .inactive-link { color: #3d2b0a; }
   .inactive-link:hover { color: #d97706; background: #fffcf7; }
+
+  body.dark-mode .active-link {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.12);
+  }
+
+  body.dark-mode .inactive-link {
+    color: #e5e7eb;
+  }
+
+  body.dark-mode .inactive-link:hover {
+    color: #fbbf24;
+    background: rgba(255, 255, 255, 0.04);
+  }
 </style>

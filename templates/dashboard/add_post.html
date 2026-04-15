@@ -59,6 +59,13 @@
             <form action="{% url 'add_post' %}" method="POST" enctype="multipart/form-data">
               {% csrf_token %}
 
+              <div class="mb-4 p-3 rounded-xl border flex flex-wrap gap-2" style="border-color:#e5d5bf; background:#fffcf7;">
+                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-wrap="**" style="background:#fff; border:1px solid #e5d5bf;">Bold</button>
+                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-wrap="*" style="background:#fff; border:1px solid #e5d5bf;">Italic</button>
+                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-prefix="## " style="background:#fff; border:1px solid #e5d5bf;">Heading</button>
+                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-prefix="- " style="background:#fff; border:1px solid #e5d5bf;">List</button>
+                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-wrap="> " data-mode="line" style="background:#fff; border:1px solid #e5d5bf;">Quote</button>
+              </div>
               <div class="add-post-form">
                 {{ form|crispy }}
               </div>
@@ -318,5 +325,30 @@
     cursor: pointer;
   }
 </style>
+
+<script>
+  const editor = document.getElementById('id_blog_body');
+  document.querySelectorAll('.editor-tool').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!editor) return;
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      const selected = editor.value.slice(start, end);
+      const wrap = button.dataset.wrap;
+      const prefix = button.dataset.prefix;
+      const mode = button.dataset.mode;
+      let replacement = selected;
+      if (mode === 'line' && wrap) {
+        replacement = `${wrap}${selected}`;
+      } else if (wrap) {
+        replacement = `${wrap}${selected || 'text'}${wrap}`;
+      } else if (prefix) {
+        replacement = `${prefix}${selected || 'text'}`;
+      }
+      editor.setRangeText(replacement, start, end, 'end');
+      editor.focus();
+    });
+  });
+</script>
 
 {% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
+  {% include 'dashboard/sidebar.html' %}
+  <main class="flex-1 min-w-0">
+    <div class="mb-8 pb-6 border-b" style="border-color:#e5d5bf;">
+      <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Dashboard</p>
+      <h1 class="font-display text-3xl font-black" style="color:#1a1208;">Notifications</h1>
+    </div>
+    <div class="rounded-2xl border bg-white overflow-hidden" style="border-color:#e5d5bf;">
+      <div class="divide-y" style="border-color:#f5ede0;">
+        {% for item in notifications %}
+        <div class="px-5 py-4">
+          <div class="flex items-center justify-between gap-3">
+            <p class="font-semibold" style="color:#1a1208;">{{ item.title }}</p>
+            <span class="text-xs" style="color:#a89070;">{{ item.created_at|timesince }} ago</span>
+          </div>
+          <p class="text-sm mt-1" style="color:#7c6f5e;">{{ item.message }}</p>
+          {% if item.link %}
+          <a href="{% url 'open_notification' item.id %}" class="inline-block mt-2 text-sm font-bold" style="color:#d97706;">Open</a>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div class="px-5 py-10 text-center">
+          <p class="font-display text-2xl font-bold mb-2" style="color:#1a1208;">No notifications yet</p>
+          <p class="text-sm" style="color:#7c6f5e;">Updates about your feedback and scheduled posts will appear here.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

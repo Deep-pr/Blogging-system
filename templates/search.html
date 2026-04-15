@@ -66,6 +66,30 @@
   <div class="mt-6 h-px w-full" style="background: linear-gradient(90deg, #d97706 0%, #e5d5bf 40%, transparent 100%);"></div>
 </div>
 
+<form action="{% url 'search' %}" method="GET"
+      class="mb-8 grid grid-cols-1 md:grid-cols-4 gap-4 rounded-2xl border bg-white p-5"
+      style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+  <input type="text" name="keyword" value="{{ keyword }}" placeholder="Keyword"
+         class="px-4 py-3 rounded-xl border text-sm" style="border-color:#e5d5bf; background:#fffcf7;">
+  <select name="category" class="px-4 py-3 rounded-xl border text-sm" style="border-color:#e5d5bf; background:#fffcf7;">
+    <option value="">All categories</option>
+    {% for category in filter_categories %}
+    <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.category_name }}</option>
+    {% endfor %}
+  </select>
+  <select name="author" class="px-4 py-3 rounded-xl border text-sm" style="border-color:#e5d5bf; background:#fffcf7;">
+    <option value="">All authors</option>
+    {% for author in filter_authors %}
+    <option value="{{ author.id }}" {% if selected_author == author.id|stringformat:"s" %}selected{% endif %}>{{ author.username }}</option>
+    {% endfor %}
+  </select>
+  <div class="flex gap-3">
+    <input type="date" name="published_after" value="{{ selected_date }}"
+           class="flex-1 px-4 py-3 rounded-xl border text-sm" style="border-color:#e5d5bf; background:#fffcf7;">
+    <button type="submit" class="px-4 py-3 rounded-xl text-sm font-bold text-white" style="background:#d97706;">Filter</button>
+  </div>
+</form>
+
 
 <!-- ══════════════════════════════════════════════════════════
      RESULTS GRID
