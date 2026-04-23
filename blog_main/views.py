@@ -1,4 +1,4 @@
-from blogs.models import Blog, Category, EmailVerificationToken, NewsletterSubscription
+from blogs.models import Blog, EmailVerificationToken, NewsletterSubscription, PostReaction
 from django.shortcuts import render, redirect
 from about.models import About
 from .forms import RegisterForm
@@ -11,21 +11,49 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.http import HttpResponse
 from dashboards.models import Notification, Profile
-from dashboards.services import notify_managers
+from dashboards.services import create_user_notification, notify_managers
 from dashboards.forms import FeedbackForm
+from django.db.models import Count, Q
 from blogs.services import publish_scheduled_posts
+
+
+def _mark_first_login_if_needed(request, user):
+    if user and user.last_login is None:
+        request.session['first_login'] = True
 
 
 def home(request):
     publish_scheduled_posts()
-    featured_posts = Blog.objects.filter(is_featured=True, status='Published').select_related('author', 'category').order_by('-published_at', '-updated_at')
-    posts = Blog.objects.filter(is_featured=False, status='Published').select_related('author', 'category').order_by('-published_at', '-updated_at')
+    published_posts = (
+        Blog.objects.filter(status='Published')
+        .select_related('author', 'category')
+        .annotate(
+            like_count=Count(
+                'reactions',
+                filter=Q(reactions__reaction_type=PostReaction.LIKE),
+                distinct=True,
+            )
+        )
+    )
+    spotlight_post = published_posts.order_by('-like_count', '-published_at', '-updated_at').first()
+
+    featured_posts = published_posts.filter(is_featured=True)
+    posts = published_posts.filter(is_featured=False)
+
+    if spotlight_post:
+        featured_posts = featured_posts.exclude(id=spotlight_post.id)
+        posts = posts.exclude(id=spotlight_post.id)
+
+    featured_posts = featured_posts.order_by('-published_at', '-updated_at')
+    posts = posts.order_by('-published_at', '-updated_at')
+
     try:
         about = About.objects.get()
     except Exception:
         about = None
     context = {
         'about': about,
+        'spotlight_post': spotlight_post,
         'featured_posts': featured_posts,
         'posts': posts,
         'page_title': 'FutureFlux | Stories Worth Reading',
@@ -52,11 +80,12 @@ def feedback(request):
                 link=reverse('dashboard_feedback'),
             )
             if request.user.is_authenticated:
-                Notification.objects.create(
+                create_user_notification(
                     user=request.user,
                     title='Feedback received',
                     message='Your feedback has been submitted and is waiting for review.',
                     link='/feedback/',
+                    preference_name='notify_feedback_updates',
                 )
             messages.success(request, 'Thanks for the feedback. We received it and will review it soon.')
             return redirect('feedback')
@@ -85,19 +114,23 @@ def newsletter_subscribe(request):
 
 def sitemap_xml(request):
     publish_scheduled_posts()
-    urls = ['/', '/feedback/']
-    urls.extend(Blog.objects.filter(status='Published').values_list('slug', flat=True))
+    published_posts = Blog.objects.filter(status='Published').select_related('category')
     response_parts = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ]
-    base = request.build_absolute_uri('/')[:-1]
+    base = request.build_absolute_uri('/').rstrip('/')
     response_parts.append(f'<url><loc>{base}/</loc></url>')
-    response_parts.append(f'<url><loc>{base}/feedback/</loc></url>')
-    for slug in Blog.objects.filter(status='Published').values_list('slug', flat=True):
+
+    category_ids = set()
+    for post in published_posts:
+        category_ids.add(post.category_id)
+        slug = post.slug
         response_parts.append(f'<url><loc>{base}/blogs/{slug}/</loc></url>')
-    for category_id in Category.objects.values_list('id', flat=True):
+
+    for category_id in category_ids:
         response_parts.append(f'<url><loc>{base}/category/{category_id}/</loc></url>')
+
     response_parts.append('</urlset>')
     return HttpResponse(''.join(response_parts), content_type='application/xml')
 
@@ -175,6 +208,7 @@ def check_verification(request, user_id):
         token_obj = EmailVerificationToken.objects.get(user=user)
         if token_obj.is_verified:
             user.backend = 'django.contrib.auth.backends.ModelBackend'
+            _mark_first_login_if_needed(request, user)
             auth.login(request, user)
             return JsonResponse({'verified': True, 'redirect': reverse('dashboard')})
         return JsonResponse({'verified': False})
@@ -252,6 +286,7 @@ def login(request):
                     password=password,
                 )
                 if user is not None:
+                    _mark_first_login_if_needed(request, user)
                     auth.login(request, user)
                     return redirect('dashboard')
 

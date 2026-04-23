@@ -15,7 +15,7 @@ A full-featured blog platform built with Django 5.2, featuring email verificatio
 - **Search** — Full-text keyword search across all published posts.
 - **Responsive Design** — Mobile-first UI with a custom hamburger menu showing a user profile card.
 - **Dashboard** — Admin panel with post and category stats, quick actions, and user management.
-- **Secure Auth** — Gmail SMTP email delivery with App Password, credentials stored in `.env`.
+- **Secure Auth** — Gmail SMTP email delivery with App Password configured in Django settings.
 
 ---
 
@@ -55,7 +55,7 @@ blog/
 ├── static/             # Collected static files
 ├── manage.py
 ├── requirements.txt
-└── .env                # Not committed — see setup below
+└── settings.py         # Email settings configured directly for local SMTP
 ```
 
 ---
@@ -83,28 +83,19 @@ env\Scripts\activate           # Windows
 pip install -r requirements.txt
 ```
 
-### 4. Create `.env` file in the project root
-
-```
-EMAIL_HOST_USER=your_gmail@gmail.com
-EMAIL_HOST_PASSWORD=your_16_char_app_password
-```
-
-> Never commit this file. It is already in `.gitignore`.
-
-### 5. Run migrations
+### 4. Run migrations
 
 ```bash
 python manage.py migrate
 ```
 
-### 6. Create a superuser
+### 5. Create a superuser
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 7. Run the development server
+### 6. Run the development server
 
 ```bash
 python manage.py runserver
@@ -119,14 +110,7 @@ Visit `http://127.0.0.1:8000`
 1. Go to [myaccount.google.com](https://myaccount.google.com) → Security
 2. Enable **2-Step Verification**
 3. Search for **App Passwords** → Create one named `Django Blog`
-4. Copy the 16-character password into your `.env` file
-
-For development, you can use the console backend (prints emails to terminal):
-
-```python
-# settings.py
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-```
+4. Update the SMTP values directly in `blog_main/settings.py`
 
 ---
 

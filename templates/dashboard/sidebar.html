@@ -1,190 +1,116 @@
 <!-- dashboard/sidebar.html -->
 
-<aside class="w-full lg:w-64 flex-shrink-0">
-  <div class="rounded-2xl overflow-hidden border sticky top-24"
-       style="border-color:#e5d5bf; box-shadow:0 4px 24px rgba(26,18,8,0.08);">
+<aside class="w-full lg:w-72 flex-shrink-0">
+  <div class="premium-card overflow-hidden sticky top-24">
 
-    <!-- Sidebar header -->
-    <div class="px-5 py-5 relative overflow-hidden"
-         style="background: linear-gradient(135deg, #1a1208 0%, #3d2b0a 100%);">
-      <!-- Decorative circles -->
-      <div class="absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-10" style="background:#fbbf24;"></div>
-      <div class="absolute -bottom-4 -left-4 w-14 h-14 rounded-full opacity-10" style="background:#d97706;"></div>
+    <div class="px-5 py-6 relative overflow-hidden"
+         style="background:linear-gradient(145deg,#141210 0%,#1f1b17 55%,#362d24 160%);">
+      <div class="absolute -top-10 -right-8 w-28 h-28 rounded-full opacity-10" style="background:#d8b27c;"></div>
+      <div class="absolute -bottom-10 -left-6 w-24 h-24 rounded-full opacity-10" style="background:#b58a4b;"></div>
 
       <div class="relative z-10 flex items-center gap-3">
         {% if current_user_profile and current_user_profile.profile_image %}
         <button type="button"
                 id="sidebar-photo-trigger"
-                class="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2 focus:ring-offset-transparent"
-                style="border-color:rgba(251,191,36,0.25);"
+                class="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border transition-transform duration-200 hover:scale-105 focus:outline-none"
+                style="border-color:rgba(251,191,36,0.28);"
                 aria-label="View profile photo">
           <img src="{{ current_user_profile.profile_image.url }}" alt="{{ user.username }}"
                class="w-full h-full object-cover">
         </button>
         {% else %}
-        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-             style="background: linear-gradient(135deg,#d97706,#fbbf24); color:#1a1208;">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0"
+             style="background:linear-gradient(135deg,#b58a4b,#d8b27c); color:#131110;">
           {{ user.username|slice:":1"|upper }}
         </div>
         {% endif %}
-        <div>
-          <p class="text-xs font-bold text-white leading-tight">{{ user.username }}</p>
-          <p class="text-xs" style="color:#a89070;">Dashboard</p>
+
+        <div class="min-w-0">
+          <p class="text-sm font-bold truncate text-white">{{ user.username }}</p>
+          <p class="text-xs truncate" style="color:#d6b98a;">Control center</p>
+        </div>
+      </div>
+
+      <div class="relative z-10 mt-5 grid grid-cols-2 gap-3">
+        <div class="rounded-2xl px-3 py-3" style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08);">
+          <p class="text-[11px] uppercase tracking-[0.2em] mb-1" style="color:#d6b98a;">Role</p>
+          <p class="text-sm font-bold text-white">
+            {% if request.user.is_superuser %}Admin{% elif request.user.is_staff %}Manager{% else %}Editor{% endif %}
+          </p>
+        </div>
+        <div class="rounded-2xl px-3 py-3" style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08);">
+          <p class="text-[11px] uppercase tracking-[0.2em] mb-1" style="color:#d6b98a;">Today</p>
+          <p class="text-sm font-bold text-white">{% now "M j" %}</p>
         </div>
       </div>
     </div>
 
-    <!-- Nav links -->
-    <nav class="flex flex-col py-2 bg-white">
+    <nav class="px-3 py-3" style="background:rgba(255,251,244,0.78);">
+      <div class="space-y-1.5">
+        <a href="{% url 'dashboard' %}" class="sidebar-link {% if '/dashboard/' == request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-solid fa-house"></i>
+          <span>Dashboard</span>
+        </a>
 
-      <a href="{% url 'dashboard' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/dashboard/' == request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/dashboard/' == request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
+        {% if request.user.is_superuser or request.user.is_staff %}
+        <a href="{% url 'users' %}" class="sidebar-link {% if '/users/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-solid fa-users"></i>
+          <span>Users</span>
+        </a>
         {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-        </svg>
-        Dashboard
-      </a>
 
-      {% if perms.auth.view_user %}
-      <a href="{% url 'users' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/users/' in request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/users/' in request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
+        <a href="{% url 'categories' %}" class="sidebar-link {% if '/categories/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-solid fa-tag"></i>
+          <span>Categories</span>
+        </a>
+
+        <a href="{% url 'posts' %}" class="sidebar-link {% if '/posts/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-regular fa-file-lines"></i>
+          <span>Posts</span>
+        </a>
+
+        <a href="{% url 'my_profile' %}" class="sidebar-link {% if '/profile/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-regular fa-user"></i>
+          <span>My Profile</span>
+        </a>
+
+        <a href="{% url 'settings' %}" class="sidebar-link {% if '/settings/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Settings</span>
+        </a>
+
+        <a href="{% url 'saved_posts' %}" class="sidebar-link {% if '/saved-posts/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-regular fa-bookmark"></i>
+          <span>Saved Posts</span>
+        </a>
+
+        <a href="{% url 'notifications' %}" class="sidebar-link {% if '/notifications/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-regular fa-bell"></i>
+          <span>Notifications</span>
+        </a>
+
+        <a href="{% url 'analytics' %}" class="sidebar-link {% if '/analytics/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Analytics</span>
+        </a>
+
+        <a href="{% url 'followers' %}" class="sidebar-link {% if '/followers/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-solid fa-user-group"></i>
+          <span>Followers</span>
+        </a>
+
+        {% if request.user.is_superuser or request.user.is_staff %}
+        <a href="{% url 'dashboard_feedback' %}" class="sidebar-link {% if '/feedback/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-regular fa-message"></i>
+          <span>Feedback</span>
+        </a>
+
+        <a href="{% url 'reports' %}" class="sidebar-link {% if '/reports/' in request.path %}sidebar-link-active{% endif %}">
+          <i class="fa-regular fa-flag"></i>
+          <span>Reports</span>
+        </a>
         {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-        Users
-      </a>
-      {% endif %}
-
-      <a href="{% url 'categories' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/categories/' in request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/categories/' in request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
-        {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-        </svg>
-        Categories
-      </a>
-
-      <a href="{% url 'posts' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/posts/' in request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/posts/' in request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
-        {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2zM13 4v6h6"/>
-        </svg>
-        Posts
-      </a>
-
-      <a href="{% url 'my_profile' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/profile/' in request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/profile/' in request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
-        {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A12.07 12.07 0 0112 15c2.5 0 4.824.76 6.879 2.057M15 11a3 3 0 11-6 0 3 3 0 016 0zm6 1a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        My Profile
-      </a>
-
-      <a href="{% url 'saved_posts' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/saved-posts/' in request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/saved-posts/' in request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
-        {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5 5v16l7-4 7 4V5a2 2 0 00-2-2H7a2 2 0 00-2 2z"/>
-        </svg>
-        Saved Posts
-      </a>
-
-      <a href="{% url 'notifications' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/notifications/' in request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/notifications/' in request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
-        {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-        </svg>
-        Notifications
-      </a>
-
-      <a href="{% url 'analytics' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/analytics/' in request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/analytics/' in request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
-        {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11 3v18m-4-8v8m8-14v14m4-10v10"/>
-        </svg>
-        Analytics
-      </a>
-
-      <a href="{% url 'followers' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/followers/' in request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/followers/' in request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
-        {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-        Followers
-      </a>
-
-      {% if request.user.is_superuser or request.user.is_staff %}
-      <a href="{% url 'dashboard_feedback' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/feedback/' in request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/feedback/' in request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
-        {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h6m-8 8h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-        </svg>
-        Feedback
-      </a>
-
-      <a href="{% url 'reports' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150 group relative
-                {% if '/reports/' in request.path %}active-link{% else %}inactive-link{% endif %}">
-        {% if '/reports/' in request.path %}
-        <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style="background:#d97706;"></span>
-        {% endif %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-1.414 1.414M12 9v3m0 4h.01M5.636 5.636l1.414 1.414M4 12h3m10 0h3M6.343 17.657l1.414-1.414m8.486 1.414l-1.414-1.414"/>
-        </svg>
-        Reports
-      </a>
-      {% endif %}
-
-      <!-- Divider -->
-      <div class="mx-5 my-2 h-px" style="background:#f5ede0;"></div>
-
-      <a href="{% url 'logout' %}"
-         class="flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all duration-150"
-         style="color:#b91c1c;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-        </svg>
-        Logout
-      </a>
-
+      </div>
     </nav>
   </div>
 </aside>
@@ -255,21 +181,62 @@
 {% endif %}
 
 <style>
-  .active-link  { color: #d97706; background: #fffbeb; }
-  .inactive-link { color: #3d2b0a; }
-  .inactive-link:hover { color: #d97706; background: #fffcf7; }
-
-  body.dark-mode .active-link {
-    color: #fbbf24;
-    background: rgba(245, 158, 11, 0.12);
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.9rem 1rem;
+    border-radius: 1rem;
+    color: #2a221b;
+    font-size: 0.96rem;
+    font-weight: 700;
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   }
 
-  body.dark-mode .inactive-link {
+  .sidebar-link i {
+    width: 1.1rem;
+    text-align: center;
+    color: #97723d;
+  }
+
+  .sidebar-link:hover {
+    background: rgba(248, 239, 225, 0.95);
+    color: #97723d;
+    transform: translateX(3px);
+    box-shadow: inset 0 0 0 1px rgba(181, 138, 75, 0.12);
+  }
+
+  .sidebar-link-active {
+    background: linear-gradient(135deg, #f8efe1, #fffdf8);
+    color: #97723d;
+    box-shadow: inset 0 0 0 1px rgba(181, 138, 75, 0.16);
+  }
+
+  .sidebar-link-danger {
+    color: #b91c1c;
+  }
+
+  .sidebar-link-danger i {
+    color: #b91c1c;
+  }
+
+  body.dark-mode .sidebar-link {
     color: #e5e7eb;
   }
 
-  body.dark-mode .inactive-link:hover {
-    color: #fbbf24;
-    background: rgba(255, 255, 255, 0.04);
+  body.dark-mode .sidebar-link i {
+    color: #d8b27c;
+  }
+
+  body.dark-mode .sidebar-link:hover,
+  body.dark-mode .sidebar-link-active {
+    background: rgba(255, 255, 255, 0.05);
+    color: #ead4ae;
+    box-shadow: inset 0 0 0 1px rgba(181, 138, 75, 0.2);
+  }
+
+  body.dark-mode .sidebar-link-danger,
+  body.dark-mode .sidebar-link-danger i {
+    color: #f87171;
   }
 </style>

@@ -1,0 +1,718 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
+  {% include 'dashboard/sidebar.html' %}
+
+  <main class="flex-1 min-w-0">
+    <section class="premium-card-soft p-6 md:p-8 mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div>
+          <p class="section-kicker mb-3">Account Control</p>
+          <h1 class="section-title text-[clamp(2.35rem,4vw,4.1rem)]">Settings</h1>
+          <p class="section-copy mt-4 max-w-2xl">Your preferences now save here for real, including appearance choices, notification behavior, and password changes.</p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <div class="premium-stat min-w-[160px]">
+            <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#b45309;">Role</p>
+            <p class="font-display text-2xl font-black" style="color:#1a1208;">{{ role_label }}</p>
+            <p class="premium-meta">Workspace access</p>
+          </div>
+          <div class="premium-stat min-w-[160px]">
+            <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#b45309;">Unread alerts</p>
+            <p class="font-display text-2xl font-black" style="color:#1a1208;">{{ unread_notification_count }}</p>
+            <p class="premium-meta">Need attention</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="premium-card overflow-hidden mb-6">
+      <div class="px-6 py-5 border-b" style="border-color:#f0e4d2; background:rgba(255,252,247,0.72);">
+        <p class="section-kicker mb-2">Action Center</p>
+        <h2 class="section-subtitle text-[2rem]">Choose what you want to manage</h2>
+      </div>
+
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <button type="button" class="settings-action-launcher" data-settings-trigger="preferences-panel">
+            <span class="settings-action-launcher-icon" style="background:linear-gradient(135deg,#fef3c7,#fde68a); color:#b45309;">
+              <i class="fa-solid fa-sliders"></i>
+            </span>
+            <span class="settings-action-launcher-copy">
+              <strong>Appearance & alerts</strong>
+              <span>Theme preference and notification choices</span>
+            </span>
+          </button>
+
+          <button type="button" class="settings-action-launcher" data-settings-trigger="password-panel">
+            <span class="settings-action-launcher-icon" style="background:linear-gradient(135deg,#fee2e2,#fecaca); color:#b91c1c;">
+              <i class="fa-solid fa-key"></i>
+            </span>
+            <span class="settings-action-launcher-copy">
+              <strong>Change password</strong>
+              <span>Update your account security only when needed</span>
+            </span>
+          </button>
+
+          <a href="{% url 'my_profile' %}" class="settings-action-launcher settings-action-launcher-link">
+            <span class="settings-action-launcher-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe); color:#2563eb;">
+              <i class="fa-regular fa-user"></i>
+            </span>
+            <span class="settings-action-launcher-copy">
+              <strong>My profile</strong>
+              <span>View your public account surface and logout action</span>
+            </span>
+          </a>
+
+          <a href="{% url 'edit_my_profile' %}" class="settings-action-launcher settings-action-launcher-link">
+            <span class="settings-action-launcher-icon" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0); color:#166534;">
+              <i class="fa-regular fa-pen-to-square"></i>
+            </span>
+            <span class="settings-action-launcher-copy">
+              <strong>Edit account</strong>
+              <span>Update your name, email, bio, and profile photo</span>
+            </span>
+          </a>
+        </div>
+
+        <div id="settings-empty-state" class="settings-empty-state mt-5">
+          <p class="section-copy text-sm">Select one of the actions above to open the matching settings panel.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 xl:grid-cols-[1.12fr_0.88fr] gap-6">
+      <section class="space-y-6">
+        <div class="premium-card overflow-hidden hidden" data-settings-panel="preferences-panel" id="preferences-panel">
+          <div class="px-6 py-5 border-b" style="border-color:#f0e4d2; background:rgba(255,252,247,0.72);">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div>
+                <p class="section-kicker mb-2">Preferences</p>
+                <h2 class="section-subtitle text-[2rem]">Appearance and notifications</h2>
+              </div>
+              <button type="button" class="settings-panel-close" data-settings-close="preferences-panel">
+                Close
+              </button>
+            </div>
+          </div>
+
+          <form method="POST" class="p-6 space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="preferences">
+
+            <div class="settings-panel">
+              <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-5">
+                <div class="flex-1">
+                  <label for="{{ settings_form.theme_preference.id_for_label }}" class="settings-field-label">
+                    {{ settings_form.theme_preference.label }}
+                  </label>
+                  <div class="mt-2">
+                    {{ settings_form.theme_preference }}
+                  </div>
+                  {% if settings_form.theme_preference.help_text %}
+                  <p class="settings-field-help">{{ settings_form.theme_preference.help_text }}</p>
+                  {% endif %}
+                  {% if settings_form.theme_preference.errors %}
+                  <div class="settings-field-error">{{ settings_form.theme_preference.errors }}</div>
+                  {% endif %}
+                </div>
+
+                <div class="settings-theme-box">
+                  <p class="text-xs font-bold uppercase tracking-[0.2em] mb-2" style="color:#b45309;">Preview</p>
+                  <p class="section-copy text-sm mb-4">You can preview the selected appearance immediately before saving it.</p>
+                  <div class="flex items-center gap-3">
+                    <span id="settings-theme-status" class="status-pill status-pill-amber">Light mode</span>
+                    <button type="button" id="settings-theme-preview" class="btn-outline text-sm">
+                      Preview
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
+                <div>
+                  <p class="section-kicker mb-2">Alerts</p>
+                  <h3 class="section-subtitle text-[1.85rem]">Notification preferences</h3>
+                </div>
+                <p class="section-copy text-sm max-w-xl">Choose which dashboard notifications should still reach you. These settings now affect real activity inside the product.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label class="settings-toggle-card">
+                  <div>
+                    <p class="settings-toggle-title">{{ settings_form.notify_new_followers.label }}</p>
+                    <p class="settings-toggle-copy">Stay informed when someone starts following your profile.</p>
+                  </div>
+                  {{ settings_form.notify_new_followers }}
+                </label>
+
+                <label class="settings-toggle-card">
+                  <div>
+                    <p class="settings-toggle-title">{{ settings_form.notify_post_updates.label }}</p>
+                    <p class="settings-toggle-copy">Receive alerts for followed authors and scheduled post publishing updates.</p>
+                  </div>
+                  {{ settings_form.notify_post_updates }}
+                </label>
+
+                <label class="settings-toggle-card">
+                  <div>
+                    <p class="settings-toggle-title">{{ settings_form.notify_feedback_updates.label }}</p>
+                    <p class="settings-toggle-copy">Get confirmation when feedback is received or reviewed.</p>
+                  </div>
+                  {{ settings_form.notify_feedback_updates }}
+                </label>
+
+                <label class="settings-toggle-card">
+                  <div>
+                    <p class="settings-toggle-title">{{ settings_form.notify_report_updates.label }}</p>
+                    <p class="settings-toggle-copy">Get confirmation when reports are received or updated.</p>
+                  </div>
+                  {{ settings_form.notify_report_updates }}
+                </label>
+
+                {% if settings_form.notify_staff_alerts %}
+                <label class="settings-toggle-card md:col-span-2">
+                  <div>
+                    <p class="settings-toggle-title">{{ settings_form.notify_staff_alerts.label }}</p>
+                    <p class="settings-toggle-copy">Managers can opt in or out of new feedback and content report alerts.</p>
+                  </div>
+                  {{ settings_form.notify_staff_alerts }}
+                </label>
+                {% endif %}
+              </div>
+
+              {% for field in settings_form %}
+                {% if field.name != 'theme_preference' and field.errors %}
+                <div class="settings-field-error mt-3">{{ field.errors }}</div>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            <div class="pt-2">
+              <button type="submit" class="btn-amber">
+                Save Preferences
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="premium-card overflow-hidden hidden" data-settings-panel="password-panel" id="password-panel">
+          <div class="px-6 py-5 border-b" style="border-color:#f0e4d2; background:rgba(255,252,247,0.72);">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div>
+                <p class="section-kicker mb-2">Security</p>
+                <h2 class="section-subtitle text-[2rem]">Change password</h2>
+              </div>
+              <button type="button" class="settings-panel-close" data-settings-close="password-panel">
+                Close
+              </button>
+            </div>
+          </div>
+
+          <form method="POST" class="p-6 space-y-5">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="password">
+
+            {% if password_form.non_field_errors %}
+            <div class="settings-field-error">{{ password_form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 gap-4">
+              {% for field in password_form %}
+              <div>
+                <label for="{{ field.id_for_label }}" class="settings-field-label">{{ field.label }}</label>
+                <div class="mt-2">{{ field }}</div>
+                {% if field.help_text %}
+                <div class="settings-field-help">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {% if field.errors %}
+                <div class="settings-field-error">{{ field.errors }}</div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 pt-2">
+              <button type="submit" class="btn-amber">
+                Update Password
+              </button>
+              <span class="premium-meta">You will stay signed in after a successful password change.</span>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <aside class="space-y-6">
+        <div class="premium-card p-6">
+          <p class="section-kicker mb-3">Account Snapshot</p>
+          <h2 class="section-subtitle text-[2rem] mb-5">Current activity</h2>
+          <div class="space-y-3">
+            <div class="premium-stat flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold" style="color:#1a1208;">Saved posts</p>
+                <p class="premium-meta">Stories kept for later</p>
+              </div>
+              <span class="premium-link text-sm">{{ saved_count }}</span>
+            </div>
+
+            <div class="premium-stat flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold" style="color:#1a1208;">Posts</p>
+                <p class="premium-meta">Accessible publishing entries</p>
+              </div>
+              <a href="{% url 'posts' %}" class="premium-link text-sm">{{ post_count }} total</a>
+            </div>
+
+            <div class="premium-stat flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold" style="color:#1a1208;">Categories</p>
+                <p class="premium-meta">Structure you can manage</p>
+              </div>
+              <a href="{% url 'categories' %}" class="premium-link text-sm">{{ category_count }} total</a>
+            </div>
+
+            {% if can_view_followers %}
+            <div class="premium-stat flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold" style="color:#1a1208;">Followers</p>
+                <p class="premium-meta">Audience relationships</p>
+              </div>
+              <a href="{% url 'followers' %}" class="premium-link text-sm">{{ follower_total }} total</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if can_view_feedback or can_manage_reports or can_manage_users %}
+        <div class="premium-card p-6">
+          <p class="section-kicker mb-3">Staff Tools</p>
+          <h2 class="section-subtitle text-[2rem] mb-5">Moderation shortcuts</h2>
+          <div class="space-y-3">
+            {% if can_view_feedback %}
+            <div class="premium-stat flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold" style="color:#1a1208;">Feedback</p>
+                <p class="premium-meta">Reader notes and status tracking</p>
+              </div>
+              <a href="{% url 'dashboard_feedback' %}" class="premium-link text-sm">{{ feedback_count }} total</a>
+            </div>
+            {% endif %}
+
+            {% if can_manage_reports %}
+            <div class="premium-stat flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold" style="color:#1a1208;">Reports</p>
+                <p class="premium-meta">Content moderation workflow</p>
+              </div>
+              <a href="{% url 'reports' %}" class="premium-link text-sm">{{ report_count }} total</a>
+            </div>
+            {% endif %}
+
+            {% if can_manage_users %}
+            <div class="premium-stat flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold" style="color:#1a1208;">Users</p>
+                <p class="premium-meta">Accounts and permissions</p>
+              </div>
+              <a href="{% url 'users' %}" class="premium-link text-sm">Manage</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="premium-card-soft p-6">
+          <p class="section-kicker mb-3">Profile Flow</p>
+          <h2 class="section-subtitle text-[2rem] mb-3">Personal actions still live in profile</h2>
+          <p class="section-copy text-sm mb-5">Your logout action stays on the profile page, while settings now handle saved preferences and password updates.</p>
+          <div class="space-y-3">
+            <a href="{% url 'my_profile' %}" class="btn-outline w-full text-center justify-center" style="display:flex;">
+              Open My Profile
+            </a>
+            <a href="{% url 'edit_my_profile' %}" class="btn-amber w-full text-center justify-center" style="display:flex;">
+              Edit Account Details
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    {% if recent_notifications %}
+    <section class="premium-card mt-6 overflow-hidden">
+      <div class="px-6 py-5 border-b" style="border-color:#f0e4d2; background:rgba(255,252,247,0.72);">
+        <p class="section-kicker mb-2">Recent Activity</p>
+        <h2 class="section-subtitle text-[2rem]">Latest alerts</h2>
+      </div>
+
+      <div class="divide-y" style="border-color:#f0e4d2;">
+        {% for item in recent_notifications %}
+        <article class="px-6 py-5 flex flex-col md:flex-row md:items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-3 mb-2">
+              <p class="text-base font-bold" style="color:#1a1208;">{{ item.title }}</p>
+              <span class="premium-meta">{{ item.created_at|timesince }} ago</span>
+            </div>
+            <p class="section-copy text-sm">{{ item.message }}</p>
+          </div>
+          {% if item.link %}
+          <a href="{% url 'open_notification' item.id %}" class="premium-link text-sm whitespace-nowrap">Open</a>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </main>
+</div>
+
+<style>
+  .settings-panel {
+    padding: 1.35rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(229, 213, 191, 0.82);
+    background: linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(255, 249, 240, 0.92));
+  }
+
+  .settings-action-launcher {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.15rem 1.2rem;
+    border-radius: 1.45rem;
+    border: 1px solid rgba(229, 213, 191, 0.82);
+    background: rgba(255, 255, 255, 0.74);
+    text-align: left;
+    transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  }
+
+  .settings-action-launcher:hover {
+    transform: translateY(-2px);
+    border-color: rgba(217, 119, 6, 0.22);
+    box-shadow: 0 16px 32px rgba(26, 18, 8, 0.06);
+  }
+
+  .settings-action-launcher-active {
+    border-color: rgba(217, 119, 6, 0.3);
+    background: linear-gradient(180deg, rgba(255, 252, 247, 0.96), rgba(255, 247, 237, 0.92));
+    box-shadow: 0 18px 36px rgba(217, 119, 6, 0.08);
+  }
+
+  .settings-action-launcher-link {
+    text-decoration: none;
+  }
+
+  .settings-action-launcher-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+
+  .settings-action-launcher-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+  }
+
+  .settings-action-launcher-copy strong {
+    color: #1a1208;
+    font-size: 0.96rem;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  .settings-action-launcher-copy span {
+    color: #6b5c49;
+    font-size: 0.84rem;
+    line-height: 1.55;
+  }
+
+  .settings-empty-state {
+    padding: 1rem 1.1rem;
+    border-radius: 1.2rem;
+    border: 1px dashed rgba(229, 213, 191, 0.85);
+    background: rgba(255, 252, 247, 0.68);
+  }
+
+  .settings-theme-box {
+    min-width: min(100%, 18rem);
+    padding: 1rem 1.05rem;
+    border-radius: 1.2rem;
+    border: 1px solid rgba(229, 213, 191, 0.78);
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .settings-field-label {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8b7358;
+  }
+
+  .settings-field-help {
+    margin-top: 0.55rem;
+    color: #8b7358;
+    font-size: 0.84rem;
+    line-height: 1.65;
+  }
+
+  .settings-field-help ul {
+    margin-top: 0.45rem;
+    padding-left: 1.1rem;
+  }
+
+  .settings-field-help li {
+    margin-bottom: 0.2rem;
+  }
+
+  .settings-field-error {
+    margin-top: 0.6rem;
+    color: #dc2626;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .settings-select,
+  .settings-input {
+    width: 100%;
+    border: 1.5px solid #e5d5bf;
+    border-radius: 1rem;
+    background: rgba(255, 252, 247, 0.96);
+    color: #1a1208;
+    padding: 0.92rem 1rem;
+    font-size: 0.94rem;
+    transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+    outline: none;
+  }
+
+  .settings-select:focus,
+  .settings-input:focus {
+    border-color: #d97706;
+    box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.12);
+    background: #fffefb;
+  }
+
+  .settings-toggle-card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.15rem 1.2rem;
+    border-radius: 1.35rem;
+    border: 1px solid rgba(229, 213, 191, 0.8);
+    background: rgba(255, 255, 255, 0.72);
+    cursor: pointer;
+  }
+
+  .settings-toggle-title {
+    color: #1a1208;
+    font-size: 0.96rem;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 0.3rem;
+  }
+
+  .settings-toggle-copy {
+    color: #6b5c49;
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+
+  .settings-checkbox {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.15rem;
+    accent-color: #d97706;
+    flex-shrink: 0;
+  }
+
+  .settings-panel-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.72rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(229, 213, 191, 0.82);
+    background: rgba(255, 255, 255, 0.74);
+    color: #7c6f5e;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: border-color 0.22s ease, color 0.22s ease, transform 0.22s ease;
+  }
+
+  .settings-panel-close:hover {
+    border-color: rgba(217, 119, 6, 0.26);
+    color: #b45309;
+    transform: translateY(-1px);
+  }
+
+  body.dark-mode .settings-panel,
+  body.dark-mode .settings-theme-box,
+  body.dark-mode .settings-toggle-card,
+  body.dark-mode .settings-action-launcher,
+  body.dark-mode .settings-empty-state,
+  body.dark-mode .settings-panel-close {
+    background: rgba(15, 23, 42, 0.76) !important;
+    border-color: rgba(251, 191, 36, 0.16) !important;
+    box-shadow: 0 18px 38px rgba(2, 6, 23, 0.22);
+  }
+
+  body.dark-mode .settings-action-launcher-active {
+    background: rgba(30, 41, 59, 0.92) !important;
+    border-color: rgba(251, 191, 36, 0.24) !important;
+  }
+
+  body.dark-mode .settings-field-label {
+    color: #cbd5e1 !important;
+  }
+
+  body.dark-mode .settings-field-help {
+    color: #94a3b8 !important;
+  }
+
+  body.dark-mode .settings-select,
+  body.dark-mode .settings-input {
+    background: #111827 !important;
+    color: #f8fafc !important;
+    border-color: rgba(251, 191, 36, 0.22) !important;
+  }
+
+  body.dark-mode .settings-toggle-title {
+    color: #f8fafc !important;
+  }
+
+  body.dark-mode .settings-toggle-copy,
+  body.dark-mode .settings-action-launcher-copy span {
+    color: #cbd5e1 !important;
+  }
+
+  body.dark-mode .settings-action-launcher-copy strong,
+  body.dark-mode .settings-panel-close {
+    color: #f8fafc !important;
+  }
+
+  body.dark-mode .settings-field-error {
+    color: #f87171 !important;
+  }
+</style>
+
+<script>
+  (function () {
+    const actionTriggers = Array.from(document.querySelectorAll('[data-settings-trigger]'));
+    const panels = Array.from(document.querySelectorAll('[data-settings-panel]'));
+    const closeButtons = Array.from(document.querySelectorAll('[data-settings-close]'));
+    const emptyState = document.getElementById('settings-empty-state');
+    const themeSelect = document.getElementById('{{ settings_form.theme_preference.id_for_label }}');
+    const previewButton = document.getElementById('settings-theme-preview');
+    const themeStatus = document.getElementById('settings-theme-status');
+    const root = document.documentElement;
+    const body = document.body;
+
+    const applyThemePreference = (preference) => {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let isDark = false;
+
+      if (preference === 'dark') {
+        localStorage.setItem('futureflux-theme', 'dark');
+        isDark = true;
+      } else if (preference === 'light') {
+        localStorage.setItem('futureflux-theme', 'light');
+        isDark = false;
+      } else {
+        localStorage.removeItem('futureflux-theme');
+        isDark = prefersDark;
+      }
+
+      root.classList.toggle('dark-mode-root', isDark);
+      body.classList.toggle('dark-mode', isDark);
+      if (themeStatus) {
+        themeStatus.textContent = isDark ? 'Dark mode' : 'Light mode';
+      }
+    };
+
+    const closePanels = () => {
+      panels.forEach((panel) => panel.classList.add('hidden'));
+      actionTriggers.forEach((trigger) => trigger.classList.remove('settings-action-launcher-active'));
+      if (emptyState) {
+        emptyState.classList.remove('hidden');
+      }
+    };
+
+    const openPanel = (panelId, shouldScroll = true) => {
+      let openedPanel = null;
+      panels.forEach((panel) => {
+        const isTarget = panel.dataset.settingsPanel === panelId;
+        panel.classList.toggle('hidden', !isTarget);
+        if (isTarget) {
+          openedPanel = panel;
+        }
+      });
+
+      actionTriggers.forEach((trigger) => {
+        trigger.classList.toggle('settings-action-launcher-active', trigger.dataset.settingsTrigger === panelId);
+      });
+
+      if (emptyState) {
+        emptyState.classList.add('hidden');
+      }
+
+      if (openedPanel && shouldScroll) {
+        openedPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+
+    actionTriggers.forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const panelId = trigger.dataset.settingsTrigger;
+        const panel = document.querySelector(`[data-settings-panel="${panelId}"]`);
+        if (!panel) {
+          return;
+        }
+
+        const isHidden = panel.classList.contains('hidden');
+        if (isHidden) {
+          openPanel(panelId);
+        } else {
+          closePanels();
+        }
+      });
+    });
+
+    closeButtons.forEach((button) => {
+      button.addEventListener('click', () => closePanels());
+    });
+
+    if (themeSelect && previewButton) {
+      previewButton.addEventListener('click', () => applyThemePreference(themeSelect.value));
+    }
+
+    const initialPanel = '{% if password_form.errors or password_form.non_field_errors %}password-panel{% elif settings_form.errors %}preferences-panel{% else %}{% endif %}';
+    if (initialPanel) {
+      openPanel(initialPanel, false);
+    } else {
+      closePanels();
+    }
+
+    {% if sync_theme_preference %}
+    applyThemePreference('{{ profile.theme_preference }}');
+    {% else %}
+    if (themeStatus) {
+      themeStatus.textContent = body.classList.contains('dark-mode') ? 'Dark mode' : 'Light mode';
+    }
+    {% endif %}
+  })();
+</script>
+
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group, User
+from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -6,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from blogs.models import AuthorFollow, Blog, Category, ContentReport
+from blog_main.forms import RegisterForm
 from dashboards.models import Feedback, Notification, Profile
 
 
@@ -189,6 +191,17 @@ class ProfileTests(TestCase):
         self.assertRedirects(response, reverse('verify_wait', args=[user.id]))
         self.assertTrue(user.profile.profile_image.name.startswith('profiles/'))
 
+    def test_registration_form_places_email_first_and_focuses_email(self):
+        form = RegisterForm()
+
+        self.assertEqual(
+            list(form.fields.keys()),
+            ['email', 'username', 'first_name', 'last_name', 'profile_image', 'password1', 'password2'],
+        )
+        self.assertTrue(form.fields['email'].widget.attrs.get('autofocus'))
+        self.assertEqual(form.fields['email'].widget.attrs.get('autocomplete'), 'email')
+        self.assertEqual(form.fields['username'].widget.attrs.get('autocomplete'), 'username')
+
 
 class FeedbackTests(TestCase):
     def test_feedback_submission_notifies_managers(self):
@@ -360,10 +373,102 @@ class DashboardFeatureTests(TestCase):
 
         saved_response = self.client.get(reverse('saved_posts'))
         notification_response = self.client.get(reverse('notifications'))
+        settings_response = self.client.get(reverse('settings'))
 
         self.assertEqual(saved_response.status_code, 200)
         self.assertEqual(notification_response.status_code, 200)
+        self.assertEqual(settings_response.status_code, 200)
         self.assertContains(notification_response, 'Welcome')
+
+    def test_settings_page_shows_personal_account_actions(self):
+        editor_group, _ = Group.objects.get_or_create(name='Editor')
+        user = User.objects.create_user(username='settings-user', password='pass1234', email='settings@example.com')
+        user.groups.add(editor_group)
+        Notification.objects.create(user=user, title='Theme hint', message='Try dark mode.')
+
+        self.client.force_login(user)
+        response = self.client.get(reverse('settings'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Settings')
+        self.assertContains(response, 'Appearance and notifications')
+        self.assertContains(response, 'Change password')
+        self.assertContains(response, reverse('edit_my_profile'))
+        self.assertContains(response, reverse('my_profile'))
+
+    def test_manager_settings_page_shows_staff_controls(self):
+        manager_group, _ = Group.objects.get_or_create(name='Manager')
+        manager = User.objects.create_user(username='settings-manager', password='pass1234', is_staff=True)
+        manager.groups.add(manager_group)
+
+        self.client.force_login(manager)
+        response = self.client.get(reverse('settings'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse('dashboard_feedback'))
+        self.assertContains(response, reverse('reports'))
+
+    def test_settings_page_can_update_preferences(self):
+        user = User.objects.create_user(username='settings-save', password='pass1234', email='save@example.com')
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse('settings'),
+            {
+                'form_type': 'preferences',
+                'theme_preference': 'dark',
+                'notify_post_updates': 'on',
+                'notify_feedback_updates': 'on',
+            },
+        )
+
+        self.assertRedirects(response, reverse('settings'))
+        user.profile.refresh_from_db()
+        self.assertEqual(user.profile.theme_preference, 'dark')
+        self.assertFalse(user.profile.notify_new_followers)
+        self.assertTrue(user.profile.notify_post_updates)
+        self.assertTrue(user.profile.notify_feedback_updates)
+        self.assertFalse(user.profile.notify_report_updates)
+
+    def test_settings_page_can_change_password(self):
+        user = User.objects.create_user(username='settings-password', password='pass1234', email='password@example.com')
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse('settings'),
+            {
+                'form_type': 'password',
+                'old_password': 'pass1234',
+                'new_password1': 'UltraSecurePass987$',
+                'new_password2': 'UltraSecurePass987$',
+            },
+        )
+
+        self.assertRedirects(response, reverse('settings'))
+        self.client.logout()
+        self.assertTrue(self.client.login(username='settings-password', password='UltraSecurePass987$'))
+
+    def test_profile_page_contains_logout_action(self):
+        user = User.objects.create_user(username='profile-logout', password='pass1234', email='profilelogout@example.com')
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('my_profile'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse('logout'))
+        self.assertContains(response, 'Account Actions')
+
+    def test_disabling_new_follower_notifications_stops_author_alert(self):
+        author = User.objects.create_user(username='settings-author', password='pass1234', email='author@example.com')
+        follower = User.objects.create_user(username='settings-follower', password='pass1234', email='follower@example.com')
+        author.profile.notify_new_followers = False
+        author.profile.save(update_fields=['notify_new_followers'])
+
+        self.client.force_login(follower)
+        response = self.client.post(reverse('toggle_follow_author', args=[author.username]))
+
+        self.assertRedirects(response, reverse('author_profile', args=[author.username]))
+        self.assertFalse(Notification.objects.filter(user=author, title='New follower').exists())
 
     def test_editor_can_preview_own_draft(self):
         editor_group, _ = Group.objects.get_or_create(name='Editor')
@@ -565,3 +670,37 @@ class DashboardFeatureTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
         self.assertTrue(ContentReport.objects.filter(pk=report.id).exists())
+
+
+class AuthRecoveryTests(TestCase):
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_password_reset_flow_is_available_from_login(self):
+        user = User.objects.create_user(username='recover-user', password='pass1234', email='recover@example.com')
+
+        login_response = self.client.get(reverse('login'))
+        self.assertEqual(login_response.status_code, 200)
+        self.assertContains(login_response, reverse('password_reset'))
+
+        reset_response = self.client.post(
+            reverse('password_reset'),
+            {'email': user.email},
+        )
+        self.assertRedirects(reset_response, reverse('password_reset_done'))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('/password-reset/confirm/', mail.outbox[0].body)
+
+    def test_first_dashboard_login_shows_welcome_once(self):
+        user = User.objects.create_user(username='first-login', password='pass1234', email='first@example.com')
+
+        response = self.client.post(
+            reverse('login'),
+            {'username': 'first-login', 'password': 'pass1234'},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Welcome,')
+        self.assertNotContains(response, 'Welcome back,')
+
+        dashboard_response = self.client.get(reverse('dashboard'))
+        self.assertContains(dashboard_response, 'Welcome back,')

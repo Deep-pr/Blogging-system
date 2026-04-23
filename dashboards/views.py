@@ -3,12 +3,16 @@ from django.db.models import Count
 from django.utils import timezone
 from blogs.models import AuthorFollow, Blog, Bookmark, Category, ContentReport
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.contrib.auth import update_session_auth_hash
 from .forms import (
     CategoryForm,
     BlogPostForm,
     AddUserForm,
     EditUserForm,
     ProfileForm,
+    SettingsForm,
+    StyledPasswordChangeForm,
     FeedbackManageForm,
     ContentReportManageForm,
 )
@@ -18,6 +22,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from .models import Feedback, Notification, Profile
 from blogs.services import notify_followers_of_post, publish_scheduled_posts
+from .services import create_user_notification
 from urllib.parse import urlparse
 
 
@@ -50,6 +55,8 @@ def get_allowed_categories(user):
 
 def can_modify_user(requesting_user, target_user):
     """Manager cannot edit or delete superusers. Only superuser can."""
+    if not requesting_user.is_authenticated:
+        return False
     if requesting_user.is_superuser:
         return True
     if target_user.is_superuser:
@@ -60,6 +67,16 @@ def can_modify_user(requesting_user, target_user):
 def get_user_profile(user):
     profile, _ = Profile.objects.get_or_create(user=user)
     return profile
+
+
+def get_role_label(user):
+    if user.is_superuser:
+        return 'Admin'
+    if user.is_staff or user.groups.filter(name='Manager').exists():
+        return 'Manager'
+    if user.groups.filter(name='Editor').exists():
+        return 'Editor'
+    return 'Reader'
 
 
 def can_view_feedback(user):
@@ -75,6 +92,10 @@ def can_view_followers(user):
 
 
 def can_manage_reports(user):
+    return can_manage_all_content(user)
+
+
+def can_manage_user_accounts(user):
     return can_manage_all_content(user)
 
 
@@ -159,6 +180,7 @@ def edit_category(request, pk):
 
 
 @login_required(login_url='login')
+@require_POST
 def delete_category(request, pk):
     category = get_object_or_404(Category, pk=pk)
 
@@ -242,6 +264,7 @@ def edit_post(request, pk):
 
 
 @login_required(login_url='login')
+@require_POST
 def delete_post(request, pk):
     post = get_object_or_404(Blog, pk=pk)
 
@@ -284,6 +307,73 @@ def edit_my_profile(request):
     return render(request, 'dashboard/edit_my_profile.html', context)
 
 
+@login_required(login_url='login')
+def settings_page(request):
+    profile = get_user_profile(request.user)
+    user_notifications = Notification.objects.filter(user=request.user)
+    sync_theme_preference = request.session.pop('sync_theme_preference', False)
+
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        if form_type == 'preferences':
+            settings_form = SettingsForm(request.POST, instance=profile, user=request.user)
+            password_form = StyledPasswordChangeForm(request.user)
+            if settings_form.is_valid():
+                settings_form.save()
+                request.session['sync_theme_preference'] = True
+                messages.success(request, 'Your settings have been updated.')
+                return redirect('settings')
+        elif form_type == 'password':
+            settings_form = SettingsForm(instance=profile, user=request.user)
+            password_form = StyledPasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                updated_user = password_form.save()
+                update_session_auth_hash(request, updated_user)
+                messages.success(request, 'Your password has been changed.')
+                return redirect('settings')
+        else:
+            settings_form = SettingsForm(instance=profile, user=request.user)
+            password_form = StyledPasswordChangeForm(request.user)
+    else:
+        settings_form = SettingsForm(instance=profile, user=request.user)
+        password_form = StyledPasswordChangeForm(request.user)
+
+    if can_manage_all_content(request.user):
+        accessible_posts = Blog.objects.count()
+        accessible_categories = Category.objects.count()
+    else:
+        accessible_posts = Blog.objects.filter(author=request.user).count()
+        accessible_categories = Category.objects.filter(owner=request.user).count()
+
+    if can_manage_all_content(request.user):
+        follower_total = AuthorFollow.objects.count()
+    else:
+        follower_total = AuthorFollow.objects.filter(author=request.user).count()
+
+    context = {
+        'profile': profile,
+        'profile_user': request.user,
+        'role_label': get_role_label(request.user),
+        'settings_form': settings_form,
+        'password_form': password_form,
+        'unread_notification_count': user_notifications.filter(is_read=False).count(),
+        'notification_total': user_notifications.count(),
+        'saved_count': Bookmark.objects.filter(user=request.user).count(),
+        'post_count': accessible_posts,
+        'category_count': accessible_categories,
+        'follower_total': follower_total,
+        'feedback_count': Feedback.objects.count() if can_view_feedback(request.user) else 0,
+        'report_count': ContentReport.objects.count() if can_manage_reports(request.user) else 0,
+        'can_view_feedback': can_view_feedback(request.user),
+        'can_manage_reports': can_manage_reports(request.user),
+        'can_view_followers': can_view_followers(request.user),
+        'can_manage_users': can_manage_user_accounts(request.user),
+        'recent_notifications': user_notifications[:3],
+        'sync_theme_preference': sync_theme_preference,
+    }
+    return render(request, 'dashboard/settings.html', context)
+
+
 # ── Feedback ───────────────────────────────────────────────────
 @login_required(login_url='login')
 def feedback_list(request):
@@ -315,11 +405,12 @@ def edit_feedback(request, pk):
                 and previous_status != updated_feedback.status
                 and updated_feedback.status in {Feedback.STATUS_REVIEWED, Feedback.STATUS_RESOLVED}
             ):
-                Notification.objects.create(
+                create_user_notification(
                     user=updated_feedback.user,
                     title='Feedback updated',
                     message=f'Your feedback "{updated_feedback.subject}" is now {updated_feedback.status.lower()}.',
                     link='/feedback/',
+                    preference_name='notify_feedback_updates',
                 )
             return redirect('dashboard_feedback')
     else:
@@ -333,7 +424,11 @@ def edit_feedback(request, pk):
 
 
 # ── Users ──────────────────────────────────────────────────────
+@login_required(login_url='login')
 def add_user(request):
+    if not can_manage_user_accounts(request.user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         form = AddUserForm(request.POST, request=request)  # ← add request=request
         if form.is_valid():
@@ -346,7 +441,11 @@ def add_user(request):
     return render(request, 'dashboard/add_user.html', context)
 
 
+@login_required(login_url='login')
 def edit_user(request, pk):
+    if not can_manage_user_accounts(request.user):
+        raise PermissionDenied
+
     user = get_object_or_404(User, pk=pk)
 
     if not can_modify_user(request.user, user):
@@ -371,13 +470,20 @@ def edit_user(request, pk):
 
 @login_required(login_url='login')
 def users(request):
+    if not can_manage_user_accounts(request.user):
+        raise PermissionDenied
+
     users = User.objects.all().select_related('profile')
     context = {'users': users}
     return render(request, 'dashboard/users.html', context)
 
 
 @login_required(login_url='login')
+@require_POST
 def delete_user(request, pk):
+    if not can_manage_user_accounts(request.user):
+        raise PermissionDenied
+
     user = get_object_or_404(User, pk=pk)
 
     if not can_modify_user(request.user, user):
@@ -509,11 +615,12 @@ def edit_report(request, pk):
                 and previous_status != updated_report.status
                 and updated_report.status in {ContentReport.STATUS_REVIEWED, ContentReport.STATUS_RESOLVED}
             ):
-                Notification.objects.create(
+                create_user_notification(
                     user=updated_report.user,
                     title='Report updated',
                     message=f'Your report on "{updated_report.blog.title}" is now {updated_report.status.lower()}.',
                     link=updated_report.blog.get_absolute_url(),
+                    preference_name='notify_report_updates',
                 )
             return redirect('reports')
     else:

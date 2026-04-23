@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('profile/', views.my_profile, name='my_profile'),
     path('profile/edit/', views.edit_my_profile, name='edit_my_profile'),
+    path('settings/', views.settings_page, name='settings'),
     path('notifications/', views.notifications, name='notifications'),
     path('notifications/open/<int:pk>/', views.open_notification, name='open_notification'),
     path('feedback/', views.feedback_list, name='dashboard_feedback'),

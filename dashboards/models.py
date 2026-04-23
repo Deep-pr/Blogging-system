@@ -5,9 +5,24 @@ from django.dispatch import receiver
 
 
 class Profile(models.Model):
+    THEME_SYSTEM = 'system'
+    THEME_LIGHT = 'light'
+    THEME_DARK = 'dark'
+    THEME_CHOICES = (
+        (THEME_SYSTEM, 'Use system appearance'),
+        (THEME_LIGHT, 'Always use light mode'),
+        (THEME_DARK, 'Always use dark mode'),
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profiles/avatars/', blank=True, null=True)
     bio = models.TextField(max_length=300, blank=True)
+    theme_preference = models.CharField(max_length=12, choices=THEME_CHOICES, default=THEME_SYSTEM)
+    notify_new_followers = models.BooleanField(default=True)
+    notify_post_updates = models.BooleanField(default=True)
+    notify_feedback_updates = models.BooleanField(default=True)
+    notify_report_updates = models.BooleanField(default=True)
+    notify_staff_alerts = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

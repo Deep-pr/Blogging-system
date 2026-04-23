@@ -16,8 +16,6 @@
   ═══════════════════════════════════════════════════════ -->
   <main class="flex-1 min-w-0">
 
-    {% if perms.auth.add_user %}
-
     <!-- Page header -->
     <div class="flex items-center gap-4 mb-8 pb-6 border-b" style="border-color:#e5d5bf;">
       <a href="{% url 'users' %}"
@@ -194,26 +192,6 @@
 
       </div>
     </div>
-
-    {% else %}
-    <!-- ── No permission state ── -->
-    <div class="flex flex-col items-center justify-center py-24 text-center">
-      <div class="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-           style="background: linear-gradient(135deg,#fee2e2,#fef2f2);">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="color:#dc2626;">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-        </svg>
-      </div>
-      <h2 class="font-display text-2xl font-bold mb-2" style="color:#1a1208;">Access Denied</h2>
-      <p class="text-sm max-w-xs mb-6" style="color:#7c6f5e;">You don't have permission to add new users. Contact a superuser for access.</p>
-      <a href="{% url 'dashboard' %}"
-         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white"
-         style="background: linear-gradient(135deg,#d97706,#b45309);">
-        Back to Dashboard
-      </a>
-    </div>
-    {% endif %}
-
   </main>
 </div>
 

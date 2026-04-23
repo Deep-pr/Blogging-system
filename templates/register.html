@@ -3,154 +3,39 @@
 {% block content %}
 {% load crispy_forms_tags %}
 
-<div class="min-h-screen flex items-center justify-center py-12 px-4" style="background: linear-gradient(135deg, #fdf8f0 0%, #fef3c7 100%);">
-
-  <div class="w-full max-w-md">
-
-    <!-- Decorative top card accent -->
-    <div class="h-1.5 w-full rounded-t-2xl" style="background: linear-gradient(90deg, #d97706, #fbbf24, #92400e);"></div>
-
-    <!-- Card -->
-    <div class="bg-white rounded-b-2xl shadow-xl px-8 pt-8 pb-10 border border-t-0 relative overflow-hidden"
-         style="border-color:#e5d5bf; box-shadow: 0 20px 60px rgba(26,18,8,0.12);">
-
-      <!-- Background decoration -->
-      <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-5" style="background:#d97706;"></div>
-      <div class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full opacity-5" style="background:#d97706;"></div>
-
-      <!-- Header -->
-      <div class="text-center mb-8 relative z-10">
-        <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-             style="background: linear-gradient(135deg, #d97706, #fbbf24);">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-          </svg>
-        </div>
-        <h1 class="font-display text-3xl font-black mb-1" style="color:#1a1208;">Create Account</h1>
-        <p class="text-sm" style="color:#7c6f5e;">Join the community and start writing today</p>
+<section class="auth-stage">
+  <div class="auth-card" style="max-width:38rem;">
+    <div class="auth-card-top">
+      <div class="relative z-10">
+        <p class="section-kicker mb-3" style="color:#fbbf24;">Join FutureFlux</p>
+        <h1 class="font-display text-4xl font-black leading-tight mb-3 text-white">Create your publishing identity</h1>
+        <p class="text-sm leading-7 max-w-2xl" style="color:#e1ceb0;">
+          Set up your account, upload your profile photo, and step into a more polished editorial platform built for readers, writers, and managers.
+        </p>
       </div>
+    </div>
 
-      <!-- Form -->
-      <form action="{% url 'register' %}" method="POST" enctype="multipart/form-data" class="relative z-10">
+    <div class="p-6 md:p-8">
+      <form action="{% url 'register' %}" method="POST" enctype="multipart/form-data" class="auth-form">
         {% csrf_token %}
+        {{ form|crispy }}
 
-        <div class="register-form">
-          {{ form|crispy }}
-        </div>
-
-        <!-- Submit -->
-        <button type="submit"
-                class="w-full mt-6 py-3 px-6 rounded-lg font-bold text-sm uppercase tracking-widest text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center gap-2"
-                style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow: 0 4px 14px rgba(217,119,6,0.35);">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
+        <button type="submit" class="btn-amber w-full text-center justify-center mt-4" style="display:flex;">
           Create My Account
         </button>
       </form>
 
-      <!-- Divider -->
       <div class="flex items-center gap-3 my-6">
         <div class="flex-1 h-px" style="background:#e5d5bf;"></div>
         <span class="text-xs font-medium" style="color:#a89070;">Already have an account?</span>
         <div class="flex-1 h-px" style="background:#e5d5bf;"></div>
       </div>
 
-      <!-- Login link -->
-      <a href="{% url 'login' %}"
-         class="w-full flex items-center justify-center gap-2 py-2.5 px-6 rounded-lg border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
-         style="border-color:#d97706; color:#d97706; background:transparent;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-        </svg>
+      <a href="{% url 'login' %}" class="btn-outline w-full text-center justify-center" style="display:flex;">
         Sign In Instead
       </a>
-
     </div>
-
-    <!-- Footer note -->
-    <p class="text-center text-xs mt-4" style="color:#a89070;">
-      By registering you agree to our
-      <a href="#" class="underline hover:text-amber-600 transition-colors" style="color:#d97706;">Terms</a>
-      &amp;
-      <a href="#" class="underline hover:text-amber-600 transition-colors" style="color:#d97706;">Privacy Policy</a>
-    </p>
   </div>
-</div>
-
-<!-- Style crispy form fields to match the design -->
-<style>
-  /* Labels */
-  .register-form label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #7c6f5e;
-    margin-bottom: 5px;
-  }
-
-  /* Inputs & Selects */
-  .register-form input[type="text"],
-  .register-form input[type="email"],
-  .register-form input[type="password"],
-  .register-form input[type="file"],
-  .register-form input[type="number"],
-  .register-form select,
-  .register-form textarea {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid #e5d5bf;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    color: #1a1208;
-    background: #fffcf7;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .register-form input:focus,
-  .register-form select:focus,
-  .register-form textarea:focus {
-    border-color: #d97706;
-    box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
-    background: #fff;
-  }
-
-  /* Error states */
-  .register-form .is-invalid {
-    border-color: #ef4444 !important;
-  }
-  .register-form .invalid-feedback,
-  .register-form .text-danger {
-    font-size: 0.75rem;
-    color: #ef4444;
-    margin-top: 4px;
-  }
-
-  /* Help text */
-  .register-form .helptext,
-  .register-form small {
-    font-size: 0.72rem;
-    color: #a89070;
-    margin-top: 4px;
-    display: block;
-  }
-
-  /* Form groups spacing */
-  .register-form .mb-3,
-  .register-form .form-group {
-    margin-bottom: 1rem;
-  }
-
-  /* Checkbox */
-  .register-form input[type="checkbox"] {
-    accent-color: #d97706;
-    width: 15px;
-    height: 15px;
-  }
-</style>
+</section>
 
 {% endblock %}

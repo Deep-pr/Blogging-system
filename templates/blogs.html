@@ -2,20 +2,20 @@
 
 {% block content %}
 
-<div class="fixed top-[76px] left-0 w-full h-1 z-40" style="background:rgba(217,119,6,0.12);">
-  <div id="reading-progress" class="h-full w-0 transition-all duration-150" style="background:linear-gradient(90deg,#d97706,#fbbf24);"></div>
+<div class="fixed top-[76px] left-0 w-full h-1 z-40" style="background:rgba(181,138,75,0.16);">
+  <div id="reading-progress" class="h-full w-0 transition-all duration-150" style="background:linear-gradient(90deg,#b58a4b,#d8b27c);"></div>
 </div>
 
 {% if is_preview %}
 <div class="mb-6 rounded-2xl border px-5 py-4 flex items-center justify-between gap-4"
-     style="background:#fff7ed; border-color:#fdba74;">
+     style="background:#f8efe1; border-color:#d6b68c;">
   <div>
-    <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#c2410c;">Preview Mode</p>
-    <p class="text-sm" style="color:#7c2d12;">This draft is only visible to permitted dashboard users.</p>
+    <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#9b5b35;">Preview Mode</p>
+    <p class="text-sm" style="color:#7b5b2e;">This draft is only visible to permitted dashboard users.</p>
   </div>
   <a href="{% url 'edit_post' single_blog.id %}"
      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white"
-     style="background:#d97706;">
+     style="background:#b58a4b;">
     Back to Edit
   </a>
 </div>
@@ -30,19 +30,19 @@
     <article class="lg:col-span-2">
 
       <!-- Breadcrumb -->
-      <div class="flex items-center gap-2 text-xs mb-6" style="color:#a89070;">
-        <a href="/" class="hover:text-amber-600 transition-colors" style="color:#a89070;">Home</a>
+      <div class="flex items-center gap-2 text-xs mb-6" style="color:#8f7d67;">
+        <a href="/" class="hover:text-[#97723d] transition-colors" style="color:#8f7d67;">Home</a>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
         </svg>
         <a href="{% url 'posts_by_category' single_blog.category.id %}"
-           class="hover:text-amber-600 transition-colors" style="color:#a89070;">
+           class="hover:text-[#97723d] transition-colors" style="color:#8f7d67;">
           {{ single_blog.category }}
         </a>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
         </svg>
-        <span class="font-semibold truncate max-w-xs" style="color:#1a1208;">
+        <span class="font-semibold truncate max-w-xs" style="color:#131110;">
           {{ single_blog.title|truncatewords:6 }}
         </span>
       </div>
@@ -53,7 +53,7 @@
         <!-- Category badge -->
         <a href="{% url 'posts_by_category' single_blog.category.id %}"
            class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4"
-           style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
+           style="background:#eee0c8; color:#7b5b2e; border:1px solid #d4bb96;">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
           </svg>
@@ -62,49 +62,54 @@
 
         <!-- Title -->
         <h1 class="font-display text-3xl md:text-4xl lg:text-5xl font-black leading-tight mb-5"
-            style="color:#1a1208;">
+            style="color:#131110;">
           {{ single_blog.title }}
         </h1>
 
         <!-- Author + date row -->
-        <div class="flex items-center gap-4 pb-5 border-b" style="border-color:#e5d5bf;">
+        <div class="flex items-center gap-4 pb-5 border-b" style="border-color:rgba(187,164,130,0.55);">
           {% if single_blog.author.profile.profile_image %}
           <img src="{{ single_blog.author.profile.profile_image.url }}"
                alt="{{ single_blog.author.username }}"
                class="w-10 h-10 rounded-full object-cover flex-shrink-0 border"
-               style="border-color:#e5d5bf;">
+               style="border-color:rgba(187,164,130,0.55);">
           {% else %}
           <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-               style="background: linear-gradient(135deg, #d97706, #92400e);">
+               style="background: linear-gradient(135deg, #b58a4b, #7b5b2e);">
             {{ single_blog.author.username|slice:":1"|upper }}
           </div>
           {% endif %}
           <div>
-            <p class="text-sm font-semibold" style="color:#1a1208;">
+            <p class="text-sm font-semibold" style="color:#131110;">
               <a href="{% url 'author_profile' single_blog.author.username %}" class="hover:text-amber-600 transition-colors">
                 {{ single_blog.author.username }}
               </a>
             </p>
-            <p class="text-xs" style="color:#a89070;">
+            <p class="text-xs" style="color:#8f7d67;">
               Published on {{ single_blog.published_at|default:single_blog.created_at|date:"F j, Y" }}
             </p>
           </div>
           <div class="ml-auto hidden sm:flex items-center gap-2 flex-wrap justify-end">
-            <span class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full"
-                  style="background:#fdf8f0; color:#7c6f5e; border:1px solid #e5d5bf;">
+            <span class="read-time-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m5-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
               {{ single_blog.estimated_read_time }} min read
             </span>
             <span class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full"
-                  style="background:#fdf8f0; color:#7c6f5e; border:1px solid #e5d5bf;">
+                  style="background:#f8f2e8; color:#756a5a; border:1px solid rgba(187,164,130,0.55);">
               {{ single_blog.view_count }} views
             </span>
             <form action="{% url 'toggle_bookmark' single_blog.slug %}" method="POST">
               {% csrf_token %}
               <input type="hidden" name="next_url" value="{{ request.path }}#reader-actions">
               <button type="submit"
-                      class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full"
-                      style="background:{% if is_bookmarked %}#fff7ed{% else %}#fdf8f0{% endif %}; color:#7c6f5e; border:1px solid #e5d5bf;">
-                {% if is_bookmarked %}Saved{% else %}Save Post{% endif %}
+                      class="save-post-btn {% if is_bookmarked %}is-saved{% endif %} inline-flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-full transition-all duration-200 hover:-translate-y-0.5"
+                      style="background:{% if is_bookmarked %}linear-gradient(135deg,#f8efe1,#f1dfc5){% else %}linear-gradient(135deg,#fffdf8,#f8efe1){% endif %}; color:{% if is_bookmarked %}#97723d{% else %}#756a5a{% endif %}; border:1px solid {% if is_bookmarked %}#b58a4b{% else %}rgba(187,164,130,0.55){% endif %}; box-shadow:0 10px 22px rgba(19,17,16,0.08); cursor:pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 5v16l7-4 7 4V5a2 2 0 00-2-2H7a2 2 0 00-2 2z"/>
+                </svg>
+                <span>{% if is_bookmarked %}Saved{% else %}Save Post{% endif %}</span>
               </button>
             </form>
           </div>
@@ -122,23 +127,23 @@
 
       <!-- Short description / intro -->
       <div class="mb-6 px-5 py-4 rounded-xl border-l-4"
-           style="background:#fffcf7; border-left-color:#d97706; border-top:1px solid #e5d5bf; border-right:1px solid #e5d5bf; border-bottom:1px solid #e5d5bf;">
-        <p class="text-base leading-relaxed font-medium italic" style="color:#3d2b0a;">
+           style="background:#fffdfa; border-left-color:#b58a4b; border-top:1px solid rgba(187,164,130,0.55); border-right:1px solid rgba(187,164,130,0.55); border-bottom:1px solid rgba(187,164,130,0.55);">
+        <p class="text-base leading-relaxed font-medium italic" style="color:#2a221b;">
           {{ single_blog.short_description }}
         </p>
       </div>
 
       <!-- Blog body -->
-      <div class="blog-body prose max-w-none mb-10 text-base leading-relaxed" style="color:#3d2b0a;">
+      <div class="blog-body prose max-w-none mb-10 text-base leading-relaxed" style="color:#2a221b;">
         {{ single_blog.blog_body|linebreaks }}
       </div>
 
       <section id="reader-actions" class="mb-10 rounded-2xl border bg-white p-5"
-               style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+               style="border-color:rgba(187,164,130,0.55); box-shadow:0 2px 12px rgba(19,17,16,0.08);">
         <div class="flex flex-col md:flex-row md:items-center gap-4 justify-between">
           <div>
-            <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Reader Actions</p>
-            <p class="text-sm" style="color:#7c6f5e;">
+            <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#b58a4b;">Reader Actions</p>
+            <p class="text-sm" style="color:#756a5a;">
               React to this story, save it for later, or report an issue.
               {% if not user.is_authenticated %}
               You can use these actions without logging in.
@@ -154,7 +159,7 @@
                       data-reaction-label="{{ reaction.label }}"
                       data-active="{% if reaction.value in user_reactions %}true{% else %}false{% endif %}"
                       class="px-3 py-2 rounded-full text-xs font-bold border transition-all duration-150"
-                      style="border-color:#e5d5bf; background:{% if reaction.value in user_reactions %}#fff7ed{% else %}#fffcf7{% endif %}; color:#3d2b0a;">
+                      style="border-color:rgba(187,164,130,0.55); background:{% if reaction.value in user_reactions %}#f8efe1{% else %}#fffdfa{% endif %}; color:#2a221b;">
                 {{ reaction.label }} · {{ reaction.count }}
               </button>
             </form>
@@ -162,15 +167,15 @@
             <button type="button"
                     onclick="document.getElementById('report-modal').classList.remove('hidden'); document.getElementById('report-modal').classList.add('flex');"
                     class="px-3 py-2 rounded-full text-xs font-bold border"
-                    style="border-color:#fecaca; background:#fff1f2; color:#be123c;">
+                    style="border-color:#e4c4bb; background:#f7eceb; color:#8d4a40;">
               Report
             </button>
           </div>
         </div>
         {% if not user.is_authenticated %}
         <div class="mt-4 pt-4 border-t flex flex-wrap items-center gap-3 text-xs"
-             style="border-color:#f5ede0; color:#a89070;">
-          <span class="font-semibold" style="color:#d97706;">Guest access enabled</span>
+             style="border-color:rgba(187,164,130,0.4); color:#8f7d67;">
+          <span class="font-semibold" style="color:#b58a4b;">Guest access enabled</span>
           <span>Likes, reactions, saves, and reports work without an account.</span>
           <span>Comments still require login.</span>
         </div>
@@ -178,13 +183,13 @@
       </section>
 
       <section class="mb-10 rounded-3xl border overflow-hidden bg-white"
-               style="border-color:#e5d5bf; box-shadow:0 4px 24px rgba(26,18,8,0.08);">
+               style="border-color:rgba(187,164,130,0.55); box-shadow:0 4px 24px rgba(19,17,16,0.08);">
         <div class="p-6 flex items-center gap-4">
           {% if single_blog.author.profile.profile_image %}
           <button type="button"
                   id="author-photo-trigger"
                   class="relative group w-16 h-16 rounded-full overflow-hidden border flex-shrink-0 focus:outline-none"
-                  style="border-color:#e5d5bf;"
+                  style="border-color:rgba(187,164,130,0.55);"
                   aria-label="View author photo">
             <img src="{{ single_blog.author.profile.profile_image.url }}" alt="{{ single_blog.author.username }}"
                  class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105">
@@ -195,24 +200,24 @@
           </button>
           {% else %}
           <div class="w-16 h-16 rounded-full flex items-center justify-center text-white font-black text-xl"
-               style="background:linear-gradient(135deg,#d97706,#92400e);">
+               style="background:linear-gradient(135deg,#b58a4b,#7b5b2e);">
             {{ single_blog.author.username|slice:":1"|upper }}
           </div>
           {% endif %}
           <div class="min-w-0">
-            <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">About the author</p>
-            <h3 class="font-display text-2xl font-bold" style="color:#1a1208;">{{ single_blog.author.get_full_name|default:single_blog.author.username }}</h3>
-            <p class="text-sm mt-2" style="color:#7c6f5e;">{{ single_blog.author.profile.bio|default:"This author is sharing thoughtful stories on FutureFlux." }}</p>
+            <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#b58a4b;">About the author</p>
+            <h3 class="font-display text-2xl font-bold" style="color:#131110;">{{ single_blog.author.get_full_name|default:single_blog.author.username }}</h3>
+            <p class="text-sm mt-2" style="color:#756a5a;">{{ single_blog.author.profile.bio|default:"This author is sharing thoughtful stories on FutureFlux." }}</p>
             <div class="mt-3">
               <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold"
-                    style="background:#fef3c7; color:#92400e;">
+                    style="background:#eee0c8; color:#7b5b2e;">
                 {{ follower_count }} follower{{ follower_count|pluralize }}
               </span>
             </div>
             <div class="mt-3 flex flex-wrap items-center gap-3">
               <a href="{% url 'author_profile' single_blog.author.username %}"
                  class="inline-flex items-center gap-2 text-sm font-bold hover:text-amber-600 transition-colors"
-                 style="color:#d97706;">
+                 style="color:#b58a4b;">
                 View author page
               </a>
               {% if user.is_authenticated and user != single_blog.author %}
@@ -221,7 +226,7 @@
                 <input type="hidden" name="next_url" value="{{ request.path }}">
                 <button type="submit"
                         class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold {% if is_following_author %}border{% endif %}"
-                        style="{% if is_following_author %}border-color:#d97706; color:#d97706; background:#fffaf0;{% else %}background:#d97706; color:#fff;{% endif %}">
+                        style="{% if is_following_author %}border-color:#b58a4b; color:#97723d; background:#f8f2e8;{% else %}background:#b58a4b; color:#fff;{% endif %}">
                   {% if is_following_author %}Unfollow{% else %}Follow{% endif %}
                 </button>
               </form>
@@ -233,9 +238,9 @@
 
       <!-- Decorative divider -->
       <div class="flex items-center gap-4 my-10">
-        <div class="flex-1 h-px" style="background:#e5d5bf;"></div>
-        <span class="font-display text-xl" style="color:#d97706;">✦</span>
-        <div class="flex-1 h-px" style="background:#e5d5bf;"></div>
+        <div class="flex-1 h-px" style="background:rgba(187,164,130,0.55);"></div>
+        <span class="font-display text-xl" style="color:#b58a4b;">✦</span>
+        <div class="flex-1 h-px" style="background:rgba(187,164,130,0.55);"></div>
       </div>
 
 
@@ -246,9 +251,9 @@
 
         <!-- Header -->
         <div class="flex items-center gap-3 mb-6">
-          <h3 class="font-display text-2xl font-bold" style="color:#1a1208;">Comments</h3>
+          <h3 class="font-display text-2xl font-bold" style="color:#131110;">Comments</h3>
           <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold text-white"
-                style="background:#d97706;">
+                style="background:#b58a4b;">
             {{ comments_count }}
           </span>
         </div>
@@ -258,32 +263,32 @@
         <div class="flex flex-col gap-4 mb-8">
           {% for comment in comments %}
           <div class="flex gap-3 p-4 rounded-xl border bg-white"
-               style="border-color:#e5d5bf; box-shadow:0 1px 6px rgba(26,18,8,0.05);">
+               style="border-color:rgba(187,164,130,0.55); box-shadow:0 1px 6px rgba(19,17,16,0.08);">
 
             <!-- Avatar -->
             {% if comment.user.profile.profile_image %}
             <img src="{{ comment.user.profile.profile_image.url }}"
                  alt="{{ comment.user.username }}"
                  class="w-9 h-9 rounded-full object-cover flex-shrink-0 border"
-                 style="border-color:#e5d5bf;">
+                 style="border-color:rgba(187,164,130,0.55);">
             {% else %}
             <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                 style="background: linear-gradient(135deg, #92400e, #d97706);">
+                 style="background: linear-gradient(135deg, #7b5b2e, #b58a4b);">
               {{ comment.user.username|slice:":1"|upper }}
             </div>
             {% endif %}
 
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1.5">
-                <span class="text-sm font-semibold" style="color:#1a1208;">
+                <span class="text-sm font-semibold" style="color:#131110;">
                   {{ comment.user.username }}
                 </span>
-                <span style="color:#e5d5bf;">·</span>
-                <span class="text-xs" style="color:#a89070;">
+                <span style="color:rgba(187,164,130,0.6);">·</span>
+                <span class="text-xs" style="color:#8f7d67;">
                   {{ comment.created_at|timesince }} ago
                 </span>
               </div>
-              <p class="text-sm leading-relaxed" style="color:#3d2b0a;">{{ comment }}</p>
+              <p class="text-sm leading-relaxed" style="color:#2a221b;">{{ comment }}</p>
             </div>
           </div>
           {% endfor %}
@@ -292,26 +297,26 @@
         {% else %}
         <!-- No comments yet -->
         <div class="flex flex-col items-center py-10 rounded-xl border border-dashed mb-8 text-center"
-             style="border-color:#e5d5bf;">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-3 opacity-25" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#d97706;">
+             style="border-color:rgba(187,164,130,0.55);">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-3 opacity-25" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#b58a4b;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
           </svg>
-          <p class="font-display font-semibold text-base mb-1" style="color:#1a1208;">No comments yet</p>
-          <p class="text-sm" style="color:#a89070;">Be the first to share your thoughts!</p>
+          <p class="font-display font-semibold text-base mb-1" style="color:#131110;">No comments yet</p>
+          <p class="text-sm" style="color:#8f7d67;">Be the first to share your thoughts!</p>
         </div>
         {% endif %}
 
         <!-- Comment form card -->
         <div class="rounded-xl border bg-white overflow-hidden"
-             style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+             style="border-color:rgba(187,164,130,0.55); box-shadow:0 2px 12px rgba(19,17,16,0.08);">
 
           <!-- Form header -->
           <div class="px-5 py-4 border-b flex items-center gap-2"
-               style="background:#fffcf7; border-color:#e5d5bf;">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
+               style="background:#fffdfa; border-color:rgba(187,164,130,0.55);">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#b58a4b;">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
             </svg>
-            <h4 class="font-display font-bold text-base" style="color:#1a1208;">Leave a Comment</h4>
+            <h4 class="font-display font-bold text-base" style="color:#131110;">Leave a Comment</h4>
           </div>
 
           <div class="p-5">
@@ -322,16 +327,16 @@
               <img src="{{ current_user_profile.profile_image.url }}"
                    alt="{{ user.username }}"
                    class="w-8 h-8 rounded-full object-cover flex-shrink-0 border"
-                   style="border-color:#e5d5bf;">
+                   style="border-color:rgba(187,164,130,0.55);">
               {% else %}
               <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                   style="background: linear-gradient(135deg, #d97706, #b45309);">
+                   style="background: linear-gradient(135deg, #b58a4b, #8a6737);">
                 {{ user.username|slice:":1"|upper }}
               </div>
               {% endif %}
               <div>
-                <p class="text-xs font-semibold" style="color:#1a1208;">{{ user.username }}</p>
-                <p class="text-xs" style="color:#a89070;">Commenting as yourself</p>
+                <p class="text-xs font-semibold" style="color:#131110;">{{ user.username }}</p>
+                <p class="text-xs" style="color:#8f7d67;">Commenting as yourself</p>
               </div>
             </div>
 
@@ -343,15 +348,15 @@
                 rows="4"
                 placeholder="Share your thoughts on this article…"
                 class="w-full px-4 py-3 text-sm rounded-lg border outline-none resize-none transition-all duration-200"
-                style="border:1.5px solid #e5d5bf; background:#fffcf7; color:#1a1208; font-family:'DM Sans',sans-serif;"
-                onfocus="this.style.borderColor='#d97706'; this.style.boxShadow='0 0 0 3px rgba(217,119,6,0.15)'"
-                onblur="this.style.borderColor='#e5d5bf'; this.style.boxShadow='none'"
+                style="border:1.5px solid rgba(187,164,130,0.55); background:#fffdfa; color:#131110; font-family:'Manrope',sans-serif;"
+                onfocus="this.style.borderColor='#b58a4b'; this.style.boxShadow='0 0 0 3px rgba(181,138,75,0.2)'"
+                onblur="this.style.borderColor='rgba(187,164,130,0.55)'; this.style.boxShadow='none'"
               ></textarea>
 
               <div class="flex justify-end mt-3">
                 <button type="submit"
                         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-                        style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow:0 4px 14px rgba(217,119,6,0.3);">
+                        style="background: linear-gradient(135deg, #b58a4b, #8a6737); box-shadow:0 4px 14px rgba(151,114,61,0.34);">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                   </svg>
@@ -364,24 +369,24 @@
             <!-- Guest prompt -->
             <div class="flex flex-col sm:flex-row items-center gap-4 py-4">
               <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-                   style="background:#fef3c7;">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" style="color:#d97706;">
+                   style="background:#eee0c8;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" style="color:#b58a4b;">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
               </div>
               <div class="text-center sm:text-left">
-                <p class="text-sm font-semibold mb-0.5" style="color:#1a1208;">Join the conversation</p>
-                <p class="text-xs" style="color:#7c6f5e;">Sign in to leave a comment on this article.</p>
+                <p class="text-sm font-semibold mb-0.5" style="color:#131110;">Join the conversation</p>
+                <p class="text-xs" style="color:#756a5a;">Sign in to leave a comment on this article.</p>
               </div>
               <div class="flex gap-2 sm:ml-auto">
                 <a href="{% url 'login' %}"
                    class="px-4 py-2 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
-                   style="background:#d97706;">
+                   style="background:#b58a4b;">
                   Login
                 </a>
                 <a href="{% url 'register' %}"
                    class="px-4 py-2 rounded-lg text-sm font-bold border transition-all duration-200 hover:-translate-y-0.5"
-                   style="border-color:#d97706; color:#d97706;">
+                   style="border-color:#b58a4b; color:#97723d;">
                   Register
                 </a>
               </div>
@@ -395,20 +400,20 @@
       {% if related_posts %}
       <section class="mt-12">
         <div class="mb-5">
-          <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">More to Explore</p>
-          <h3 class="font-display text-2xl font-bold" style="color:#1a1208;">Related Posts</h3>
+          <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#b58a4b;">More to Explore</p>
+          <h3 class="font-display text-2xl font-bold" style="color:#131110;">Related Posts</h3>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           {% for post in related_posts %}
           <a href="{% url 'blogs' post.slug %}" class="rounded-2xl overflow-hidden border bg-white block transition-all duration-200 hover:-translate-y-1"
-             style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+             style="border-color:rgba(187,164,130,0.55); box-shadow:0 2px 12px rgba(19,17,16,0.08);">
             {% if post.featured_image %}
             <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-40 object-cover">
             {% endif %}
             <div class="p-4">
-              <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color:#d97706;">{{ post.category }}</p>
-              <h4 class="font-display text-lg font-bold mb-2" style="color:#1a1208;">{{ post.title }}</h4>
-              <p class="text-sm" style="color:#7c6f5e;">{{ post.short_description|truncatewords:18 }}</p>
+              <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color:#b58a4b;">{{ post.category }}</p>
+              <h4 class="font-display text-lg font-bold mb-2" style="color:#131110;">{{ post.title }}</h4>
+              <p class="text-sm" style="color:#756a5a;">{{ post.short_description|truncatewords:18 }}</p>
             </div>
           </a>
           {% endfor %}
@@ -425,10 +430,10 @@
 
       <!-- Categories widget -->
       <div class="rounded-xl border bg-white overflow-hidden"
-           style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+           style="border-color:rgba(187,164,130,0.55); box-shadow:0 2px 12px rgba(19,17,16,0.08);">
         <div class="px-5 py-4 border-b flex items-center gap-2"
-             style="background: linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#fbbf24;">
+             style="background: linear-gradient(135deg,#141210,#2a221b); border-color:#2a221b;">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d8b27c;">
             <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
           </svg>
           <h4 class="font-display font-bold text-sm text-white">Categories</h4>
@@ -438,12 +443,12 @@
           <li>
             <a href="{% url 'posts_by_category' cat.id %}"
                class="flex items-center justify-between px-5 py-3 text-sm font-medium transition-all duration-150 hover:pl-6 group"
-               style="color:#3d2b0a;">
+               style="color:#2a221b;">
               <span class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#d97706;"></span>
+                <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#b58a4b;"></span>
                 {{ cat.category_name }}
               </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#b58a4b;">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
               </svg>
             </a>
@@ -455,28 +460,28 @@
       <!-- Social links widget -->
       {% if social_links %}
       <div class="rounded-xl border bg-white overflow-hidden"
-           style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
+           style="border-color:rgba(187,164,130,0.55); box-shadow:0 2px 12px rgba(19,17,16,0.08);">
         <div class="px-5 py-4 border-b flex items-center gap-2"
-             style="background:#fffcf7; border-color:#e5d5bf;">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
+             style="background:#fffdfa; border-color:rgba(187,164,130,0.55);">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#b58a4b;">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
-          <h4 class="font-display font-bold text-sm" style="color:#1a1208;">Follow Us</h4>
+          <h4 class="font-display font-bold text-sm" style="color:#131110;">Follow Us</h4>
         </div>
         <ul class="p-4 flex flex-col gap-2">
           {% for i in social_links %}
           <li>
-            <a href="{{ i.link }}" target="_blank"
+            <a href="{{ i.link }}" target="_blank" rel="noopener noreferrer"
                class="flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 group"
-               style="background:#fdf8f0; color:#1a1208; border:1px solid #e5d5bf;">
+               style="background:#f8f2e8; color:#131110; border:1px solid rgba(187,164,130,0.55);">
               <span class="flex items-center gap-2">
                 <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                      style="background:#d97706;">
+                      style="background:#b58a4b;">
                   {{ i.platform|slice:":1"|upper }}
                 </span>
                 {{ i.platform }}
               </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#d97706;">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#b58a4b;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
               </svg>
             </a>
@@ -489,7 +494,7 @@
       <!-- Back to top -->
       <button onclick="window.scrollTo({top:0,behavior:'smooth'})"
               class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border text-xs font-bold uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5"
-              style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
+              style="border-color:rgba(187,164,130,0.55); color:#756a5a; background:#fffdfa;">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
         </svg>
@@ -527,25 +532,25 @@
 
 <div id="report-modal" class="fixed inset-0 z-50 hidden items-center justify-center px-4"
      style="background:rgba(15,23,42,0.75);">
-  <div class="w-full max-w-lg rounded-3xl bg-white p-6 border" style="border-color:#e5d5bf;">
+  <div class="w-full max-w-lg rounded-3xl bg-white p-6 border" style="border-color:rgba(187,164,130,0.55);">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-display text-2xl font-bold" style="color:#1a1208;">Report This Post</h3>
+      <h3 class="font-display text-2xl font-bold" style="color:#131110;">Report This Post</h3>
       <button type="button"
               onclick="document.getElementById('report-modal').classList.add('hidden'); document.getElementById('report-modal').classList.remove('flex');"
-              class="text-sm font-bold" style="color:#7c6f5e;">Close</button>
+              class="text-sm font-bold" style="color:#756a5a;">Close</button>
     </div>
     <form action="{% url 'report_post' single_blog.slug %}" method="POST" class="space-y-4">
       {% csrf_token %}
       <input type="hidden" name="next_url" value="{{ request.path }}#reader-actions">
       <div>
-        <label class="block text-xs font-bold uppercase tracking-widest mb-2" style="color:#7c6f5e;">Reason</label>
-        <input type="text" name="reason" required class="w-full px-4 py-3 rounded-xl border" style="border-color:#e5d5bf; background:#fffcf7;">
+        <label class="block text-xs font-bold uppercase tracking-widest mb-2" style="color:#756a5a;">Reason</label>
+        <input type="text" name="reason" required class="w-full px-4 py-3 rounded-xl border" style="border-color:rgba(187,164,130,0.55); background:#fffdfa;">
       </div>
       <div>
-        <label class="block text-xs font-bold uppercase tracking-widest mb-2" style="color:#7c6f5e;">Details</label>
-        <textarea name="details" rows="4" class="w-full px-4 py-3 rounded-xl border" style="border-color:#e5d5bf; background:#fffcf7;"></textarea>
+        <label class="block text-xs font-bold uppercase tracking-widest mb-2" style="color:#756a5a;">Details</label>
+        <textarea name="details" rows="4" class="w-full px-4 py-3 rounded-xl border" style="border-color:rgba(187,164,130,0.55); background:#fffdfa;"></textarea>
       </div>
-      <button type="submit" class="px-5 py-3 rounded-xl text-sm font-bold text-white" style="background:#d97706;">Submit Report</button>
+      <button type="submit" class="px-5 py-3 rounded-xl text-sm font-bold text-white" style="background:#b58a4b;">Submit Report</button>
     </form>
   </div>
 </div>
@@ -557,8 +562,41 @@
     scroll-margin-top: 120px;
   }
 
+  article > header {
+    padding: 2rem 2rem 0;
+    border-radius: 2rem 2rem 0 0;
+  }
+
+  article > figure {
+    border-radius: 1.8rem;
+    overflow: hidden;
+    box-shadow: 0 24px 58px rgba(26, 18, 8, 0.12);
+  }
+
+  article > div[style*="border-left-color:#b58a4b"] {
+    border-radius: 1.35rem;
+    box-shadow: 0 14px 36px rgba(26, 18, 8, 0.05);
+  }
+
+  .save-post-btn:hover {
+    box-shadow: 0 14px 28px rgba(26, 18, 8, 0.1);
+  }
+
+  .save-post-btn:active {
+    transform: translateY(0);
+  }
+
+  .blog-body {
+    font-size: 1.04rem;
+    line-height: 1.95;
+    max-width: 72ch;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 0.5rem;
+  }
+
   body.dark-mode #reading-progress {
-    background: linear-gradient(90deg, #f59e0b, #fde68a) !important;
+    background: linear-gradient(90deg, #b58a4b, #ead4ae) !important;
   }
 
   body.dark-mode #reader-actions,
@@ -567,7 +605,7 @@
   body.dark-mode .blog-related-card,
   body.dark-mode #report-modal > div {
     background: #111827 !important;
-    border-color: rgba(251, 191, 36, 0.18) !important;
+    border-color: rgba(181, 138, 75, 0.22) !important;
     box-shadow: none !important;
   }
 
@@ -578,7 +616,7 @@
   body.dark-mode aside a[style*="background:#fffcf7"] {
     background: #1f2937 !important;
     color: #f3f4f6 !important;
-    border-color: rgba(251, 191, 36, 0.22) !important;
+    border-color: rgba(181, 138, 75, 0.24) !important;
   }
 
   body.dark-mode .blog-body,
@@ -592,19 +630,19 @@
   }
 
   body.dark-mode .blog-body a {
-    color: #fbbf24 !important;
+    color: #d8b27c !important;
   }
 
   body.dark-mode article header,
   body.dark-mode article section,
   body.dark-mode article div[style*="border-b"],
   body.dark-mode article div[style*="border-top"] {
-    border-color: rgba(251, 191, 36, 0.18) !important;
+    border-color: rgba(181, 138, 75, 0.22) !important;
   }
 
   body.dark-mode article [style*="background:#fff7ed"] {
-    background: rgba(245, 158, 11, 0.12) !important;
-    border-color: rgba(245, 158, 11, 0.3) !important;
+    background: rgba(181, 138, 75, 0.16) !important;
+    border-color: rgba(181, 138, 75, 0.34) !important;
   }
 
   body.dark-mode article [style*="background:#fef3c7"],
@@ -616,7 +654,7 @@
   body.dark-mode article [style*="color:#c2410c"],
   body.dark-mode article [style*="color:#7c2d12"],
   body.dark-mode article [style*="color:#be123c"] {
-    color: #fbbf24 !important;
+    color: #d8b27c !important;
   }
 
   body.dark-mode article img,
@@ -624,29 +662,43 @@
     opacity: 0.96;
   }
 
-  .blog-body p  { margin-bottom: 1.25rem; }
-  .blog-body h2 { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:800; color:#1a1208; margin:2rem 0 1rem; }
-  .blog-body h3 { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:#1a1208; margin:1.5rem 0 0.75rem; }
-  .blog-body a  { color:#d97706; text-decoration:underline; }
-  .blog-body a:hover { color:#92400e; }
-  .blog-body blockquote {
-    border-left: 4px solid #d97706;
-    padding: 0.75rem 1.25rem;
-    margin: 1.5rem 0;
-    background: #fffcf7;
-    border-radius: 0 8px 8px 0;
-    font-style: italic;
-    color: #3d2b0a;
+  body.dark-mode .save-post-btn {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #f3f4f6 !important;
+    border-color: rgba(251, 191, 36, 0.22) !important;
+    box-shadow: 0 12px 26px rgba(2, 6, 23, 0.18) !important;
   }
-  .blog-body ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; }
-  .blog-body ol { list-style: decimal; padding-left: 1.5rem; margin-bottom: 1.25rem; }
-  .blog-body li { margin-bottom: 0.4rem; }
-  .blog-body img { border-radius: 12px; margin: 1.5rem 0; max-width:100%; }
+
+  body.dark-mode .save-post-btn.is-saved {
+    background: rgba(181, 138, 75, 0.16) !important;
+    color: #d8b27c !important;
+    border-color: rgba(181, 138, 75, 0.32) !important;
+  }
+
+  .blog-body p  { margin-bottom: 1.35rem; }
+  .blog-body h2 { font-family:'Bodoni Moda',serif; font-size:2rem; font-weight:900; letter-spacing:-0.03em; color:#131110; margin:2.8rem 0 1.1rem; line-height:1.06; }
+  .blog-body h3 { font-family:'Bodoni Moda',serif; font-size:1.45rem; font-weight:800; letter-spacing:-0.02em; color:#131110; margin:2rem 0 0.85rem; line-height:1.14; }
+  .blog-body a  { color:#b58a4b; text-decoration:underline; }
+  .blog-body a:hover { color:#7b5b2e; }
+  .blog-body blockquote {
+    border-left: 4px solid #b58a4b;
+    padding: 1.1rem 1.4rem;
+    margin: 2rem 0;
+    background: linear-gradient(180deg, #fffdf8, #fff8ec);
+    border-radius: 0 18px 18px 0;
+    font-style: italic;
+    color: #2a221b;
+    box-shadow: 0 12px 28px rgba(19, 17, 16, 0.08);
+  }
+  .blog-body ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1.4rem; }
+  .blog-body ol { list-style: decimal; padding-left: 1.5rem; margin-bottom: 1.4rem; }
+  .blog-body li { margin-bottom: 0.55rem; }
+  .blog-body img { border-radius: 20px; margin: 2rem 0; max-width:100%; box-shadow:0 18px 44px rgba(26,18,8,0.08); }
   .blog-body code {
-    background: #fef3c7;
-    color: #92400e;
-    padding: 2px 6px;
-    border-radius: 4px;
+    background: #fff0c7;
+    color: #7b5b2e;
+    padding: 3px 7px;
+    border-radius: 8px;
     font-size: 0.85em;
   }
 </style>
@@ -702,7 +754,7 @@
           const data = await response.json();
           button.textContent = `${button.dataset.reactionLabel} · ${data.count}`;
           button.dataset.active = data.active ? 'true' : 'false';
-          button.style.background = data.active ? '#fff7ed' : '#fffcf7';
+          button.style.background = data.active ? '#f8efe1' : '#fffdfa';
         } catch (error) {
           button.textContent = originalLabel;
           form.submit();

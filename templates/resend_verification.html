@@ -30,15 +30,6 @@
         <p class="text-sm" style="color:#7c6f5e;">Enter your email to receive a fresh verification link</p>
       </div>
 
-      {% if messages %}
-        {% for message in messages %}
-        <div class="px-4 py-3 rounded-lg mb-5 text-sm border"
-             style="background:#f0fdf4; border-color:#bbf7d0; color:#166534;">
-          {{ message }}
-        </div>
-        {% endfor %}
-      {% endif %}
-
       <form action="{% url 'resend_verification' %}" method="POST" class="relative z-10">
         {% csrf_token %}
 
@@ -73,8 +64,7 @@
     </div>
 
     <p class="text-center text-xs mt-4" style="color:#a89070;">
-      Link expires after 24 hours &nbsp;·&nbsp;
-      <a href="#" class="underline" style="color:#d97706;">Privacy Policy</a>
+      Link expires after 24 hours.
     </p>
   </div>
 </div>

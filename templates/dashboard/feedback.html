@@ -3,150 +3,82 @@
 {% block content %}
 
 <div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
-
   {% include 'dashboard/sidebar.html' %}
 
   <main class="flex-1 min-w-0">
+    <section class="premium-card-soft p-6 md:p-8 mb-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-5">
+        <div>
+          <p class="section-kicker mb-3">Review Center</p>
+          <h1 class="section-title text-[clamp(2.3rem,4vw,4rem)]">Feedback</h1>
+          <p class="section-copy mt-4 max-w-2xl">Review reader feedback.</p>
+        </div>
 
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b"
-         style="border-color:#e5d5bf;">
-      <div>
-        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Dashboard</p>
-        <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">Feedback</h1>
-        <p class="text-sm mt-1" style="color:#7c6f5e;">
-          <span class="font-bold" style="color:#1a1208;">{{ feedback_items|length }}</span>
-          feedback item{{ feedback_items|length|pluralize }}
-        </p>
-      </div>
-      {% if can_manage_feedback %}
-      <span class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold self-start sm:self-auto"
-            style="background:#dbeafe; color:#1d4ed8;">
-        Superuser Management
-      </span>
-      {% endif %}
-    </div>
-
-    <div class="rounded-2xl border overflow-hidden bg-white"
-         style="border-color:#e5d5bf; box-shadow:0 2px 16px rgba(26,18,8,0.07);">
-      <div class="hidden md:block overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr style="background: linear-gradient(135deg,#1a1208,#3d2b0a);">
-              <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Type</th>
-              <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Subject</th>
-              <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">From</th>
-              <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Status</th>
-              <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Submitted</th>
-              {% if can_manage_feedback %}
-              <th class="px-5 py-3.5 text-center text-xs font-bold uppercase tracking-widest" style="color:#a89070;">Actions</th>
-              {% endif %}
-            </tr>
-          </thead>
-          <tbody class="divide-y" style="border-color:#f5ede0;">
-            {% for item in feedback_items %}
-            <tr class="align-top hover:bg-amber-50">
-              <td class="px-5 py-4">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
-                      style="background:#fef3c7; color:#92400e;">
-                  {{ item.feedback_type }}
-                </span>
-              </td>
-              <td class="px-5 py-4">
-                <p class="font-semibold mb-1" style="color:#1a1208;">{{ item.subject }}</p>
-                <p class="text-xs leading-relaxed max-w-md" style="color:#7c6f5e;">{{ item.message|truncatechars:140 }}</p>
-                {% if item.page_url %}
-                <p class="text-xs mt-1" style="color:#a89070;">Page: {{ item.page_url }}</p>
-                {% endif %}
-              </td>
-              <td class="px-5 py-4">
-                <p class="font-medium" style="color:#3d2b0a;">{{ item.name }}</p>
-                <p class="text-xs" style="color:#a89070;">{{ item.email }}</p>
-                {% if item.user %}
-                <p class="text-xs mt-1" style="color:#a89070;">@{{ item.user.username }}</p>
-                {% endif %}
-              </td>
-              <td class="px-5 py-4">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
-                             {% if item.status == 'New' %}bg-amber-100 text-amber-800{% elif item.status == 'Reviewed' %}bg-blue-100 text-blue-800{% else %}bg-green-100 text-green-800{% endif %}">
-                  {{ item.status }}
-                </span>
-              </td>
-              <td class="px-5 py-4 text-xs" style="color:#7c6f5e;">
-                {{ item.created_at|date:"M j, Y" }}<br>
-                {{ item.created_at|date:"g:i A" }}
-              </td>
-              {% if can_manage_feedback %}
-              <td class="px-5 py-4">
-                <div class="flex items-center justify-center gap-2">
-                  <a href="{% url 'edit_feedback' item.id %}"
-                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 hover:-translate-y-0.5"
-                     style="border-color:#d1fae5; color:#059669; background:#f0fdf4;">
-                    Edit
-                  </a>
-                  <a href="{% url 'admin:dashboards_feedback_delete' item.id %}"
-                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 hover:-translate-y-0.5"
-                     style="border-color:#fee2e2; color:#dc2626; background:#fef2f2;">
-                    Delete
-                  </a>
-                </div>
-              </td>
-              {% endif %}
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="{% if can_manage_feedback %}6{% else %}5{% endif %}" class="px-5 py-16 text-center">
-                <p class="font-display font-semibold text-base mb-1" style="color:#1a1208;">No feedback yet</p>
-                <p class="text-xs" style="color:#a89070;">New feedback submissions will appear here.</p>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="md:hidden flex flex-col gap-4 p-4">
-        {% for item in feedback_items %}
-        <div class="rounded-xl border p-4" style="border-color:#e5d5bf; background:#fffcf7;">
-          <div class="flex items-start justify-between gap-3 mb-2">
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
-                  style="background:#fef3c7; color:#92400e;">
-              {{ item.feedback_type }}
-            </span>
-            <span class="text-xs font-semibold
-                         {% if item.status == 'New' %}text-amber-700{% elif item.status == 'Reviewed' %}text-blue-700{% else %}text-green-700{% endif %}">
-              {{ item.status }}
-            </span>
+        <div class="flex flex-wrap gap-3">
+          <div class="premium-stat min-w-[150px]">
+            <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#b45309;">Entries</p>
+            <p class="font-display text-3xl font-black" style="color:#1a1208;">{{ feedback_items|length }}</p>
+            <p class="premium-meta">Feedback items</p>
           </div>
-          <p class="font-semibold mb-1" style="color:#1a1208;">{{ item.subject }}</p>
-          <p class="text-sm mb-3" style="color:#7c6f5e;">{{ item.message|truncatechars:140 }}</p>
-          <p class="text-xs" style="color:#3d2b0a;">{{ item.name }} · {{ item.email }}</p>
-          <p class="text-xs mt-1" style="color:#a89070;">{{ item.created_at|date:"M j, Y g:i A" }}</p>
-          {% if item.page_url %}
-          <p class="text-xs mt-1" style="color:#a89070;">Page: {{ item.page_url }}</p>
-          {% endif %}
           {% if can_manage_feedback %}
-          <div class="flex gap-2 mt-3">
-            <a href="{% url 'edit_feedback' item.id %}"
-               class="flex-1 text-center py-2 rounded-lg text-xs font-bold border transition-all"
-               style="border-color:#d1fae5; color:#059669; background:#f0fdf4;">
-              Edit
-            </a>
-            <a href="{% url 'admin:dashboards_feedback_delete' item.id %}"
-               class="flex-1 text-center py-2 rounded-lg text-xs font-bold border transition-all"
-               style="border-color:#fee2e2; color:#dc2626; background:#fef2f2;">
-              Delete
-            </a>
+          <div class="premium-stat min-w-[150px]">
+            <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#2563eb;">Access</p>
+            <p class="font-display text-3xl font-black" style="color:#1a1208;">Superuser</p>
+            <p class="premium-meta">Management enabled</p>
           </div>
           {% endif %}
         </div>
-        {% empty %}
-        <div class="text-center py-12 rounded-xl border border-dashed" style="border-color:#e5d5bf;">
-          <p class="font-display font-semibold mb-2" style="color:#1a1208;">No feedback yet</p>
-        </div>
-        {% endfor %}
       </div>
-    </div>
+    </section>
 
+    <div class="space-y-4">
+      {% for item in feedback_items %}
+      <article class="premium-card p-6">
+        <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-3 mb-3">
+              <span class="status-pill status-pill-amber">{{ item.feedback_type }}</span>
+              {% if item.status == 'New' %}
+              <span class="status-pill status-pill-amber">{{ item.status }}</span>
+              {% elif item.status == 'Reviewed' %}
+              <span class="status-pill status-pill-blue">{{ item.status }}</span>
+              {% else %}
+              <span class="status-pill status-pill-green">{{ item.status }}</span>
+              {% endif %}
+              <span class="premium-meta">{{ item.created_at|date:"M j, Y · g:i A" }}</span>
+            </div>
+
+            <h2 class="font-display text-2xl font-black mb-2" style="color:#1a1208;">{{ item.subject }}</h2>
+            <p class="section-copy text-sm mb-4">{{ item.message|truncatechars:220 }}</p>
+
+            <div class="flex flex-wrap gap-3 premium-meta">
+              <span>From: {{ item.name }}</span>
+              {% if item.email %}<span>{{ item.email }}</span>{% endif %}
+              {% if item.user %}<span>@{{ item.user.username }}</span>{% endif %}
+              {% if item.page_url %}<span>Page: {{ item.page_url }}</span>{% endif %}
+            </div>
+          </div>
+
+          {% if can_manage_feedback %}
+          <div class="flex flex-wrap gap-2">
+            <a href="{% url 'edit_feedback' item.id %}" class="btn-outline" style="padding:9px 14px;">Edit</a>
+            <a href="{% url 'admin:dashboards_feedback_delete' item.id %}" class="status-pill status-pill-red" style="padding:0.7rem 0.95rem;">Delete</a>
+          </div>
+          {% endif %}
+        </div>
+      </article>
+      {% empty %}
+      <div class="premium-empty">
+        <div class="empty-icon-shell mx-auto mb-5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 8h10M7 12h6m-8 8h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <p class="font-display text-3xl font-black mb-2" style="color:#1a1208;">No feedback yet</p>
+        <p class="section-copy">New submissions will appear here.</p>
+      </div>
+      {% endfor %}
+    </div>
   </main>
 </div>
 

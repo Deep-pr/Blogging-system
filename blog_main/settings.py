@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -68,6 +69,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'blogs.context_processors.get_categories',
                 'blogs.context_processors.get_social_links',
+                'blogs.context_processors.get_default_seo',
                 'dashboards.context_processors.current_user_profile',
             ],
         },
@@ -134,22 +136,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-import ssl
 import certifi
-import os
 
-# ── Email (console for development — prints to terminal) ───────
-# EMAIL_BACKEND    = 'django.core.mail.backends.console.EmailBackend'
-# DEFAULT_FROM_EMAIL = 'Django Blog <noreply@djangoblog.com>'
-
-# ── For production (Gmail SMTP) — uncomment and fill in ────────
-EMAIL_BACKEND     = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST        = 'smtp.gmail.com'
-EMAIL_PORT        = 587
-EMAIL_USE_TLS     = True
-EMAIL_HOST_USER   = 'futureflux25@gmail.com'
+# ── Email ────────────────────────────────────────────────────────
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'futureflux25@gmail.com'
 EMAIL_HOST_PASSWORD = 'hkzlleotgovktlnq'
-DEFAULT_FROM_EMAIL  = 'Django Blog <futureflux25@gmail.com>'
+DEFAULT_FROM_EMAIL = 'Django Blog <futureflux25@gmail.com>'
 
 
 

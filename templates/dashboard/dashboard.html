@@ -2,277 +2,185 @@
 
 {% block content %}
 
-<div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
+<style>
+  body.dark-mode .dashboard-panel-head {
+    background: rgba(15, 23, 42, 0.9) !important;
+    border-color: rgba(181, 138, 75, 0.22) !important;
+    color: #e8e2d8 !important;
+  }
+</style>
 
-  <!-- ══════════════════════════════════════════════════════
-       SIDEBAR
-  ═══════════════════════════════════════════════════════ -->
+<div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
   {% include 'dashboard/sidebar.html' %}
 
-
-  <!-- ══════════════════════════════════════════════════════
-       MAIN CONTENT
-  ═══════════════════════════════════════════════════════ -->
   <main class="flex-1 min-w-0">
+    <section class="premium-card-soft p-6 md:p-8 mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div>
+          <p class="section-kicker mb-3">Dashboard</p>
+          <h1 class="section-title text-[clamp(2.4rem,4.4vw,4.6rem)]">
+            {{ welcome }}, <span style="color:#b58a4b;">{{ user }}</span>
+          </h1>
+        </div>
 
-    <!-- Top welcome bar -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8 pb-6 border-b"
-         style="border-color:#e5d5bf;">
-      <div>
-        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Dashboard</p>
-        <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">
-          {{ welcome }}, <span style="color:#d97706;">{{ user }}</span>
-        </h1>
-      </div>
-      <div class="flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-medium"
-           style="background:#fffcf7; border-color:#e5d5bf; color:#7c6f5e;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-        </svg>
-        {% now "F j, Y" %}
-      </div>
-    </div>
-
-
-    <!-- ── Stat cards ── -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-10">
-
-      <!-- Categories -->
-      <div class="relative rounded-2xl overflow-hidden border p-6 group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-           style="background:#fff; border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
-        <div class="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-5 group-hover:opacity-10 transition-opacity"
-             style="background:#d97706;"></div>
-
-        <div class="flex items-start justify-between mb-4">
-          <div class="w-11 h-11 rounded-xl flex items-center justify-center"
-               style="background: linear-gradient(135deg,#fef3c7,#fde68a);">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-            </svg>
+        <div class="flex flex-wrap gap-3">
+          <div class="premium-stat min-w-[150px]">
+            <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#97723d;">Today</p>
+            <p class="font-display text-2xl font-black" style="color:#131110;">{% now "F j" %}</p>
+            <p class="premium-meta">{% now "Y" %}</p>
           </div>
-          <a href="{% url 'categories' %}"
-             class="text-xs font-bold uppercase tracking-wider transition-colors hover:underline"
-             style="color:#d97706;">
-            Manage →
-          </a>
-        </div>
-
-        <p class="font-display text-4xl font-black mb-1" style="color:#1a1208;">{{ category_count }}</p>
-        <p class="text-sm font-semibold" style="color:#7c6f5e;">Total Categories</p>
-      </div>
-
-      <!-- Posts -->
-      <div class="relative rounded-2xl overflow-hidden border p-6 group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-           style="background:#fff; border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
-        <div class="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-5 group-hover:opacity-10 transition-opacity"
-             style="background:#92400e;"></div>
-
-        <div class="flex items-start justify-between mb-4">
-          <div class="w-11 h-11 rounded-xl flex items-center justify-center"
-               style="background: linear-gradient(135deg,#fdf8f0,#fef3c7);">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#92400e;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2zM13 4v6h6"/>
-            </svg>
+          <div class="premium-stat min-w-[150px]">
+            <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#97723d;">Workspace</p>
+            <p class="font-display text-2xl font-black" style="color:#131110;">
+              {% if request.user.is_superuser %}Admin{% elif request.user.is_staff %}Manager{% else %}Editor{% endif %}
+            </p>
+            <p class="premium-meta">Publishing role</p>
           </div>
-          <a href="{% url 'posts' %}"
-             class="text-xs font-bold uppercase tracking-wider transition-colors hover:underline"
-             style="color:#92400e;">
-            Manage →
-          </a>
         </div>
+      </div>
+    </section>
 
-        <p class="font-display text-4xl font-black mb-1" style="color:#1a1208;">{{ blogs_count }}</p>
-        <p class="text-sm font-semibold" style="color:#7c6f5e;">Total Posts</p>
+    <section class="mb-10">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+        <div>
+          <p class="section-kicker mb-3">Overview</p>
+          <h2 class="section-subtitle">Control the publication from one place</h2>
+        </div>
       </div>
 
-      <div class="relative rounded-2xl overflow-hidden border p-6 group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-           style="background:#fff; border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
-        <div class="flex items-start justify-between mb-4">
-          <div class="w-11 h-11 rounded-xl flex items-center justify-center"
-               style="background: linear-gradient(135deg,#fee2e2,#fecaca);">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#b45309;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 5v16l7-4 7 4V5a2 2 0 00-2-2H7a2 2 0 00-2 2z"/>
-            </svg>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        <a href="{% url 'categories' %}" class="premium-card editorial-card transition-all duration-300 p-6">
+          <div class="flex items-start justify-between gap-4 mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
+                 style="background:linear-gradient(135deg,#eee0c8,#e8d7bb);">
+              <i class="fa-solid fa-tag" style="color:#97723d;"></i>
+            </div>
+            <span class="premium-link text-xs">Manage</span>
           </div>
-          <a href="{% url 'saved_posts' %}" class="text-xs font-bold uppercase tracking-wider hover:underline" style="color:#b45309;">View →</a>
-        </div>
-        <p class="font-display text-4xl font-black mb-1" style="color:#1a1208;">{{ saved_count }}</p>
-        <p class="text-sm font-semibold" style="color:#7c6f5e;">Saved Posts</p>
-      </div>
-
-      {% if request.user.is_superuser or request.user.is_staff %}
-      <div class="relative rounded-2xl overflow-hidden border p-6 group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-           style="background:#fff; border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
-        <div class="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-5 group-hover:opacity-10 transition-opacity"
-             style="background:#2563eb;"></div>
-
-        <div class="flex items-start justify-between mb-4">
-          <div class="w-11 h-11 rounded-xl flex items-center justify-center"
-               style="background: linear-gradient(135deg,#dbeafe,#bfdbfe);">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#2563eb;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h6m-8 8h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-          </div>
-          <a href="{% url 'dashboard_feedback' %}"
-             class="text-xs font-bold uppercase tracking-wider transition-colors hover:underline"
-             style="color:#2563eb;">
-            View →
-          </a>
-        </div>
-
-        <p class="font-display text-4xl font-black mb-1" style="color:#1a1208;">{{ feedback_count }}</p>
-        <p class="text-sm font-semibold" style="color:#7c6f5e;">Feedback Received</p>
-      </div>
-      {% endif %}
-
-      <!-- Quick actions card -->
-      <div class="relative rounded-2xl overflow-hidden border p-6 sm:col-span-2 {% if request.user.is_superuser or request.user.is_staff %}xl:col-span-4{% else %}xl:col-span-4{% endif %}"
-           style="background: linear-gradient(135deg,#1a1208 0%,#3d2b0a 100%); border-color:#3d2b0a; box-shadow:0 2px 12px rgba(26,18,8,0.12);">
-        <div class="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-10" style="background:#fbbf24;"></div>
-        <div class="absolute -bottom-4 -left-4 w-16 h-16 rounded-full opacity-10" style="background:#d97706;"></div>
-
-        <p class="text-xs font-bold uppercase tracking-widest mb-4 relative z-10" style="color:#a89070;">Quick Actions</p>
-
-        <div class="flex flex-col gap-2 relative z-10">
-          <a href="{% url 'add_post' %}"
-             class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 hover:-translate-y-0.5"
-             style="background:#d97706; color:#fff;">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-            </svg>
-            New Post
-          </a>
-          <a href="{% url 'add_category' %}"
-             class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold border transition-all duration-200 hover:-translate-y-0.5"
-             style="border-color:rgba(217,119,6,0.4); color:#fbbf24; background:rgba(217,119,6,0.1);">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-            </svg>
-            New Category
-          </a>
-          <a href="{% url 'analytics' %}"
-             class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold border transition-all duration-200 hover:-translate-y-0.5"
-             style="border-color:rgba(255,255,255,0.15); color:#ffffff; background:rgba(255,255,255,0.06);">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11 3v18m-4-8v8m8-14v14m4-10v10"/>
-            </svg>
-            Analytics
-          </a>
-          <a href="{% url 'notifications' %}"
-             class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold border transition-all duration-200 hover:-translate-y-0.5"
-             style="border-color:rgba(255,255,255,0.15); color:#ffffff; background:rgba(255,255,255,0.06);">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-            </svg>
-            Notifications
-          </a>
-          {% if not request.user.is_superuser and not request.user.is_staff %}
-          <a href="{% url 'feedback' %}"
-             class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold border transition-all duration-200 hover:-translate-y-0.5"
-             style="border-color:rgba(255,255,255,0.15); color:#ffffff; background:rgba(255,255,255,0.06);">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h6m-8 8h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            Send Feedback
-          </a>
-          {% endif %}
-        </div>
-      </div>
-
-    </div>
-
-
-    <!-- ── Overview section ── -->
-    <div class="rounded-2xl border bg-white overflow-hidden"
-         style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
-
-      <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b"
-           style="background:#fffcf7; border-color:#e5d5bf;">
-        <h2 class="font-display text-base font-bold" style="color:#1a1208;">Site Overview</h2>
-        <a href="/" target="_blank"
-           class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors"
-           style="color:#d97706;">
-          View Site
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-          </svg>
+          <p class="font-display text-5xl font-black mb-1" style="color:#131110;">{{ category_count }}</p>
+          <p class="premium-meta">Total categories</p>
         </a>
-      </div>
 
-      <!-- Stats rows -->
-      <div class="divide-y" style="border-color:#f5ede0;">
-
-        <div class="flex items-center justify-between px-6 py-4">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-                 style="background:#fef3c7;">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-              </svg>
+        <a href="{% url 'posts' %}" class="premium-card editorial-card transition-all duration-300 p-6">
+          <div class="flex items-start justify-between gap-4 mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
+                 style="background:linear-gradient(135deg,#f8f2e8,#e8d7bb);">
+              <i class="fa-regular fa-file-lines" style="color:#7b5b2e;"></i>
             </div>
-            <span class="text-sm font-medium" style="color:#3d2b0a;">Categories</span>
+            <span class="premium-link text-xs">Manage</span>
           </div>
-          <div class="flex items-center gap-3">
-            <span class="font-display text-lg font-bold" style="color:#1a1208;">{{ category_count }}</span>
-            <a href="{% url 'categories' %}" class="text-xs font-semibold hover:underline" style="color:#d97706;">View all</a>
-          </div>
-        </div>
+          <p class="font-display text-5xl font-black mb-1" style="color:#131110;">{{ blogs_count }}</p>
+          <p class="premium-meta">Published and draft posts</p>
+        </a>
 
-        <div class="flex items-center justify-between px-6 py-4">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-                 style="background:#fdf8f0;">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#92400e;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2zM13 4v6h6"/>
-              </svg>
+        <a href="{% url 'saved_posts' %}" class="premium-card editorial-card transition-all duration-300 p-6">
+          <div class="flex items-start justify-between gap-4 mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
+                 style="background:linear-gradient(135deg,#fee2e2,#fecaca);">
+              <i class="fa-regular fa-bookmark" style="color:#97723d;"></i>
             </div>
-            <span class="text-sm font-medium" style="color:#3d2b0a;">Posts</span>
+            <span class="premium-link text-xs">View</span>
           </div>
-          <div class="flex items-center gap-3">
-            <span class="font-display text-lg font-bold" style="color:#1a1208;">{{ blogs_count }}</span>
-            <a href="{% url 'posts' %}" class="text-xs font-semibold hover:underline" style="color:#d97706;">View all</a>
-          </div>
-        </div>
-
-        {% if perms.auth.view_user %}
-        <div class="flex items-center justify-between px-6 py-4">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-                 style="background:#fef3c7;">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-              </svg>
-            </div>
-            <span class="text-sm font-medium" style="color:#3d2b0a;">Registered Users</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <a href="{% url 'users' %}" class="text-xs font-semibold hover:underline" style="color:#d97706;">Manage users</a>
-          </div>
-        </div>
-        {% endif %}
+          <p class="font-display text-5xl font-black mb-1" style="color:#131110;">{{ saved_count }}</p>
+          <p class="premium-meta">Saved stories</p>
+        </a>
 
         {% if request.user.is_superuser or request.user.is_staff %}
-        <div class="flex items-center justify-between px-6 py-4">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-                 style="background:#dbeafe;">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#2563eb;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h6m-8 8h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-              </svg>
+        <a href="{% url 'dashboard_feedback' %}" class="premium-card editorial-card transition-all duration-300 p-6">
+          <div class="flex items-start justify-between gap-4 mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
+                 style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);">
+              <i class="fa-regular fa-message" style="color:#2563eb;"></i>
             </div>
-            <span class="text-sm font-medium" style="color:#3d2b0a;">Feedback</span>
+            <span class="premium-link text-xs">Review</span>
           </div>
-          <div class="flex items-center gap-3">
-            <span class="font-display text-lg font-bold" style="color:#1a1208;">{{ feedback_count }}</span>
-            <a href="{% url 'dashboard_feedback' %}" class="text-xs font-semibold hover:underline" style="color:#2563eb;">View all</a>
-          </div>
-        </div>
+          <p class="font-display text-5xl font-black mb-1" style="color:#131110;">{{ feedback_count }}</p>
+          <p class="premium-meta">Feedback entries</p>
+        </a>
         {% endif %}
-
       </div>
-    </div>
+    </section>
 
+    <section class="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-6">
+      <div class="premium-card overflow-hidden">
+        <div class="dashboard-panel-head px-6 py-5 border-b" style="border-color:rgba(187,164,130,0.45); background:rgba(255,251,244,0.75);">
+          <p class="section-kicker mb-2">Quick Actions</p>
+          <h3 class="section-subtitle text-[2rem]">Move faster with better shortcuts</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <a href="{% url 'add_post' %}" class="rounded-[1.4rem] p-5 transition-all duration-300 hover:-translate-y-0.5"
+             style="background:linear-gradient(135deg,#141210 0%,#2a221b 100%); color:#fff; box-shadow:0 16px 36px rgba(19,17,16,0.2);">
+            <p class="text-xs uppercase tracking-[0.22em] mb-3" style="color:#d6c3a7;">Publishing</p>
+            <h4 class="font-display text-2xl font-black mb-2">New Post</h4>
+            <p class="text-sm leading-7" style="color:#e5d5bc;">Create and publish a new article.</p>
+          </a>
+
+          <a href="{% url 'add_category' %}" class="premium-card-soft p-5 transition-all duration-300 hover:-translate-y-0.5">
+            <p class="text-xs uppercase tracking-[0.22em] mb-3" style="color:#97723d;">Structure</p>
+            <h4 class="font-display text-2xl font-black mb-2" style="color:#131110;">New Category</h4>
+            <p class="section-copy text-sm">Add a new category.</p>
+          </a>
+
+          <a href="{% url 'analytics' %}" class="premium-card-soft p-5 transition-all duration-300 hover:-translate-y-0.5">
+            <p class="text-xs uppercase tracking-[0.22em] mb-3" style="color:#97723d;">Insight</p>
+            <h4 class="font-display text-2xl font-black mb-2" style="color:#131110;">Analytics</h4>
+            <p class="section-copy text-sm">View post performance.</p>
+          </a>
+
+          <a href="{% url 'notifications' %}" class="premium-card-soft p-5 transition-all duration-300 hover:-translate-y-0.5">
+            <p class="text-xs uppercase tracking-[0.22em] mb-3" style="color:#97723d;">Alerts</p>
+            <h4 class="font-display text-2xl font-black mb-2" style="color:#131110;">Notifications</h4>
+            <p class="section-copy text-sm">View recent updates.</p>
+          </a>
+        </div>
+      </div>
+
+      <div class="premium-card overflow-hidden">
+        <div class="dashboard-panel-head px-6 py-5 border-b" style="border-color:rgba(187,164,130,0.45); background:rgba(255,251,244,0.75);">
+          <p class="section-kicker mb-2">Site Overview</p>
+          <h3 class="section-subtitle text-[2rem]">Publication health at a glance</h3>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <div class="premium-stat flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-bold" style="color:#131110;">Categories</p>
+              <p class="premium-meta">Browse or update structure</p>
+            </div>
+            <a href="{% url 'categories' %}" class="premium-link text-sm">{{ category_count }} total</a>
+          </div>
+
+          <div class="premium-stat flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-bold" style="color:#131110;">Posts</p>
+              <p class="premium-meta">Published and managed content</p>
+            </div>
+            <a href="{% url 'posts' %}" class="premium-link text-sm">{{ blogs_count }} total</a>
+          </div>
+
+          {% if request.user.is_superuser or request.user.is_staff %}
+          <div class="premium-stat flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-bold" style="color:#131110;">Users</p>
+              <p class="premium-meta">Authors and staff management</p>
+            </div>
+            <a href="{% url 'users' %}" class="premium-link text-sm">Manage</a>
+          </div>
+          {% endif %}
+
+          {% if request.user.is_superuser or request.user.is_staff %}
+          <div class="premium-stat flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-bold" style="color:#131110;">Feedback</p>
+              <p class="premium-meta">Reader sentiment and suggestions</p>
+            </div>
+            <a href="{% url 'dashboard_feedback' %}" class="premium-link text-sm">{{ feedback_count }} open</a>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 

@@ -7,8 +7,7 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils import timezone
 
-from dashboards.models import Notification
-from dashboards.services import notify_managers
+from dashboards.services import create_user_notification, notify_managers, user_allows_notification
 
 from .models import AuthorFollow, Blog, Bookmark, Category, Comment, ContentReport, PostReaction
 from .services import publish_scheduled_posts
@@ -167,12 +166,14 @@ def toggle_follow_author(request, username):
 
     follow, created = AuthorFollow.objects.get_or_create(follower=request.user, author=author)
     if created:
-        Notification.objects.create(
-            user=author,
-            title='New follower',
-            message=f'{request.user.username} started following your author profile.',
-            link=reverse('followers'),
-        )
+        if user_allows_notification(author, 'notify_new_followers'):
+            create_user_notification(
+                user=author,
+                title='New follower',
+                message=f'{request.user.username} started following your author profile.',
+                link=reverse('followers'),
+                preference_name='notify_new_followers',
+            )
         messages.success(request, f'You are now following {author.username}.')
     else:
         follow.delete()
@@ -187,6 +188,7 @@ def search(request):
     category_id = request.GET.get('category')
     author_id = request.GET.get('author')
     published_after = request.GET.get('published_after')
+    sort_by = (request.GET.get('sort') or 'latest').strip()
 
     blogs = Blog.objects.filter(status='Published').select_related('author', 'category')
     if keyword:
@@ -202,14 +204,25 @@ def search(request):
     if published_after:
         blogs = blogs.filter(created_at__date__gte=published_after)
 
+    if sort_by == 'oldest':
+        blogs = blogs.order_by('published_at', 'created_at')
+    elif sort_by == 'popular':
+        blogs = blogs.order_by('-view_count', '-published_at', '-created_at')
+    elif sort_by == 'title':
+        blogs = blogs.order_by('title', '-published_at')
+    else:
+        sort_by = 'latest'
+        blogs = blogs.order_by('-published_at', '-created_at')
+
     context = {
-        'blogs': blogs.order_by('-published_at', '-created_at'),
+        'blogs': blogs,
         'keyword': keyword,
         'filter_categories': Category.objects.all().order_by('category_name'),
         'filter_authors': User.objects.filter(blog__status='Published').distinct().order_by('username'),
         'selected_category': category_id or '',
         'selected_author': author_id or '',
         'selected_date': published_after or '',
+        'selected_sort': sort_by,
         'page_title': 'Search Articles | FutureFlux',
         'meta_description': 'Search articles by keyword, category, author, and date on FutureFlux.',
     }
@@ -303,11 +316,12 @@ def report_post(request, slug):
                 link=reverse('reports'),
             )
             if report.user:
-                Notification.objects.create(
+                create_user_notification(
                     user=report.user,
                     title='Report submitted',
                     message=f'We received your report for "{blog.title}".',
                     link=blog.get_absolute_url(),
+                    preference_name='notify_report_updates',
                 )
             messages.success(request, 'Thanks. Your report has been submitted.')
     return redirect(_get_redirect_target(request, f'{blog.get_absolute_url()}#reader-actions'))

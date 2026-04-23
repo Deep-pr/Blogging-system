@@ -3,150 +3,54 @@
 {% block content %}
 {% load crispy_forms_tags %}
 
-<div class="min-h-screen flex items-center justify-center py-12 px-4" style="background: linear-gradient(135deg, #fdf8f0 0%, #fef3c7 100%);">
-
-  <div class="w-full max-w-md">
-
-    <!-- Decorative top accent -->
-    <div class="h-1.5 w-full rounded-t-2xl" style="background: linear-gradient(90deg, #92400e, #d97706, #fbbf24);"></div>
-
-    <!-- Card -->
-    <div class="bg-white rounded-b-2xl px-8 pt-8 pb-10 border border-t-0 relative overflow-hidden"
-         style="border-color:#e5d5bf; box-shadow: 0 20px 60px rgba(26,18,8,0.12);">
-
-      <!-- Background decorations -->
-      <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-5 pointer-events-none" style="background:#d97706;"></div>
-      <div class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full opacity-5 pointer-events-none" style="background:#fbbf24;"></div>
-
-      <!-- Header -->
-      <div class="text-center mb-8 relative z-10">
-        <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-             style="background: linear-gradient(135deg, #1a1208, #3d2b0a);">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" style="color:#fbbf24;">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-          </svg>
-        </div>
-        <h1 class="font-display text-3xl font-black mb-1" style="color:#1a1208;">Welcome Back</h1>
-        <p class="text-sm" style="color:#7c6f5e;">Sign in to continue to FutureFlux</p>
+<section class="auth-stage">
+  <div class="auth-card">
+    <div class="auth-card-top">
+      <div class="relative z-10">
+        <p class="section-kicker mb-3" style="color:#fbbf24;">Account Access</p>
+        <h1 class="font-display text-4xl font-black leading-tight mb-3 text-white">Welcome back to FutureFlux</h1>
+        <p class="text-sm leading-7 max-w-xl" style="color:#e1ceb0;">
+          Sign in to manage your posts, categories, profile, saved stories, notifications, and analytics from a cleaner workspace.
+        </p>
       </div>
+    </div>
 
-      <!-- ══ Unverified banner — always renders independently of flash messages ══ -->
+    <div class="p-6 md:p-8">
       {% if unverified %}
-      <div class="flex items-start gap-3 px-4 py-3 rounded-lg mb-5 text-sm border relative z-10"
-           style="background:#fffbeb; border-color:#fcd34d; color:#92400e;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mt-0.5 flex-shrink-0" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-        </svg>
-        <span>
-          Your email is not verified yet.&nbsp;
+      <div class="rounded-2xl px-4 py-3 mb-5 border" style="background:#fffbeb; border-color:#fcd34d; color:#92400e;">
+        <p class="text-sm leading-6">
+          Your email is not verified yet.
           <a href="{% url 'resend_verification' %}" class="font-bold underline" style="color:#d97706;">
-            Resend verification email →
+            Resend verification email
           </a>
-        </span>
+        </p>
       </div>
       {% endif %}
 
-      <!-- ══ Django flash messages (general errors) ══ -->
-      {% if messages %}
-        {% for message in messages %}
-        <div class="flex items-start gap-3 px-4 py-3 rounded-lg mb-5 text-sm border relative z-10"
-             style="background:#fef2f2; border-color:#fecaca; color:#b91c1c;">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-          </svg>
-          {{ message }}
-        </div>
-        {% endfor %}
-      {% endif %}
-
-      <!-- Form -->
-      <form action="{% url 'login' %}" method="POST" class="relative z-10">
+      <form action="{% url 'login' %}" method="POST" class="auth-form">
         {% csrf_token %}
+        {{ form | crispy }}
 
-        <div class="login-form">
-          {{ form | crispy }}
+        <div class="text-right -mt-1 mb-4">
+          <a href="{% url 'password_reset' %}" class="text-xs font-semibold hover:underline" style="color:#d97706;">Forgot your password?</a>
         </div>
 
-        <!-- Forgot password -->
-        <div class="text-right mb-2 -mt-2">
-          <a href="#" class="text-xs font-medium hover:underline transition-colors" style="color:#d97706;">
-            Forgot your password?
-          </a>
-        </div>
-
-        <!-- Submit -->
-        <button type="submit"
-                class="w-full mt-4 py-3 px-6 rounded-lg font-bold text-sm uppercase tracking-widest text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center gap-2"
-                style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow: 0 4px 14px rgba(217,119,6,0.35);">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-          </svg>
+        <button type="submit" class="btn-amber w-full text-center justify-center" style="display:flex;">
           Sign In
         </button>
       </form>
 
-      <!-- Divider -->
       <div class="flex items-center gap-3 my-6">
         <div class="flex-1 h-px" style="background:#e5d5bf;"></div>
         <span class="text-xs font-medium" style="color:#a89070;">New to FutureFlux?</span>
         <div class="flex-1 h-px" style="background:#e5d5bf;"></div>
       </div>
 
-      <!-- Register link -->
-      <a href="{% url 'register' %}"
-         class="w-full flex items-center justify-center gap-2 py-2.5 px-6 rounded-lg border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
-         style="border-color:#d97706; color:#d97706; background:transparent;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-        </svg>
+      <a href="{% url 'register' %}" class="btn-outline w-full text-center justify-center" style="display:flex;">
         Create a Free Account
       </a>
-
     </div>
-
-    <p class="text-center text-xs mt-4" style="color:#a89070;">
-      Protected by secure authentication &nbsp;·&nbsp;
-      <a href="#" class="underline hover:text-amber-600 transition-colors" style="color:#d97706;">Privacy Policy</a>
-    </p>
   </div>
-</div>
-
-<style>
-  .login-form label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #7c6f5e;
-    margin-bottom: 5px;
-  }
-  .login-form input[type="text"],
-  .login-form input[type="email"],
-  .login-form input[type="password"] {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid #e5d5bf;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    color: #1a1208;
-    background: #fffcf7;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .login-form input:focus {
-    border-color: #d97706;
-    box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
-    background: #fff;
-  }
-  .login-form .is-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important; }
-  .login-form .invalid-feedback, .login-form .text-danger { font-size: 0.75rem; color: #ef4444; margin-top: 4px; }
-  .login-form .helptext, .login-form small { font-size: 0.72rem; color: #a89070; margin-top: 4px; display: block; }
-  .login-form .mb-3, .login-form .form-group { margin-bottom: 1.1rem; }
-  .login-form input[type="checkbox"] { accent-color: #d97706; width: 15px; height: 15px; }
-</style>
+</section>
 
 {% endblock %}

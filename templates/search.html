@@ -2,224 +2,230 @@
 
 {% block content %}
 
-<!-- ══════════════════════════════════════════════════════════
-     SEARCH HEADER
-════════════════════════════════════════════════════════════ -->
-<div class="mb-10">
-
-  <!-- Breadcrumb -->
-  <div class="flex items-center gap-2 text-xs mb-6" style="color:#a89070;">
-    <a href="/" class="hover:text-amber-600 transition-colors" style="color:#a89070;">Home</a>
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-    </svg>
-    <span>Search Results</span>
+<section class="mb-10 premium-card-soft p-6 md:p-8">
+  <div class="flex items-center gap-2 text-xs mb-5 premium-meta">
+    <a href="/" class="hover:text-amber-700 transition-colors">Home</a>
+    <span>•</span>
+    <span>Search</span>
   </div>
 
-  <!-- Title block -->
-  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+  <div class="grid grid-cols-1 lg:grid-cols-[1.25fr_0.95fr] gap-6 items-end">
     <div>
-      <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color:#d97706;">Search Results</p>
-      <h1 class="font-display text-3xl md:text-4xl font-black leading-tight" style="color:#1a1208;">
-        Results for
-        <span class="relative inline-block">
-          <span class="relative z-10">"{{ keyword }}"</span>
-          <span class="absolute bottom-1 left-0 w-full h-2 opacity-25 -z-0 rounded"
-                style="background:#d97706;"></span>
-        </span>
+      <p class="section-kicker mb-3">Search Results</p>
+      <h1 class="section-title text-[clamp(2.3rem,4vw,4.5rem)] mb-3">
+        {% if keyword %}
+        Results for "{{ keyword }}"
+        {% else %}
+        Find your next article
+        {% endif %}
       </h1>
-
-      {% if blogs %}
-      <p class="text-sm mt-2" style="color:#7c6f5e;">
-        Found
-        <span class="font-bold" style="color:#1a1208;">{{ blogs|length }}</span>
-        article{{ blogs|length|pluralize }} matching your search
+      <p class="section-copy max-w-2xl">
+        {% if blogs %}
+        Found {{ blogs|length }} article{{ blogs|length|pluralize }} that match your search and filters.
+        {% else %}
+        Search by keyword, category, author, or date.
+        {% endif %}
       </p>
-      {% endif %}
     </div>
 
-    <!-- New search bar -->
-    <form action="{% url 'search' %}" method="GET"
-          class="flex w-full sm:w-72 flex-shrink-0">
-      <input
-        type="text"
-        name="keyword"
-        value="{{ keyword }}"
-        placeholder="Search again…"
-        class="flex-1 px-4 py-2.5 text-sm border outline-none transition-all duration-200"
-        style="border:1.5px solid #e5d5bf; border-right:none; border-radius:8px 0 0 8px; background:#fffcf7; color:#1a1208; font-family:'DM Sans',sans-serif;"
-        onfocus="this.style.borderColor='#d97706'; this.style.boxShadow='0 0 0 3px rgba(217,119,6,0.15)'"
-        onblur="this.style.borderColor='#e5d5bf'; this.style.boxShadow='none'"
-      />
-      <button type="submit"
-              class="px-4 py-2.5 text-white text-sm font-bold transition-all duration-200 hover:opacity-90 flex items-center gap-1.5"
-              style="background:#d97706; border-radius:0 8px 8px 0;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
-        </svg>
-        Search
-      </button>
-    </form>
+    <div class="flex flex-wrap items-center gap-2 justify-start lg:justify-end">
+      <span class="status-pill status-pill-amber">Sort: {{ selected_sort|title }}</span>
+      {% if keyword %}
+      <span class="status-pill" style="background:#fffdfa; color:#756a5a; border:1px solid rgba(187,164,130,0.45);">Keyword: "{{ keyword }}"</span>
+      {% endif %}
+      {% if selected_category %}
+      <span class="status-pill" style="background:#fffdfa; color:#756a5a; border:1px solid rgba(187,164,130,0.45);">Category filter on</span>
+      {% endif %}
+      {% if selected_author %}
+      <span class="status-pill" style="background:#fffdfa; color:#756a5a; border:1px solid rgba(187,164,130,0.45);">Author filter on</span>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<form action="{% url 'search' %}" method="GET" class="premium-card p-5 md:p-6 mb-8 search-refine-panel">
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-5">
+    <div>
+      <p class="section-kicker mb-2">Refine Results</p>
+      <h2 class="section-subtitle text-[2rem]">Search with precision</h2>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="status-pill status-pill-amber">
+        {{ blogs|length }} match{{ blogs|length|pluralize }}
+      </span>
+      {% if keyword or selected_category or selected_author or selected_date or selected_sort != 'latest' %}
+      <a href="{% url 'search' %}" class="btn-outline" style="padding:9px 14px;">
+        Reset
+      </a>
+      {% endif %}
+    </div>
   </div>
 
-  <!-- Divider -->
-  <div class="mt-6 h-px w-full" style="background: linear-gradient(90deg, #d97706 0%, #e5d5bf 40%, transparent 100%);"></div>
-</div>
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#8a7964;">Keyword</label>
+      <input type="text" name="keyword" value="{{ keyword }}" placeholder="Search term"
+             class="premium-input px-4 py-3 text-sm">
+    </div>
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#8a7964;">Category</label>
+      <select name="category" class="premium-select px-4 py-3 text-sm">
+        <option value="">All categories</option>
+        {% for category in filter_categories %}
+        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.category_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#8a7964;">Author</label>
+      <select name="author" class="premium-select px-4 py-3 text-sm">
+        <option value="">All authors</option>
+        {% for author in filter_authors %}
+        <option value="{{ author.id }}" {% if selected_author == author.id|stringformat:"s" %}selected{% endif %}>{{ author.username }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#8a7964;">Published After</label>
+      <input type="date" name="published_after" value="{{ selected_date }}"
+             class="premium-input px-4 py-3 text-sm flex-1">
+    </div>
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#8a7964;">Sort By</label>
+      <select name="sort" class="premium-select px-4 py-3 text-sm">
+        <option value="latest" {% if selected_sort == 'latest' %}selected{% endif %}>Latest first</option>
+        <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+        <option value="popular" {% if selected_sort == 'popular' %}selected{% endif %}>Most viewed</option>
+        <option value="title" {% if selected_sort == 'title' %}selected{% endif %}>Title A-Z</option>
+      </select>
+    </div>
+  </div>
 
-<form action="{% url 'search' %}" method="GET"
-      class="mb-8 grid grid-cols-1 md:grid-cols-4 gap-4 rounded-2xl border bg-white p-5"
-      style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
-  <input type="text" name="keyword" value="{{ keyword }}" placeholder="Keyword"
-         class="px-4 py-3 rounded-xl border text-sm" style="border-color:#e5d5bf; background:#fffcf7;">
-  <select name="category" class="px-4 py-3 rounded-xl border text-sm" style="border-color:#e5d5bf; background:#fffcf7;">
-    <option value="">All categories</option>
-    {% for category in filter_categories %}
-    <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.category_name }}</option>
-    {% endfor %}
-  </select>
-  <select name="author" class="px-4 py-3 rounded-xl border text-sm" style="border-color:#e5d5bf; background:#fffcf7;">
-    <option value="">All authors</option>
-    {% for author in filter_authors %}
-    <option value="{{ author.id }}" {% if selected_author == author.id|stringformat:"s" %}selected{% endif %}>{{ author.username }}</option>
-    {% endfor %}
-  </select>
-  <div class="flex gap-3">
-    <input type="date" name="published_after" value="{{ selected_date }}"
-           class="flex-1 px-4 py-3 rounded-xl border text-sm" style="border-color:#e5d5bf; background:#fffcf7;">
-    <button type="submit" class="px-4 py-3 rounded-xl text-sm font-bold text-white" style="background:#d97706;">Filter</button>
+  <div class="mt-5 pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+       style="border-color:rgba(187,164,130,0.52);">
+    <p class="premium-meta">Filter by keyword, topic, author, date, or ranking.</p>
+    <div class="flex flex-wrap gap-3">
+      {% if keyword or selected_category or selected_author or selected_date or selected_sort != 'latest' %}
+      <a href="{% url 'search' %}" class="btn-outline" style="padding:9px 14px;">
+        Clear filters
+      </a>
+      {% endif %}
+      <button type="submit" class="btn-amber whitespace-nowrap">
+        Apply Filters
+      </button>
+    </div>
   </div>
 </form>
 
+<style>
+  .search-refine-panel {
+    background:
+      radial-gradient(circle at top right, rgba(181, 138, 75, 0.1), transparent 30%),
+      linear-gradient(180deg, rgba(255, 252, 246, 0.98), rgba(248, 241, 231, 0.93));
+  }
 
-<!-- ══════════════════════════════════════════════════════════
-     RESULTS GRID
-════════════════════════════════════════════════════════════ -->
+  body.dark-mode .search-refine-panel {
+    background:
+      radial-gradient(circle at top right, rgba(181, 138, 75, 0.14), transparent 28%),
+      linear-gradient(180deg, rgba(19, 21, 29, 0.95), rgba(16, 18, 25, 0.93)) !important;
+  }
+</style>
+
 {% if blogs %}
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  {% for blog in blogs %}
-  <article class="group bg-white rounded-xl overflow-hidden border flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-           style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
-
-    <!-- Thumbnail -->
-    {% if blog.featured_image %}
-    <div class="overflow-hidden h-44 flex-shrink-0">
-      <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}"
-           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+<section>
+  <div class="flex items-center justify-between gap-4 mb-6">
+    <div>
+      <p class="section-kicker mb-2">Matches</p>
+      <h2 class="section-subtitle">Search results with stronger context</h2>
     </div>
-    {% else %}
-    <!-- Placeholder if no image -->
-    <div class="h-32 flex items-center justify-center flex-shrink-0"
-         style="background: linear-gradient(135deg, #fef3c7, #fdf8f0);">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#d97706;">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-      </svg>
-    </div>
-    {% endif %}
-
-    <!-- Content -->
-    <div class="p-5 flex flex-col flex-1">
-
-      <!-- Keyword highlight badge -->
-      <div class="flex items-center gap-2 mb-3">
-        <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full"
-              style="background:#fef3c7; color:#92400e;">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
-          </svg>
-          Match
-        </span>
-        <span class="text-xs font-medium" style="color:#d97706;">
-          {{ blog.created_at|timesince }} ago
-        </span>
-        <span style="color:#e5d5bf;">·</span>
-        <span class="inline-flex items-center gap-2 min-w-0">
-          {% if blog.author.profile.profile_image %}
-          <img src="{{ blog.author.profile.profile_image.url }}"
-               alt="{{ blog.author.username }}"
-               class="w-5 h-5 rounded-full object-cover flex-shrink-0 border"
-               style="border-color:#e5d5bf;">
-          {% else %}
-          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
-                style="background: linear-gradient(135deg, #d97706, #92400e);">
-            {{ blog.author.username|slice:":1"|upper }}
-          </span>
-          {% endif %}
-          <span class="text-xs font-semibold truncate" style="color:#7c6f5e;">{{ blog.author }}</span>
-        </span>
-      </div>
-
-      <!-- Title -->
-      <h2 class="font-display text-lg font-bold leading-snug mb-2">
-        <a href="{% url 'blogs' blog.slug %}"
-           class="no-underline transition-colors duration-200 hover:text-amber-600"
-           style="color:#1a1208;">
-          {{ blog.title }}
-        </a>
-      </h2>
-
-      <!-- Excerpt -->
-      <p class="text-sm leading-relaxed flex-1 mb-4" style="color:#7c6f5e;">
-        {{ blog.short_description|truncatewords:25 }}
-      </p>
-
-      <!-- Read more -->
-      <a href="{% url 'blogs' blog.slug %}"
-         class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest self-start transition-all duration-200 group-hover:gap-2.5"
-         style="color:#d97706;">
-        Read Article
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-        </svg>
-      </a>
-    </div>
-
-  </article>
-  {% endfor %}
-</div>
-
-
-<!-- ══════════════════════════════════════════════════════════
-     NO RESULTS STATE
-════════════════════════════════════════════════════════════ -->
-{% else %}
-<div class="flex flex-col items-center justify-center py-24 px-4 text-center">
-
-  <!-- Illustration -->
-  <div class="w-24 h-24 rounded-full flex items-center justify-center mb-6"
-       style="background: linear-gradient(135deg, #fef3c7, #fdf8f0);">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#d97706;">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
-    </svg>
   </div>
 
-  <h2 class="font-display text-2xl font-bold mb-2" style="color:#1a1208;">No results found</h2>
-  <p class="text-sm max-w-sm mb-2" style="color:#7c6f5e;">
-    We couldn't find any articles matching
-    <span class="font-semibold" style="color:#1a1208;">"{{ keyword }}"</span>.
-  </p>
-  <p class="text-sm mb-8" style="color:#a89070;">Try a different keyword or browse by category.</p>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for blog in blogs %}
+    <article class="premium-card editorial-card transition-all duration-300 overflow-hidden group">
+      {% if blog.featured_image %}
+      <a href="{% url 'blogs' blog.slug %}" class="block overflow-hidden">
+        <img src="{{ blog.featured_image.url }}"
+             alt="{{ blog.title }}"
+             class="w-full h-52 object-cover transition-transform duration-700 group-hover:scale-[1.04]">
+      </a>
+      {% else %}
+      <div class="h-52 p-5 flex items-end"
+           style="background:linear-gradient(135deg,#f9f3ea 0%,#efe2cb 55%,#e8d7bb 100%);">
+        <span class="premium-pill">Search Match</span>
+      </div>
+      {% endif %}
 
-  <!-- Suggestions -->
-  <div class="flex flex-wrap gap-3 justify-center mb-8">
-    <p class="w-full text-xs uppercase tracking-widest font-semibold mb-1" style="color:#a89070;">Try browsing</p>
+      <div class="p-6">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <span class="premium-pill">{{ blog.category }}</span>
+          <span class="premium-meta">{{ blog.created_at|timesince }} ago</span>
+        </div>
+
+        <h3 class="font-display text-2xl font-black leading-tight mb-3" style="color:#131110;">
+          <a href="{% url 'blogs' blog.slug %}" class="hover:text-[#97723d] transition-colors">
+            {{ blog.title }}
+          </a>
+        </h3>
+
+        <p class="section-copy text-sm mb-5">
+          {{ blog.short_description|truncatewords:24 }}
+        </p>
+
+        <div class="flex items-center justify-between gap-3">
+          <div class="inline-flex items-center gap-2 min-w-0">
+            {% if blog.author.profile.profile_image %}
+            <img src="{{ blog.author.profile.profile_image.url }}"
+                 alt="{{ blog.author.username }}"
+                 class="w-9 h-9 rounded-full object-cover border"
+                 style="border-color:rgba(187,164,130,0.55);">
+            {% else %}
+            <span class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black text-white"
+                  style="background:linear-gradient(135deg,#b58a4b,#7b5b2e);">
+              {{ blog.author.username|slice:":1"|upper }}
+            </span>
+            {% endif %}
+            <div class="min-w-0">
+              <span class="block text-sm font-bold truncate" style="color:#131110;">{{ blog.author }}</span>
+              <span class="premium-meta truncate">{{ blog.published_at|default:blog.created_at|date:"F j, Y" }}</span>
+            </div>
+          </div>
+
+          <a href="{% url 'blogs' blog.slug %}" class="premium-link text-sm">
+            Read article
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<section class="premium-empty">
+  <div class="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-5"
+       style="background:linear-gradient(135deg,#eee0c8,#f7eddc);">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#b58a4b;">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+    </svg>
+  </div>
+  <p class="font-display text-3xl font-black mb-2" style="color:#131110;">No results found</p>
+  <p class="section-copy max-w-xl mx-auto mb-6">
+    We couldn’t find any articles that match
+    {% if keyword %}"{{ keyword }}"{% else %}your current filters{% endif %}.
+    Try a broader keyword or browse a category.
+  </p>
+
+  <div class="flex flex-wrap justify-center gap-3 mb-6">
     {% for cat in categories %}
-    <a href="{% url 'posts_by_category' cat.id %}"
-       class="px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 hover:-translate-y-0.5"
-       style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
-      {{ cat.category_name }}
-    </a>
+    <a href="{% url 'posts_by_category' cat.id %}" class="premium-pill">{{ cat.category_name }}</a>
     {% endfor %}
   </div>
 
-  <a href="/"
-     class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
-     style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow:0 4px 14px rgba(217,119,6,0.3);">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-    </svg>
-    Back to Home
-  </a>
-</div>
+  <a href="/" class="btn-amber">Back to Home</a>
+</section>
 {% endif %}
 
 {% endblock %}

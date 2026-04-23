@@ -1,47 +1,69 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
   {% include 'dashboard/sidebar.html' %}
+
   <main class="flex-1 min-w-0">
-    <div class="mb-8 pb-6 border-b" style="border-color:#e5d5bf;">
-      <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Dashboard</p>
-      <h1 class="font-display text-3xl font-black" style="color:#1a1208;">Content Reports</h1>
-    </div>
-    <div class="rounded-2xl border bg-white overflow-hidden" style="border-color:#e5d5bf;">
-      <div class="divide-y" style="border-color:#f5ede0;">
-        {% for report in report_items %}
-        <div class="px-5 py-4">
-          <div class="flex items-center justify-between gap-4">
-            <div>
-              <p class="font-semibold" style="color:#1a1208;">{{ report.blog.title }}</p>
-              <p class="text-xs" style="color:#a89070;">{{ report.reason }} · {{ report.created_at|timesince }} ago</p>
+    <section class="premium-card-soft p-6 md:p-8 mb-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-5">
+        <div>
+          <p class="section-kicker mb-3">Moderation</p>
+          <h1 class="section-title text-[clamp(2.3rem,4vw,4rem)]">Content Reports</h1>
+          <p class="section-copy mt-4 max-w-2xl">Review reports and update status.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="space-y-4">
+      {% for report in report_items %}
+      <article class="premium-card p-6">
+        <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-3 mb-3">
+              {% if report.status == 'New' %}
+              <span class="status-pill status-pill-amber">{{ report.status }}</span>
+              {% elif report.status == 'Reviewed' %}
+              <span class="status-pill status-pill-blue">{{ report.status }}</span>
+              {% else %}
+              <span class="status-pill status-pill-green">{{ report.status }}</span>
+              {% endif %}
+              <span class="premium-meta">{{ report.reason }}</span>
+              <span class="premium-meta">{{ report.created_at|timesince }} ago</span>
             </div>
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-bold px-2 py-1 rounded-full" style="background:#fef3c7; color:#92400e;">{{ report.status }}</span>
-              {% if can_manage_reports %}
-              <a href="{% url 'edit_report' report.id %}" class="text-xs font-bold" style="color:#d97706;">Edit</a>
+
+            <h2 class="font-display text-2xl font-black mb-2" style="color:#1a1208;">{{ report.blog.title }}</h2>
+            {% if report.details %}
+            <p class="section-copy text-sm mb-4">{{ report.details }}</p>
+            {% endif %}
+
+            <div class="flex flex-wrap gap-3 premium-meta">
+              <span>Reporter: {{ report.user.username|default:'Anonymous' }}</span>
+              {% if report.blog_id %}
+              <a href="{{ report.blog.get_absolute_url }}" class="premium-link text-sm">Open Post</a>
               {% endif %}
             </div>
           </div>
-          {% if report.details %}
-          <p class="text-sm mt-2" style="color:#7c6f5e;">{{ report.details }}</p>
+
+          {% if can_manage_reports %}
+          <a href="{% url 'edit_report' report.id %}" class="btn-outline" style="padding:9px 14px;">Change Status</a>
           {% endif %}
-          <div class="mt-3 flex flex-wrap items-center gap-3 text-xs" style="color:#a89070;">
-            <span>Reporter: {{ report.user.username|default:'Anonymous' }}</span>
-            {% if report.blog_id %}
-            <a href="{{ report.blog.get_absolute_url }}" class="font-bold" style="color:#d97706;">Open Post</a>
-            {% endif %}
-          </div>
         </div>
-        {% empty %}
-        <div class="px-5 py-10 text-center">
-          <p class="font-display text-2xl font-bold mb-2" style="color:#1a1208;">No reports yet</p>
-          <p class="text-sm" style="color:#7c6f5e;">Reader reports will appear here.</p>
+      </article>
+      {% empty %}
+      <div class="premium-empty">
+        <div class="empty-icon-shell mx-auto mb-5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 5.636l-1.414 1.414M12 9v3m0 4h.01M5.636 5.636l1.414 1.414M4 12h3m10 0h3M6.343 17.657l1.414-1.414m8.486 1.414l-1.414-1.414"/>
+          </svg>
         </div>
-        {% endfor %}
+        <p class="font-display text-3xl font-black mb-2" style="color:#1a1208;">No reports yet</p>
+        <p class="section-copy">New reports will appear here.</p>
       </div>
+      {% endfor %}
     </div>
   </main>
 </div>
+
 {% endblock %}

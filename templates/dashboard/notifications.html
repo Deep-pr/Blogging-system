@@ -1,34 +1,63 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
   {% include 'dashboard/sidebar.html' %}
+
   <main class="flex-1 min-w-0">
-    <div class="mb-8 pb-6 border-b" style="border-color:#e5d5bf;">
-      <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Dashboard</p>
-      <h1 class="font-display text-3xl font-black" style="color:#1a1208;">Notifications</h1>
-    </div>
-    <div class="rounded-2xl border bg-white overflow-hidden" style="border-color:#e5d5bf;">
-      <div class="divide-y" style="border-color:#f5ede0;">
-        {% for item in notifications %}
-        <div class="px-5 py-4">
-          <div class="flex items-center justify-between gap-3">
-            <p class="font-semibold" style="color:#1a1208;">{{ item.title }}</p>
-            <span class="text-xs" style="color:#a89070;">{{ item.created_at|timesince }} ago</span>
-          </div>
-          <p class="text-sm mt-1" style="color:#7c6f5e;">{{ item.message }}</p>
-          {% if item.link %}
-          <a href="{% url 'open_notification' item.id %}" class="inline-block mt-2 text-sm font-bold" style="color:#d97706;">Open</a>
-          {% endif %}
+    <section class="premium-card-soft p-6 md:p-8 mb-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-5">
+        <div>
+          <p class="section-kicker mb-3">Dashboard Alerts</p>
+          <h1 class="section-title text-[clamp(2.3rem,4vw,4rem)]">Notifications</h1>
+          <p class="section-copy mt-4 max-w-2xl">Recent activity in one place.</p>
         </div>
+        <div class="premium-stat min-w-[160px]">
+          <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#b45309;">Items</p>
+          <p class="font-display text-3xl font-black" style="color:#1a1208;">{{ notifications|length }}</p>
+          <p class="premium-meta">Current notifications</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="premium-card overflow-hidden">
+      <div class="divide-y" style="border-color:#f0e4d2;">
+        {% for item in notifications %}
+        <article class="px-6 py-5">
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-3 mb-2">
+                <p class="text-lg font-bold" style="color:#1a1208;">{{ item.title }}</p>
+                <span class="premium-meta">{{ item.created_at|timesince }} ago</span>
+              </div>
+              <p class="section-copy text-sm">{{ item.message }}</p>
+            </div>
+
+            {% if item.link %}
+            <a href="{% url 'open_notification' item.id %}" class="premium-link text-sm whitespace-nowrap">
+              Open
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </a>
+            {% endif %}
+          </div>
+        </article>
         {% empty %}
-        <div class="px-5 py-10 text-center">
-          <p class="font-display text-2xl font-bold mb-2" style="color:#1a1208;">No notifications yet</p>
-          <p class="text-sm" style="color:#7c6f5e;">Updates about your feedback and scheduled posts will appear here.</p>
+        <div class="premium-empty m-6">
+          <div class="empty-icon-shell mx-auto mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+          </div>
+          <p class="font-display text-3xl font-black mb-2" style="color:#1a1208;">No notifications yet</p>
+          <p class="section-copy max-w-xl mx-auto">New activity will appear here.</p>
         </div>
         {% endfor %}
       </div>
     </div>
   </main>
 </div>
+
 {% endblock %}

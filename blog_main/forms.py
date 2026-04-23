@@ -17,6 +17,19 @@ class RegisterForm(UserCreationForm):
         model = User
         fields = ('email', 'username', 'first_name', 'last_name', 'profile_image', 'password1', 'password2')
 
+    field_order = ('email', 'username', 'first_name', 'last_name', 'profile_image', 'password1', 'password2')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.order_fields(self.field_order)
+        self.fields['email'].widget.attrs.update({
+            'autofocus': True,
+            'autocomplete': 'email',
+        })
+        self.fields['username'].widget.attrs.update({
+            'autocomplete': 'username',
+        })
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():

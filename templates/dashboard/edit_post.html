@@ -1,352 +1,545 @@
 {% extends 'base.html' %}
-
-{% block content %}
 {% load crispy_forms_tags %}
 
+{% block content %}
 <div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
-
-  <!-- ══════════════════════════════════════════════════════
-       SIDEBAR
-  ═══════════════════════════════════════════════════════ -->
   {% include 'dashboard/sidebar.html' %}
 
-
-  <!-- ══════════════════════════════════════════════════════
-       MAIN CONTENT
-  ═══════════════════════════════════════════════════════ -->
   <main class="flex-1 min-w-0">
-
-    <!-- Page header -->
-    <div class="flex items-center gap-4 mb-8 pb-6 border-b" style="border-color:#e5d5bf;">
-      <a href="{% url 'posts' %}"
-         class="w-9 h-9 rounded-lg flex items-center justify-center border transition-all duration-200 hover:-translate-x-0.5 flex-shrink-0"
-         style="border-color:#e5d5bf; background:#fff; color:#7c6f5e;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-        </svg>
-      </a>
-      <div>
-        <p class="text-xs font-bold uppercase tracking-widest mb-0.5" style="color:#d97706;">Admin Panel · Posts</p>
-        <h1 class="font-display text-2xl md:text-3xl font-black" style="color:#1a1208;">Edit Blog Post</h1>
-      </div>
-      <!-- Live post link -->
-      <a href="{% url 'preview_post' post.id %}" target="_blank"
-         class="ml-auto hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold border transition-all duration-200 hover:-translate-y-0.5"
-         style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-        </svg>
-        Preview Post
-      </a>
-    </div>
-
-
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-
-      <!-- ── Main form card (2/3) ── -->
-      <div class="xl:col-span-2">
-        <div class="bg-white rounded-2xl border overflow-hidden"
-             style="border-color:#e5d5bf; box-shadow:0 4px 24px rgba(26,18,8,0.08);">
-
-          <!-- Card header -->
-          <div class="px-6 py-4 border-b flex items-center gap-3"
-               style="background: linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                 style="background:rgba(217,119,6,0.2); border:1px solid rgba(217,119,6,0.3);">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#fbbf24;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-sm font-bold text-white">Post Details</p>
-              <p class="text-xs" style="color:#a89070;">Update the fields below and save your changes</p>
-            </div>
-          </div>
-
-          <!-- Form body -->
-          <div class="p-6">
-            <form action="{% url 'edit_post' post.id %}" method="POST" enctype="multipart/form-data">
-              {% csrf_token %}
-
-              <div class="mb-4 p-3 rounded-xl border flex flex-wrap gap-2" style="border-color:#e5d5bf; background:#fffcf7;">
-                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-wrap="**" style="background:#fff; border:1px solid #e5d5bf;">Bold</button>
-                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-wrap="*" style="background:#fff; border:1px solid #e5d5bf;">Italic</button>
-                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-prefix="## " style="background:#fff; border:1px solid #e5d5bf;">Heading</button>
-                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-prefix="- " style="background:#fff; border:1px solid #e5d5bf;">List</button>
-                <button type="button" class="editor-tool px-3 py-1.5 rounded-lg text-xs font-bold" data-wrap="> " data-mode="line" style="background:#fff; border:1px solid #e5d5bf;">Quote</button>
-              </div>
-              <div class="edit-post-form">
-                {{ form|crispy }}
-              </div>
-
-              <!-- Form actions -->
-              <div class="flex flex-wrap items-center gap-3 mt-6 pt-5 border-t" style="border-color:#f5ede0;">
-                <button type="submit"
-                        class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-                        style="background: linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 14px rgba(217,119,6,0.3);">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  Save Changes
-                </button>
-                <a href="{% url 'posts' %}"
-                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold border transition-all duration-200 hover:-translate-y-0.5"
-                   style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
-                  Cancel
-                </a>
-                <a href="{% url 'preview_post' post.id %}" target="_blank"
-                   class="sm:hidden inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold border transition-all duration-200"
-                   style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                  </svg>
-                  Preview
-                </a>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-
-      <!-- ── Side panel (1/3) ── -->
-      <div class="xl:col-span-1 flex flex-col gap-5">
-
-        <!-- Current post preview -->
-        <div class="rounded-2xl border overflow-hidden"
-             style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
-          <div class="px-4 py-3 border-b flex items-center gap-2"
-               style="background:#fffcf7; border-color:#e5d5bf;">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#d97706;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+    <div class="mb-8 rounded-[2rem] border overflow-hidden"
+         style="border-color:#e5d5bf; background:linear-gradient(135deg,#fffdf8 0%,#fff7ea 58%,#fef3c7 100%); box-shadow:0 18px 48px rgba(26,18,8,0.08);">
+      <div class="px-7 py-8 md:px-9 md:py-9 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div class="flex items-start gap-4">
+          <a href="{% url 'posts' %}"
+             class="w-11 h-11 rounded-2xl flex items-center justify-center border transition-all duration-200 hover:-translate-x-0.5"
+             style="border-color:#eadcc9; background:rgba(255,255,255,0.82); color:#7c6f5e;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
             </svg>
-            <h4 class="font-display font-bold text-sm" style="color:#1a1208;">Current Post</h4>
-          </div>
-          <div class="bg-white p-4">
-            {% if post.featured_image %}
-            <div class="rounded-lg overflow-hidden mb-3" style="height:120px;">
-              <img src="{{ post.featured_image.url }}" alt="{{ post.title }}"
-                   class="w-full h-full object-cover">
-            </div>
-            {% endif %}
-            <p class="font-display font-bold text-sm leading-snug mb-2" style="color:#1a1208;">
-              {{ post.title }}
-            </p>
-            <div class="flex flex-wrap items-center gap-2 mb-3">
-              <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
-                    style="background:#fef3c7; color:#92400e;">
-                {{ post.category }}
-              </span>
-              <span class="text-xs" style="color:#a89070;">by {{ post.author }}</span>
-            </div>
-            <p class="text-xs leading-relaxed line-clamp-3" style="color:#7c6f5e;">
-              {{ post.short_description|truncatewords:20 }}
+          </a>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.28em] mb-2" style="color:#d97706;">Editorial Workspace</p>
+            <h1 class="font-display text-3xl md:text-4xl font-black leading-tight" style="color:#1a1208;">Edit Post</h1>
+            <p class="text-sm md:text-base mt-3 max-w-2xl" style="color:#7c6f5e;">
+              Refine the story, update publishing settings, or preview the current version before saving changes.
             </p>
           </div>
         </div>
 
-        <!-- Tips card -->
-        <div class="rounded-2xl border p-5"
-             style="background: linear-gradient(135deg,#fffcf7,#fef3c7); border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="text-base">💡</span>
-            <h4 class="font-display font-bold text-sm" style="color:#1a1208;">Editing Tips</h4>
-          </div>
-          <ul class="text-xs leading-relaxed space-y-2.5" style="color:#7c6f5e;">
-            <li class="flex gap-2">
-              <span style="color:#d97706; flex-shrink:0;">✦</span>
-              Leave the image field blank to keep the existing featured image.
-            </li>
-            <li class="flex gap-2">
-              <span style="color:#d97706; flex-shrink:0;">✦</span>
-              The slug is auto-generated from the title — change it only if needed for SEO.
-            </li>
-            <li class="flex gap-2">
-              <span style="color:#d97706; flex-shrink:0;">✦</span>
-              Toggle "Is Featured" to show the post in the homepage hero section.
-            </li>
-            <li class="flex gap-2">
-              <span style="color:#d97706; flex-shrink:0;">✦</span>
-              Changes go live immediately after saving.
-            </li>
-          </ul>
-        </div>
-
-        <!-- Danger zone -->
-        <div class="rounded-2xl border p-5"
-             style="background:#fff; border-color:#fecaca; box-shadow:0 2px 12px rgba(26,18,8,0.04);">
-          <div class="flex items-center gap-2 mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:#dc2626;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-            </svg>
-            <h4 class="font-display font-bold text-sm" style="color:#991b1b;">Danger Zone</h4>
-          </div>
-          <p class="text-xs mb-4 leading-relaxed" style="color:#7c6f5e;">
-            Permanently delete this post. All comments and associated data will be lost.
-          </p>
-          <a href="{% url 'delete_post' post.id %}"
-             class="inline-flex items-center gap-2 w-full justify-center py-2 px-4 rounded-lg text-xs font-bold border transition-all duration-200 hover:-translate-y-0.5"
-             style="border-color:#fecaca; color:#dc2626; background:#fef2f2;"
-             onclick="return confirm('Permanently delete \'{{ post.title|truncatechars:40 }}\'? This cannot be undone.')">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-            Delete This Post
+        <div class="flex flex-wrap items-center gap-3">
+          <a href="{% url 'preview_post' post.id %}" target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold border"
+             style="border-color:#e5d5bf; color:#7c6f5e; background:rgba(255,255,255,0.82);">
+            Preview
+          </a>
+          <a href="{% url 'posts' %}"
+             class="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold text-white"
+             style="background:linear-gradient(135deg,#d97706,#b45309); box-shadow:0 10px 20px rgba(217,119,6,0.2);">
+            Back to Posts
           </a>
         </div>
-
       </div>
     </div>
 
+    <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.6fr)_360px] gap-8">
+      <section class="rounded-[1.8rem] border bg-white overflow-hidden"
+               style="border-color:#e5d5bf; box-shadow:0 10px 32px rgba(26,18,8,0.07);">
+        <div class="px-6 py-5 border-b flex items-center justify-between gap-4"
+             style="background:linear-gradient(135deg,#1a1208,#3d2b0a); border-color:#3d2b0a;">
+          <div>
+            <p class="text-sm font-bold text-white">Post Editor</p>
+            <p class="text-xs mt-1" style="color:#c8b89a;">Update content, cover image, and publishing state.</p>
+          </div>
+          <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider"
+                style="background:rgba(217,119,6,0.16); color:#fbbf24; border:1px solid rgba(217,119,6,0.28);">
+            {{ post.status }}
+          </span>
+        </div>
+
+        <div class="p-6 md:p-7">
+          <form action="{% url 'edit_post' post.id %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="post-editor-form">
+              {{ form|crispy }}
+            </div>
+            <section class="editor-workspace mt-6">
+              <div class="editor-toolbar-shell">
+                <div class="editor-toolbar">
+                  <button type="button" class="editor-tool px-3 py-1.5 rounded-xl text-xs font-bold" data-wrap="**">Bold</button>
+                  <button type="button" class="editor-tool px-3 py-1.5 rounded-xl text-xs font-bold" data-wrap="*">Italic</button>
+                  <button type="button" class="editor-tool px-3 py-1.5 rounded-xl text-xs font-bold" data-prefix="## ">H2</button>
+                  <button type="button" class="editor-tool px-3 py-1.5 rounded-xl text-xs font-bold" data-prefix="### ">H3</button>
+                  <button type="button" class="editor-tool px-3 py-1.5 rounded-xl text-xs font-bold" data-prefix="- ">List</button>
+                  <button type="button" class="editor-tool px-3 py-1.5 rounded-xl text-xs font-bold" data-prefix="1. ">Numbered</button>
+                  <button type="button" class="editor-tool px-3 py-1.5 rounded-xl text-xs font-bold" data-wrap="> " data-mode="line">Quote</button>
+                  <button type="button" class="editor-tool px-3 py-1.5 rounded-xl text-xs font-bold" data-template="[link text](https://example.com)">Link</button>
+                </div>
+                <div class="editor-mode-toggle">
+                  <button type="button" class="editor-mode-btn is-active" data-editor-mode="write">Write</button>
+                  <button type="button" class="editor-mode-btn" data-editor-mode="preview">Preview</button>
+                </div>
+              </div>
+              <div class="editor-meta">
+                <span id="editor-word-count">0 words</span>
+                <span id="editor-read-time">1 min read</span>
+              </div>
+              <div id="editor-preview" class="editor-preview hidden"></div>
+            </section>
+
+            <div class="flex flex-wrap items-center gap-3 mt-8 pt-6 border-t" style="border-color:#f2e8da;">
+              <button type="submit"
+                      class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
+                      style="background:linear-gradient(135deg,#d97706,#b45309); box-shadow:0 10px 20px rgba(217,119,6,0.24);">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Save Changes
+              </button>
+              <a href="{% url 'posts' %}"
+                 class="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold border"
+                 style="border-color:#e5d5bf; color:#7c6f5e; background:#fffcf7;">
+                Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <aside class="flex flex-col gap-6">
+        <section class="rounded-[1.6rem] border overflow-hidden"
+                 style="border-color:#e5d5bf; background:#fff; box-shadow:0 6px 22px rgba(26,18,8,0.06);">
+          <div class="px-5 py-4 border-b"
+               style="background:#fffcf7; border-color:#e5d5bf;">
+            <h2 class="font-display text-lg font-bold" style="color:#1a1208;">Current Snapshot</h2>
+          </div>
+          <div class="p-5">
+            {% if post.featured_image %}
+            <div class="rounded-2xl overflow-hidden mb-4" style="height:160px;">
+              <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+            </div>
+            {% endif %}
+            <p class="font-display text-xl font-bold leading-snug mb-2" style="color:#1a1208;">{{ post.title }}</p>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider"
+                    style="background:#fef3c7; color:#92400e;">{{ post.category }}</span>
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider"
+                    style="background:#fffcf7; color:#7c6f5e; border:1px solid #e5d5bf;">{{ post.status }}</span>
+            </div>
+            <p class="text-sm leading-relaxed" style="color:#7c6f5e;">{{ post.short_description|truncatewords:28 }}</p>
+          </div>
+        </section>
+
+        <section class="rounded-[1.6rem] border overflow-hidden"
+                 style="border-color:#e5d5bf; background:linear-gradient(135deg,#fffdf8,#fef3c7); box-shadow:0 6px 22px rgba(26,18,8,0.06);">
+          <div class="p-5">
+            <p class="text-xs font-bold uppercase tracking-[0.24em] mb-3" style="color:#d97706;">Editing Notes</p>
+            <div class="space-y-3 text-sm" style="color:#7c6f5e;">
+              <p><strong style="color:#1a1208;">Image uploads:</strong> leave the field alone if you want to keep the current cover.</p>
+              <p><strong style="color:#1a1208;">Scheduling:</strong> future dates return the post to draft until it goes live.</p>
+              <p><strong style="color:#1a1208;">Featured:</strong> use it deliberately so the homepage spotlight stays intentional.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-[1.6rem] border overflow-hidden"
+                 style="border-color:#fecaca; background:#fff;">
+          <div class="p-5">
+            <p class="text-xs font-bold uppercase tracking-[0.24em] mb-3" style="color:#dc2626;">Danger Zone</p>
+            <p class="text-sm mb-4" style="color:#7c6f5e;">Delete this post permanently. This also removes associated comments and linked content.</p>
+            <form action="{% url 'delete_post' post.id %}" method="POST" onsubmit="return confirm('Permanently delete \'{{ post.title|truncatechars:40 }}\'? This cannot be undone.');">
+              {% csrf_token %}
+              <button type="submit"
+                      class="inline-flex items-center justify-center gap-2 w-full py-3 rounded-full text-sm font-bold border"
+                      style="border-color:#fecaca; color:#dc2626; background:#fef2f2;">
+                Delete This Post
+              </button>
+            </form>
+          </div>
+        </section>
+      </aside>
+    </div>
   </main>
 </div>
 
-<!-- Crispy form field styles -->
 <style>
-  .edit-post-form label {
+  .post-editor-form label {
     display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
+    margin-bottom: 0.45rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #7c6f5e;
-    margin-bottom: 5px;
   }
 
-  .edit-post-form input[type="text"],
-  .edit-post-form input[type="email"],
-  .edit-post-form input[type="password"],
-  .edit-post-form input[type="url"],
-  .edit-post-form input[type="number"],
-  .edit-post-form select,
-  .edit-post-form textarea {
+  .post-editor-form input[type="text"],
+  .post-editor-form input[type="email"],
+  .post-editor-form input[type="password"],
+  .post-editor-form input[type="url"],
+  .post-editor-form input[type="number"],
+  .post-editor-form input[type="datetime-local"],
+  .post-editor-form select,
+  .post-editor-form textarea {
     width: 100%;
-    padding: 10px 14px;
     border: 1.5px solid #e5d5bf;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    color: #1a1208;
+    border-radius: 16px;
     background: #fffcf7;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    color: #1a1208;
+    padding: 0.95rem 1rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
     outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
     font-family: 'DM Sans', sans-serif;
   }
 
-  .edit-post-form textarea {
-    min-height: 160px;
+  .post-editor-form textarea {
+    min-height: 220px;
     resize: vertical;
   }
 
-  .edit-post-form input:focus,
-  .edit-post-form select:focus,
-  .edit-post-form textarea:focus {
+  #id_blog_body {
+    min-height: 360px;
+  }
+
+  .post-editor-form input:focus,
+  .post-editor-form select:focus,
+  .post-editor-form textarea:focus {
     border-color: #d97706;
-    box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
+    box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.14);
     background: #fff;
   }
 
-  .edit-post-form .is-invalid {
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important;
-  }
-
-  .edit-post-form .invalid-feedback,
-  .edit-post-form .text-danger {
-    font-size: 0.75rem;
-    color: #ef4444;
-    margin-top: 4px;
-  }
-
-  .edit-post-form .helptext,
-  .edit-post-form small {
-    font-size: 0.72rem;
-    color: #a89070;
-    margin-top: 4px;
-    display: block;
-  }
-
-  .edit-post-form .mb-3,
-  .edit-post-form .form-group {
-    margin-bottom: 1.25rem;
-  }
-
-  /* File input */
-  .edit-post-form input[type="file"] {
+  .post-editor-form input[type="file"] {
     width: 100%;
-    padding: 8px 12px;
-    border: 1.5px dashed #e5d5bf;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    color: #7c6f5e;
-    background: #fffcf7;
-    cursor: pointer;
-    transition: border-color 0.2s;
+    border: 1.5px dashed #d8c7ae;
+    border-radius: 16px;
+    background: #fffaf3;
+    padding: 1rem;
+    font-size: 0.88rem;
   }
 
-  .edit-post-form input[type="file"]:hover {
-    border-color: #d97706;
-    background: #fef9f0;
+  .post-editor-form .helptext,
+  .post-editor-form small {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 0.76rem;
+    color: #a89070;
   }
 
-  /* Checkboxes */
-  .edit-post-form input[type="checkbox"] {
+  .post-editor-form .invalid-feedback,
+  .post-editor-form .text-danger {
+    margin-top: 0.4rem;
+    font-size: 0.76rem;
+    color: #dc2626;
+  }
+
+  .post-editor-form .mb-3,
+  .post-editor-form .form-group {
+    margin-bottom: 1.3rem;
+  }
+
+  .post-editor-form input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
     accent-color: #d97706;
-    width: 15px;
-    height: 15px;
+    margin-right: 0.55rem;
   }
 
-  .edit-post-form .form-check {
+  .editor-tool:hover {
+    border-color: #d97706 !important;
+    color: #d97706;
+    transform: translateY(-1px);
+  }
+
+  .editor-toolbar-shell {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 8px;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid #eadcc9;
+    border-radius: 1rem;
     background: #fffcf7;
-    border: 1px solid #e5d5bf;
-    margin-bottom: 8px;
   }
 
-  .edit-post-form .form-check label {
-    margin-bottom: 0;
-    text-transform: none;
-    font-size: 0.85rem;
-    letter-spacing: 0;
-    color: #3d2b0a;
-    cursor: pointer;
-  }
-
-  /* Currently uploaded image link */
-  .edit-post-form .clearablefileinput {
+  .editor-toolbar {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  .editor-tool {
+    background: #fff;
+    border: 1px solid #e5d5bf;
+  }
+
+  .editor-mode-toggle {
+    display: inline-flex;
+    padding: 0.2rem;
+    border-radius: 999px;
+    background: #f6ead8;
+  }
+
+  .editor-mode-btn {
+    border: 0;
+    background: transparent;
+    color: #7c6f5e;
+    padding: 0.55rem 0.95rem;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .editor-mode-btn.is-active {
+    background: #fff;
+    color: #1a1208;
+    box-shadow: 0 2px 10px rgba(26, 18, 8, 0.08);
+  }
+
+  .editor-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.77rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #a89070;
+  }
+
+  .editor-preview {
+    min-height: 360px;
+    padding: 1.25rem;
+    border: 1.5px solid #e5d5bf;
+    border-radius: 1rem;
+    background: #fff;
+    color: #1a1208;
+  }
+
+  .editor-preview.hidden {
+    display: none;
+  }
+
+  .editor-preview h2,
+  .editor-preview h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 800;
+    margin: 1.2rem 0 0.65rem;
+  }
+
+  .editor-preview h2 { font-size: 1.5rem; }
+  .editor-preview h3 { font-size: 1.2rem; }
+  .editor-preview p { margin-bottom: 1rem; line-height: 1.75; }
+  .editor-preview ul,
+  .editor-preview ol { margin: 0 0 1rem 1.4rem; }
+  .editor-preview li { margin-bottom: 0.35rem; }
+  .editor-preview blockquote {
+    margin: 1rem 0;
+    padding: 0.85rem 1rem;
+    border-left: 4px solid #d97706;
+    background: #fff7ed;
+    border-radius: 0 0.75rem 0.75rem 0;
+    color: #7c2d12;
+  }
+  .editor-preview strong { font-weight: 800; }
+  .editor-preview em { font-style: italic; }
+  .editor-preview a { color: #d97706; text-decoration: underline; }
+
+  body.dark-mode .post-editor-form input,
+  body.dark-mode .post-editor-form select,
+  body.dark-mode .post-editor-form textarea,
+  body.dark-mode .post-editor-form input[type="file"] {
+    background: #111827 !important;
+    color: #f9fafb !important;
+    border-color: rgba(251, 191, 36, 0.18) !important;
+  }
+
+  body.dark-mode .editor-toolbar-shell {
+    background: #111827 !important;
+    border-color: rgba(251, 191, 36, 0.18) !important;
+  }
+
+  body.dark-mode .editor-tool,
+  body.dark-mode .editor-mode-btn.is-active,
+  body.dark-mode .editor-preview {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: rgba(251, 191, 36, 0.18) !important;
+  }
+
+  body.dark-mode .editor-mode-toggle {
+    background: rgba(255,255,255,0.06) !important;
+  }
+
+  body.dark-mode .editor-mode-btn {
+    color: #9ca3af !important;
+  }
+
+  body.dark-mode .editor-meta {
+    color: #9ca3af !important;
+  }
+
+  body.dark-mode .editor-preview blockquote {
+    background: rgba(245, 158, 11, 0.12) !important;
+    color: #fde68a !important;
   }
 </style>
 
 <script>
-  const editor = document.getElementById('id_blog_body');
-  document.querySelectorAll('.editor-tool').forEach((button) => {
-    button.addEventListener('click', () => {
-      if (!editor) return;
-      const start = editor.selectionStart;
-      const end = editor.selectionEnd;
-      const selected = editor.value.slice(start, end);
-      const wrap = button.dataset.wrap;
-      const prefix = button.dataset.prefix;
-      const mode = button.dataset.mode;
-      let replacement = selected;
-      if (mode === 'line' && wrap) {
-        replacement = `${wrap}${selected}`;
-      } else if (wrap) {
-        replacement = `${wrap}${selected || 'text'}${wrap}`;
-      } else if (prefix) {
-        replacement = `${prefix}${selected || 'text'}`;
-      }
-      editor.setRangeText(replacement, start, end, 'end');
-      editor.focus();
-    });
-  });
-</script>
+  (function () {
+    const textarea = document.getElementById('id_blog_body');
+    const preview = document.getElementById('editor-preview');
+    const modeButtons = document.querySelectorAll('[data-editor-mode]');
+    const wordCount = document.getElementById('editor-word-count');
+    const readTime = document.getElementById('editor-read-time');
+    if (!textarea || !preview) return;
 
+    const escapeHtml = (value) => value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    const formatInline = (value) => escapeHtml(value)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+    const renderPreview = () => {
+      const lines = textarea.value.split('\n');
+      const chunks = [];
+      let listType = null;
+
+      const closeList = () => {
+        if (listType) {
+          chunks.push(`</${listType}>`);
+          listType = null;
+        }
+      };
+
+      lines.forEach((line) => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          closeList();
+          return;
+        }
+
+        if (trimmed.startsWith('### ')) {
+          closeList();
+          chunks.push(`<h3>${formatInline(trimmed.slice(4))}</h3>`);
+          return;
+        }
+
+        if (trimmed.startsWith('## ')) {
+          closeList();
+          chunks.push(`<h2>${formatInline(trimmed.slice(3))}</h2>`);
+          return;
+        }
+
+        if (trimmed.startsWith('> ')) {
+          closeList();
+          chunks.push(`<blockquote>${formatInline(trimmed.slice(2))}</blockquote>`);
+          return;
+        }
+
+        if (trimmed.startsWith('- ')) {
+          if (listType !== 'ul') {
+            closeList();
+            listType = 'ul';
+            chunks.push('<ul>');
+          }
+          chunks.push(`<li>${formatInline(trimmed.slice(2))}</li>`);
+          return;
+        }
+
+        if (/^\d+\.\s+/.test(trimmed)) {
+          if (listType !== 'ol') {
+            closeList();
+            listType = 'ol';
+            chunks.push('<ol>');
+          }
+          chunks.push(`<li>${formatInline(trimmed.replace(/^\d+\.\s+/, ''))}</li>`);
+          return;
+        }
+
+        closeList();
+        chunks.push(`<p>${formatInline(trimmed)}</p>`);
+      });
+
+      closeList();
+      preview.innerHTML = chunks.join('') || '<p>Start writing to preview the article here.</p>';
+
+      const words = textarea.value.trim() ? textarea.value.trim().split(/\s+/).length : 0;
+      wordCount.textContent = `${words} ${words === 1 ? 'word' : 'words'}`;
+      readTime.textContent = `${Math.max(1, Math.round(words / 200) || 1)} min read`;
+    };
+
+    const setMode = (mode) => {
+      const isPreview = mode === 'preview';
+      textarea.closest('.mb-3, .form-group').style.display = isPreview ? 'none' : '';
+      preview.classList.toggle('hidden', !isPreview);
+      modeButtons.forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.editorMode === mode);
+      });
+      if (isPreview) {
+        renderPreview();
+      }
+    };
+
+    document.querySelectorAll('.editor-tool').forEach((button) => {
+      button.addEventListener('click', () => {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const value = textarea.value;
+        const selected = value.slice(start, end);
+        const wrap = button.dataset.wrap;
+        const prefix = button.dataset.prefix;
+        const mode = button.dataset.mode;
+        const template = button.dataset.template;
+        let nextValue = value;
+        let cursorStart = start;
+        let cursorEnd = end;
+
+        if (template) {
+          nextValue = `${value.slice(0, start)}${template}${value.slice(end)}`;
+          cursorStart = start;
+          cursorEnd = start + template.length;
+        } else if (mode === 'line' && wrap) {
+          const replacement = `${wrap}${selected || 'Quote text'}`;
+          nextValue = `${value.slice(0, start)}${replacement}${value.slice(end)}`;
+          cursorStart = start + wrap.length;
+          cursorEnd = start + replacement.length;
+        } else if (wrap) {
+          const replacement = `${wrap}${selected || 'text'}${wrap}`;
+          nextValue = `${value.slice(0, start)}${replacement}${value.slice(end)}`;
+          cursorStart = start + wrap.length;
+          cursorEnd = start + replacement.length - wrap.length;
+        } else if (prefix) {
+          const replacement = `${prefix}${selected || 'New text'}`;
+          nextValue = `${value.slice(0, start)}${replacement}${value.slice(end)}`;
+          cursorStart = start + prefix.length;
+          cursorEnd = start + replacement.length;
+        }
+
+        textarea.value = nextValue;
+        textarea.focus();
+        textarea.setSelectionRange(cursorStart, cursorEnd);
+        renderPreview();
+      });
+    });
+
+    modeButtons.forEach((button) => {
+      button.addEventListener('click', () => setMode(button.dataset.editorMode));
+    });
+
+    textarea.addEventListener('input', renderPreview);
+    renderPreview();
+    setMode('write');
+  })();
+</script>
 {% endblock %}

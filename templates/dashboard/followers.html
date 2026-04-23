@@ -1,84 +1,82 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <div class="flex flex-col lg:flex-row gap-8 min-h-screen py-2">
   {% include 'dashboard/sidebar.html' %}
+
   <main class="flex-1 min-w-0">
-    <div class="mb-8 pb-6 border-b" style="border-color:#e5d5bf;">
-      <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#d97706;">Dashboard</p>
-      <h1 class="font-display text-3xl font-black" style="color:#1a1208;">
-        {% if is_manager_view %}Editor Followers{% else %}My Followers{% endif %}
-      </h1>
-      <p class="text-sm mt-2" style="color:#7c6f5e;">
-        {% if is_manager_view %}
-        See who is following each editor across the platform.
-        {% else %}
-        See the readers who are following your author profile.
-        {% endif %}
-      </p>
-    </div>
+    <section class="premium-card-soft p-6 md:p-8 mb-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-5">
+        <div>
+          <p class="section-kicker mb-3">Audience</p>
+          <h1 class="section-title text-[clamp(2.3rem,4vw,4rem)]">
+            {% if is_manager_view %}Editor Followers{% else %}My Followers{% endif %}
+          </h1>
+          <p class="section-copy mt-4 max-w-2xl">
+            {% if is_manager_view %}
+            See follower activity by editor.
+            {% else %}
+            See who follows your author profile.
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </section>
 
     <div class="space-y-6">
       {% for section in author_sections %}
-      <section class="rounded-2xl border bg-white overflow-hidden" style="border-color:#e5d5bf; box-shadow:0 2px 12px rgba(26,18,8,0.06);">
-        <div class="px-5 py-4 border-b flex items-center justify-between gap-4" style="background:#fffcf7; border-color:#e5d5bf;">
+      <section class="premium-card overflow-hidden">
+        <div class="px-6 py-5 border-b flex items-center justify-between gap-4" style="border-color:#f0e4d2; background:rgba(255,252,247,0.72);">
           <div class="flex items-center gap-3 min-w-0">
             {% if section.author.profile.profile_image %}
             <img src="{{ section.author.profile.profile_image.url }}" alt="{{ section.author.username }}"
-                 class="w-11 h-11 rounded-full object-cover border flex-shrink-0" style="border-color:#e5d5bf;">
+                 class="w-12 h-12 rounded-full object-cover border flex-shrink-0" style="border-color:#e5d5bf;">
             {% else %}
-            <div class="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+            <div class="w-12 h-12 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0"
                  style="background:linear-gradient(135deg,#d97706,#fbbf24); color:#1a1208;">
               {{ section.author.username|slice:":1"|upper }}
             </div>
             {% endif %}
             <div class="min-w-0">
-              <p class="font-semibold truncate" style="color:#1a1208;">
-                {{ section.author.get_full_name|default:section.author.username }}
-              </p>
-              <p class="text-xs" style="color:#a89070;">@{{ section.author.username }}</p>
+              <p class="text-base font-bold truncate" style="color:#1a1208;">{{ section.author.get_full_name|default:section.author.username }}</p>
+              <p class="premium-meta">@{{ section.author.username }}</p>
             </div>
           </div>
-          <span class="text-xs font-bold px-3 py-1.5 rounded-full" style="background:#fef3c7; color:#92400e;">
-            {{ section.count }} follower{{ section.count|pluralize }}
-          </span>
+          <span class="status-pill status-pill-amber">{{ section.count }} follower{{ section.count|pluralize }}</span>
         </div>
 
-        <div class="divide-y" style="border-color:#f5ede0;">
+        <div class="divide-y" style="border-color:#f0e4d2;">
           {% for follow in section.followers %}
-          <div class="px-5 py-4 flex items-center justify-between gap-4">
+          <div class="px-6 py-5 flex items-center justify-between gap-4">
             <div class="flex items-center gap-3 min-w-0">
               {% if follow.follower.profile.profile_image %}
               <img src="{{ follow.follower.profile.profile_image.url }}" alt="{{ follow.follower.username }}"
-                   class="w-10 h-10 rounded-full object-cover border flex-shrink-0" style="border-color:#e5d5bf;">
+                   class="w-11 h-11 rounded-full object-cover border flex-shrink-0" style="border-color:#e5d5bf;">
               {% else %}
-              <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+              <div class="w-11 h-11 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0"
                    style="background:linear-gradient(135deg,#92400e,#d97706); color:#fff;">
                 {{ follow.follower.username|slice:":1"|upper }}
               </div>
               {% endif %}
               <div class="min-w-0">
-                <p class="text-sm font-semibold truncate" style="color:#1a1208;">
-                  {{ follow.follower.get_full_name|default:follow.follower.username }}
-                </p>
-                <p class="text-xs truncate" style="color:#a89070;">
+                <p class="text-sm font-bold truncate" style="color:#1a1208;">{{ follow.follower.get_full_name|default:follow.follower.username }}</p>
+                <p class="premium-meta truncate">
                   @{{ follow.follower.username }}
-                  {% if follow.follower.email %}
-                  · {{ follow.follower.email }}
-                  {% endif %}
+                  {% if follow.follower.email %} · {{ follow.follower.email }}{% endif %}
                 </p>
               </div>
             </div>
-            <span class="text-xs whitespace-nowrap" style="color:#a89070;">{{ follow.created_at|timesince }} ago</span>
+            <span class="premium-meta whitespace-nowrap">{{ follow.created_at|timesince }} ago</span>
           </div>
           {% empty %}
-          <div class="px-5 py-10 text-center">
-            <p class="font-display text-2xl font-bold mb-2" style="color:#1a1208;">No followers yet</p>
-            <p class="text-sm" style="color:#7c6f5e;">
+          <div class="premium-empty m-6">
+            <p class="font-display text-3xl font-black mb-2" style="color:#1a1208;">No followers yet</p>
+            <p class="section-copy max-w-xl mx-auto">
               {% if is_manager_view %}
-              This editor does not have any followers right now.
+              No followers for this editor yet.
               {% else %}
-              When readers follow your author profile, they will show up here.
+              Followers will appear here.
               {% endif %}
             </p>
           </div>
@@ -86,12 +84,13 @@
         </div>
       </section>
       {% empty %}
-      <div class="rounded-2xl border bg-white px-5 py-10 text-center" style="border-color:#e5d5bf;">
-        <p class="font-display text-2xl font-bold mb-2" style="color:#1a1208;">No editors found</p>
-        <p class="text-sm" style="color:#7c6f5e;">Follower details will appear here once editors are available.</p>
+      <div class="premium-empty">
+        <p class="font-display text-3xl font-black mb-2" style="color:#1a1208;">No editors found</p>
+        <p class="section-copy">Editors will appear here.</p>
       </div>
       {% endfor %}
     </div>
   </main>
 </div>
+
 {% endblock %}

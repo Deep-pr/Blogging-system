@@ -67,6 +67,8 @@ cover/
 *.mo
 
 # Django stuff:
+db.sqlite3
+media/
 
 # Flask stuff:
 instance/
@@ -167,3 +169,6 @@ cython_debug/
 #.idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/django
+
+# macOS
+.DS_Store

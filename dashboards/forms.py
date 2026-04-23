@@ -1,6 +1,6 @@
 from django import forms
 from blogs.models import Category, Blog, ContentReport
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile, Feedback
 
@@ -25,6 +25,47 @@ class BlogPostForm(forms.ModelForm):
 
         if self.instance and self.instance.pk and self.instance.scheduled_for:
             self.initial['scheduled_for'] = self.instance.scheduled_for.strftime('%Y-%m-%dT%H:%M')
+
+        self.fields['title'].widget.attrs.update(
+            {
+                'placeholder': 'Write a headline that feels clear and compelling',
+            }
+        )
+        self.fields['category'].widget.attrs.update(
+            {
+                'class': 'post-form-select',
+            }
+        )
+        self.fields['featured_image'].widget.attrs.update(
+            {
+                'class': 'post-form-file',
+            }
+        )
+        self.fields['short_description'].widget.attrs.update(
+            {
+                'placeholder': 'Summarize the post in 1-2 strong sentences for cards and previews',
+            }
+        )
+        self.fields['seo_description'].widget.attrs.update(
+            {
+                'placeholder': 'Optional SEO description for search engines and sharing',
+            }
+        )
+        self.fields['blog_body'].widget.attrs.update(
+            {
+                'placeholder': 'Start writing the full article here...',
+            }
+        )
+        self.fields['status'].widget.attrs.update(
+            {
+                'class': 'post-form-select',
+            }
+        )
+        self.fields['scheduled_for'].widget.attrs.update(
+            {
+                'class': 'post-form-datetime',
+            }
+        )
 
     class Meta:
         model = Blog
@@ -87,6 +128,63 @@ class ProfileForm(forms.ModelForm):
             profile.user = self.user
             profile.save()
         return profile
+
+
+class SettingsForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = (
+            'theme_preference',
+            'notify_new_followers',
+            'notify_post_updates',
+            'notify_feedback_updates',
+            'notify_report_updates',
+            'notify_staff_alerts',
+        )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+
+        self.fields['theme_preference'].label = 'Default appearance'
+        self.fields['theme_preference'].help_text = 'Choose the default theme for your account on this device.'
+        self.fields['theme_preference'].widget.attrs.update({'class': 'settings-select'})
+
+        self.fields['notify_new_followers'].label = 'Notify me when someone follows my profile'
+        self.fields['notify_post_updates'].label = 'Notify me about post publishing updates'
+        self.fields['notify_feedback_updates'].label = 'Notify me about feedback receipts and status updates'
+        self.fields['notify_report_updates'].label = 'Notify me about report receipts and status updates'
+        self.fields['notify_staff_alerts'].label = 'Notify me about new feedback and content reports'
+
+        for field_name in (
+            'notify_new_followers',
+            'notify_post_updates',
+            'notify_feedback_updates',
+            'notify_report_updates',
+            'notify_staff_alerts',
+        ):
+            self.fields[field_name].required = False
+            self.fields[field_name].widget.attrs.update({'class': 'settings-checkbox'})
+
+        if not (user.is_superuser or user.is_staff or user.groups.filter(name='Manager').exists()):
+            self.fields.pop('notify_staff_alerts')
+
+
+class StyledPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        placeholders = {
+            'old_password': 'Enter your current password',
+            'new_password1': 'Choose a new password',
+            'new_password2': 'Confirm the new password',
+        }
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update(
+                {
+                    'class': 'settings-input',
+                    'placeholder': placeholders.get(field_name, ''),
+                }
+            )
 
 
 class AddUserForm(UserCreationForm):

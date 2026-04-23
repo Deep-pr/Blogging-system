@@ -2,8 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid
 from django.utils import timezone
+from django.utils.html import strip_tags
 from datetime import timedelta
 from django.urls import reverse
+import math
+import re
 
 
 class Category(models.Model):
@@ -29,9 +32,9 @@ class Blog(models.Model):
     slug = models.SlugField(max_length=150, unique=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    featured_image = models.ImageField(upload_to='uploads/%Y/%m/%d')
+    featured_image = models.ImageField(upload_to='posts/featured/%Y/%m/%d')
     short_description = models.TextField(max_length=500)
-    blog_body = models.TextField(max_length=2000)
+    blog_body = models.TextField(max_length=5000)
     seo_description = models.CharField(max_length=160, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Draft")
     is_featured = models.BooleanField(default=False)
@@ -46,8 +49,15 @@ class Blog(models.Model):
 
     @property
     def estimated_read_time(self):
-        words = len((self.blog_body or '').split())
-        return max(1, round(words / 200))
+        content = ' '.join(
+            part for part in [
+                self.short_description or '',
+                strip_tags(self.blog_body or ''),
+            ]
+            if part
+        )
+        words = len(re.findall(r"\b[\w'-]+\b", content))
+        return max(1, math.ceil(words / 180))
 
     @property
     def meta_description(self):
