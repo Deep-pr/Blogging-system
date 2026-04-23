@@ -1,6 +1,6 @@
 # FutureFlux — Django Blog Platform
 
-A full-featured blog platform built with Django 5.2, featuring email verification, role-based access control, and a responsive editorial design.
+A full-featured blog platform built with Django 6.0.2, featuring email verification, role-based access control, and a responsive editorial design.
 
 🌐 **Live Demo:** [futureflux.pythonanywhere.com](https://futureflux.pythonanywhere.com)
 
@@ -23,14 +23,14 @@ A full-featured blog platform built with Django 5.2, featuring email verificatio
 
 | Layer | Technology |
 |---|---|
-| Backend | Django 5.2 |
+| Backend | Django 6.0.2 |
 | Database | SQLite (dev) |
-| Frontend | Tailwind CSS CDN, DM Sans, Playfair Display |
+| Frontend | Tailwind CSS CDN, Manrope, Bodoni Moda |
 | Forms | django-crispy-forms + crispy-bootstrap4 |
 | Email | Gmail SMTP via django email backend |
 | Images | Pillow |
 | Deployment | PythonAnywhere |
-| Environment | python-dotenv |
+| Environment | None required for email |
 
 ---
 
@@ -150,14 +150,13 @@ SITE_URL = 'https://yourusername.pythonanywhere.com'
 ## Requirements
 
 ```
-Django==5.2.12
+Django==6.0.2
 asgiref==3.11.1
-sqlparse==0.5.5
-pillow==12.1.1
-django-crispy-forms==2.6
-crispy-bootstrap4==2024.1
-python-dotenv==1.1.0
 certifi==2026.2.25
+crispy-bootstrap4==2026.2
+django-crispy-forms==2.6
+pillow==12.1.1
+sqlparse==0.5.5
 ```
 
 ---
