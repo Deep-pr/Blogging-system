@@ -189,3 +189,36 @@ class EmailVerificationToken(models.Model):
 
     def __str__(self):
         return f"Token for {self.user.email}"
+
+
+class PendingRegistration(models.Model):
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150, unique=True)
+    first_name = models.CharField(max_length=150, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
+    password = models.CharField(max_length=128)
+    profile_image = models.ImageField(upload_to='profiles/avatars/', blank=True, null=True)
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    verified_at = models.DateTimeField(blank=True, null=True)
+    verified_user = models.OneToOneField(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pending_registration_record',
+    )
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def is_expired(self):
+        return timezone.now() > self.created_at + timedelta(hours=24)
+
+    def refresh_token(self):
+        self.token = uuid.uuid4()
+        self.created_at = timezone.now()
+        self.save(update_fields=['token', 'created_at'])
+
+    def __str__(self):
+        return f'Pending registration for {self.email}'

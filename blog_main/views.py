@@ -1,25 +1,107 @@
-from blogs.models import Blog, EmailVerificationToken, NewsletterSubscription, PostReaction
+from blogs.models import Blog, EmailVerificationToken, NewsletterSubscription, PendingRegistration, PostReaction
 from django.shortcuts import render, redirect
 from about.models import About
-from .forms import RegisterForm
+from .forms import FutureFluxPasswordResetForm, RegisterForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import auth, messages
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import send_mail
 from django.conf import settings
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.http import JsonResponse
 from django.http import HttpResponse
+from django.utils import timezone
 from dashboards.models import Notification, Profile
 from dashboards.services import create_user_notification, notify_managers
 from dashboards.forms import FeedbackForm
 from django.db.models import Count, Q
 from blogs.services import publish_scheduled_posts
+from urllib.parse import urlencode
 
 
 def _mark_first_login_if_needed(request, user):
     if user and user.last_login is None:
         request.session['first_login'] = True
+
+
+def _send_verification_email(request, *, username, email, token):
+    verify_url = request.build_absolute_uri(
+        reverse('verify_email', kwargs={'token': str(token)})
+    )
+    send_mail(
+        subject='Verify your Django Blog email',
+        message=(
+            f'Hi {username},\n\n'
+            f'Click the link below to verify your email address:\n\n'
+            f'{verify_url}\n\n'
+            f'This link expires in 24 hours.\n\n'
+            f'If you did not create this account, please ignore this email.'
+        ),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[email],
+        fail_silently=False,
+    )
+
+
+def _create_user_from_pending(pending_registration):
+    if pending_registration.verified_user:
+        return pending_registration.verified_user
+
+    user = User(
+        username=pending_registration.username,
+        email=pending_registration.email,
+        first_name=pending_registration.first_name,
+        last_name=pending_registration.last_name,
+        is_active=True,
+    )
+    user.password = pending_registration.password
+    user.save()
+
+    profile, _ = Profile.objects.get_or_create(user=user)
+    if pending_registration.profile_image:
+        profile.profile_image = pending_registration.profile_image
+        profile.save(update_fields=['profile_image'])
+
+    pending_registration.verified_user = user
+    pending_registration.verified_at = timezone.now()
+    pending_registration.save(update_fields=['verified_user', 'verified_at'])
+    return user
+
+
+def _build_resend_verification_url(*, email='', user_id=None, return_to=''):
+    query = {}
+    if email:
+        query['email'] = email
+    if user_id:
+        query['user_id'] = user_id
+    if return_to:
+        query['return_to'] = return_to
+
+    base_url = reverse('resend_verification')
+    if not query:
+        return base_url
+    return f'{base_url}?{urlencode(query)}'
+
+
+class FutureFluxPasswordResetView(auth_views.PasswordResetView):
+    form_class = FutureFluxPasswordResetForm
+    template_name = 'registration/password_reset_form.html'
+    email_template_name = 'registration/password_reset_email.txt'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+    from_email = settings.DEFAULT_FROM_EMAIL
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except Exception:
+            form.add_error(
+                None,
+                'We could not send the recovery email right now. Please try again in a moment.',
+            )
+            return self.form_invalid(form)
 
 
 def home(request):
@@ -138,62 +220,52 @@ def sitemap_xml(request):
 # ── Registration ───────────────────────────────────────────────
 def register(request):
     if request.method == 'POST':
+        username = (request.POST.get('username') or '').strip()
+        email = (request.POST.get('email') or '').strip()
+
+        if username:
+            User.objects.filter(username=username, is_active=False).delete()
+            PendingRegistration.objects.filter(username=username).delete()
+        if email:
+            User.objects.filter(email__iexact=email, is_active=False).delete()
+            PendingRegistration.objects.filter(email__iexact=email).delete()
+
         form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            email    = form.cleaned_data['email']
-
-            # ── Delete any old UNVERIFIED accounts with same username or email ──
-            # This allows someone who never verified to re-register cleanly
-            User.objects.filter(username=username, is_active=False).delete()
-            User.objects.filter(email=email,    is_active=False).delete()
-
-            # ── Create new inactive user ─────────────────────────────────────
-            user = form.save(commit=False)
-            user.is_active = False   # stays inactive until email verified
-            user.save()
-
-            profile, _ = Profile.objects.get_or_create(user=user)
-            if form.cleaned_data.get('profile_image'):
-                profile.profile_image = form.cleaned_data['profile_image']
-                profile.save()
-
-            # ── Create token and send verification email ─────────────────────
-            token_obj = EmailVerificationToken.objects.create(user=user)
-            _send_verification_email(request, user, token_obj.token)
+            pending_registration = PendingRegistration.objects.create(
+                email=form.cleaned_data['email'],
+                username=form.cleaned_data['username'],
+                first_name=form.cleaned_data.get('first_name', ''),
+                last_name=form.cleaned_data.get('last_name', ''),
+                password=make_password(form.cleaned_data['password1']),
+                profile_image=form.cleaned_data.get('profile_image'),
+            )
+            _send_verification_email(
+                request,
+                username=pending_registration.username,
+                email=pending_registration.email,
+                token=pending_registration.token,
+            )
 
             # ── Redirect to waiting page ─────────────────────────────────────
-            return redirect('verify_wait', user_id=user.id)
+            return redirect('verify_wait', user_id=pending_registration.id)
     else:
         form = RegisterForm()
 
     return render(request, 'register.html', {'form': form})
 
 
-def _send_verification_email(request, user, token):
-    verify_url = request.build_absolute_uri(
-        reverse('verify_email', kwargs={'token': str(token)})
-    )
-    send_mail(
-        subject='Verify your Django Blog email',
-        message=(
-            f'Hi {user.username},\n\n'
-            f'Click the link below to verify your email address:\n\n'
-            f'{verify_url}\n\n'
-            f'This link expires in 24 hours.\n\n'
-            f'If you did not create this account, please ignore this email.'
-        ),
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
-        fail_silently=False,
-    )
-
-
 # ── Waiting for verification page ─────────────────────────────
 def verify_wait(request, user_id):
-    try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
+    pending_registration = PendingRegistration.objects.filter(id=user_id).first()
+    if pending_registration:
+        return render(request, 'verify_wait.html', {
+            'email': pending_registration.email,
+            'user_id': user_id,
+        })
+
+    user = User.objects.filter(id=user_id).first()
+    if not user:
         return redirect('register')
     return render(request, 'verify_wait.html', {
         'email': user.email,
@@ -203,6 +275,16 @@ def verify_wait(request, user_id):
 
 # ── Polling endpoint — called by JS every 3 seconds ───────────
 def check_verification(request, user_id):
+    pending_registration = PendingRegistration.objects.filter(id=user_id).first()
+    if pending_registration:
+        if pending_registration.verified_user:
+            user = pending_registration.verified_user
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            _mark_first_login_if_needed(request, user)
+            auth.login(request, user)
+            return JsonResponse({'verified': True, 'redirect': reverse('dashboard')})
+        return JsonResponse({'verified': False})
+
     try:
         user      = User.objects.get(id=user_id)
         token_obj = EmailVerificationToken.objects.get(user=user)
@@ -218,6 +300,31 @@ def check_verification(request, user_id):
 
 # ── Email verification endpoint ────────────────────────────────
 def verify_email(request, token):
+    pending_registration = PendingRegistration.objects.filter(token=token).first()
+    if pending_registration:
+        if pending_registration.verified_user:
+            messages.info(request, 'Your email is already verified. Please sign in.')
+            return redirect('login')
+
+        if pending_registration.is_expired():
+            messages.error(request, 'This link has expired. Request a new one below.')
+            return redirect(
+                _build_resend_verification_url(
+                    email=pending_registration.email,
+                    user_id=pending_registration.id,
+                    return_to='verify_wait',
+                )
+            )
+
+        username_taken = User.objects.filter(username=pending_registration.username).exists()
+        email_taken = User.objects.filter(email__iexact=pending_registration.email).exists()
+        if username_taken or email_taken:
+            messages.error(request, 'This account is already registered. Please sign in.')
+            return redirect('login')
+
+        _create_user_from_pending(pending_registration)
+        return render(request, 'verify_success.html')
+
     try:
         token_obj = EmailVerificationToken.objects.get(token=token)
     except EmailVerificationToken.DoesNotExist:
@@ -230,7 +337,13 @@ def verify_email(request, token):
 
     if token_obj.is_expired():
         messages.error(request, 'This link has expired. Request a new one below.')
-        return redirect('resend_verification')
+        return redirect(
+            _build_resend_verification_url(
+                email=token_obj.user.email,
+                user_id=token_obj.user.id,
+                return_to='verify_wait',
+            )
+        )
 
     # ── Activate the account ─────────────────────────────────
     token_obj.is_verified = True
@@ -244,38 +357,99 @@ def verify_email(request, token):
 
 # ── Resend verification ────────────────────────────────────────
 def resend_verification(request):
+    initial_email = (
+        request.GET.get('email')
+        or request.POST.get('email')
+        or ''
+    ).strip()
+    user_id = (
+        request.GET.get('user_id')
+        or request.POST.get('user_id')
+        or ''
+    ).strip()
+    return_to = (
+        request.GET.get('return_to')
+        or request.POST.get('return_to')
+        or ''
+    ).strip()
+
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
-        try:
-            user = User.objects.get(email=email, is_active=False)
-            token_obj, created = EmailVerificationToken.objects.get_or_create(user=user)
-            if not created and token_obj.is_expired():
-                token_obj.delete()
-                token_obj = EmailVerificationToken.objects.create(user=user)
-            _send_verification_email(request, user, token_obj.token)
-        except User.DoesNotExist:
-            pass  # show generic message to avoid email enumeration
+        email = initial_email
+        redirect_url = reverse('login')
+        pending_registration = PendingRegistration.objects.filter(
+            email__iexact=email,
+            verified_user__isnull=True,
+        ).first()
+
+        if pending_registration:
+            if pending_registration.is_expired():
+                pending_registration.refresh_token()
+            _send_verification_email(
+                request,
+                username=pending_registration.username,
+                email=pending_registration.email,
+                token=pending_registration.token,
+            )
+            if return_to == 'verify_wait':
+                redirect_url = reverse('verify_wait', args=[pending_registration.id])
+        else:
+            try:
+                user = User.objects.get(email__iexact=email, is_active=False)
+                token_obj, created = EmailVerificationToken.objects.get_or_create(user=user)
+                if not created and token_obj.is_expired():
+                    token_obj.delete()
+                    token_obj = EmailVerificationToken.objects.create(user=user)
+                _send_verification_email(
+                    request,
+                    username=user.username,
+                    email=user.email,
+                    token=token_obj.token,
+                )
+                if return_to == 'verify_wait':
+                    redirect_target_id = user.id
+                    if user_id.isdigit():
+                        redirect_target_id = int(user_id)
+                    redirect_url = reverse('verify_wait', args=[redirect_target_id])
+            except User.DoesNotExist:
+                pass  # show generic message to avoid email enumeration
         messages.success(
             request,
             'If that email is registered and unverified, we sent a new verification link.'
         )
-        return redirect('login')
+        return redirect(redirect_url)
 
-    return render(request, 'resend_verification.html')
+    return render(
+        request,
+        'resend_verification.html',
+        {
+            'initial_email': initial_email,
+            'user_id': user_id,
+            'return_to': return_to,
+        },
+    )
 
 
 # ── Login ──────────────────────────────────────────────────────
 def login(request):
     unverified = False
+    resend_email = ''
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
 
         # Check if the account exists but is not yet verified
+        pending_registration = PendingRegistration.objects.filter(
+            username=username,
+            verified_user__isnull=True,
+        ).first()
         unverified_user = User.objects.filter(username=username, is_active=False).first()
-        if unverified_user and unverified_user.check_password(password):
+        pending_matches = pending_registration and check_password(password, pending_registration.password)
+        legacy_matches = unverified_user and unverified_user.check_password(password)
+
+        if pending_matches or legacy_matches:
             # Account exists but email not verified — show banner, don't log in
             unverified = True
+            resend_email = pending_registration.email if pending_matches else unverified_user.email
             form = AuthenticationForm()
         else:
             form = AuthenticationForm(request, data=request.POST)
@@ -293,7 +467,15 @@ def login(request):
     else:
         form = AuthenticationForm()
 
-    return render(request, 'login.html', {'form': form, 'unverified': unverified})
+    return render(
+        request,
+        'login.html',
+        {
+            'form': form,
+            'unverified': unverified,
+            'resend_email': resend_email,
+        },
+    )
 
 
 # ── Logout ─────────────────────────────────────────────────────

@@ -32,6 +32,12 @@
 
       <form action="{% url 'resend_verification' %}" method="POST" class="relative z-10">
         {% csrf_token %}
+        {% if user_id %}
+        <input type="hidden" name="user_id" value="{{ user_id }}">
+        {% endif %}
+        {% if return_to %}
+        <input type="hidden" name="return_to" value="{{ return_to }}">
+        {% endif %}
 
         <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5"
                style="color:#7c6f5e;">Email Address</label>
@@ -40,6 +46,7 @@
                style="border:1.5px solid #e5d5bf; color:#1a1208; background:#fffcf7;
                       font-family:'DM Sans',sans-serif;"
                placeholder="you@example.com"
+               value="{{ initial_email }}"
                onfocus="this.style.borderColor='#d97706'; this.style.boxShadow='0 0 0 3px rgba(217,119,6,0.15)'"
                onblur="this.style.borderColor='#e5d5bf'; this.style.boxShadow='none'">
 

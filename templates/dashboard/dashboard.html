@@ -3,10 +3,209 @@
 {% block content %}
 
 <style>
+  .dashboard-hero-surface {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dashboard-hero-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at top right, rgba(181, 138, 75, 0.1), transparent 30%),
+      linear-gradient(180deg, rgba(255, 252, 247, 0.08), transparent 60%);
+  }
+
+  .dashboard-hero-stat {
+    position: relative;
+    z-index: 1;
+  }
+
+  .dashboard-hero-kicker {
+    color: #97723d;
+  }
+
+  .dashboard-hero-value {
+    color: #131110;
+  }
+
+  .dashboard-overview-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 15.5rem;
+    transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  }
+
+  .dashboard-overview-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at top right, rgba(181, 138, 75, 0.08), transparent 35%);
+  }
+
+  .dashboard-overview-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 26px 58px rgba(19, 17, 16, 0.12);
+  }
+
+  .dashboard-overview-icon {
+    width: 4.25rem;
+    height: 4.25rem;
+    border-radius: 1.45rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  }
+
+  .dashboard-overview-icon--categories {
+    background: linear-gradient(135deg, #f2e1bf, #ead5ae);
+  }
+
+  .dashboard-overview-icon--posts {
+    background: linear-gradient(135deg, #f4ead8, #e8d7bb);
+  }
+
+  .dashboard-overview-icon--saved {
+    background: linear-gradient(135deg, #fde2e5, #f8cfd5);
+  }
+
+  .dashboard-overview-icon--feedback {
+    background: linear-gradient(135deg, #dce9ff, #c8dbff);
+  }
+
+  .dashboard-overview-value {
+    position: relative;
+    z-index: 1;
+    font-family: 'Bodoni Moda', Georgia, serif;
+    font-size: clamp(3.9rem, 8vw, 5rem);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.06em;
+    color: #131110;
+  }
+
+  .dashboard-overview-meta {
+    position: relative;
+    z-index: 1;
+    max-width: 14ch;
+    font-size: 0.96rem;
+    font-weight: 700;
+    line-height: 1.45;
+    color: #756a5a;
+  }
+
+  .dashboard-highlight-action {
+    border: 1px solid rgba(181, 138, 75, 0.18);
+    background: linear-gradient(135deg, #141210 0%, #2a221b 100%);
+    color: #fff;
+    box-shadow: 0 16px 36px rgba(19, 17, 16, 0.2);
+  }
+
+  .dashboard-soft-action {
+    border: 1px solid rgba(187, 164, 130, 0.42);
+  }
+
   body.dark-mode .dashboard-panel-head {
-    background: rgba(15, 23, 42, 0.9) !important;
+    background: linear-gradient(180deg, rgba(22, 26, 36, 0.96), rgba(16, 18, 27, 0.92)) !important;
     border-color: rgba(181, 138, 75, 0.22) !important;
     color: #e8e2d8 !important;
+  }
+
+  body.dark-mode .dashboard-hero-surface {
+    background: linear-gradient(180deg, rgba(18, 21, 30, 0.98), rgba(12, 14, 21, 0.94)) !important;
+    border-color: rgba(181, 138, 75, 0.2) !important;
+    box-shadow: 0 28px 64px rgba(5, 7, 11, 0.38) !important;
+  }
+
+  body.dark-mode .dashboard-hero-surface::before {
+    background:
+      radial-gradient(circle at top right, rgba(216, 178, 124, 0.14), transparent 32%),
+      radial-gradient(circle at left center, rgba(255, 255, 255, 0.03), transparent 28%);
+  }
+
+  body.dark-mode .dashboard-hero-stat {
+    background: rgba(14, 17, 25, 0.92) !important;
+    border-color: rgba(181, 138, 75, 0.18) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  body.dark-mode .dashboard-hero-kicker {
+    color: #d4ab73 !important;
+  }
+
+  body.dark-mode .dashboard-hero-value {
+    color: #f4eee4 !important;
+  }
+
+  body.dark-mode .dashboard-overview-card {
+    background: linear-gradient(180deg, rgba(18, 20, 29, 0.98), rgba(12, 14, 21, 0.95)) !important;
+    border-color: rgba(181, 138, 75, 0.24) !important;
+    box-shadow: 0 22px 52px rgba(6, 8, 12, 0.34) !important;
+  }
+
+  body.dark-mode .dashboard-overview-card::before {
+    background:
+      radial-gradient(circle at top right, rgba(216, 178, 124, 0.12), transparent 38%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 44%);
+  }
+
+  body.dark-mode .dashboard-overview-card:hover {
+    box-shadow: 0 28px 62px rgba(5, 7, 11, 0.42) !important;
+    border-color: rgba(216, 178, 124, 0.32) !important;
+  }
+
+  body.dark-mode .dashboard-overview-icon {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 16px 28px rgba(5, 7, 11, 0.22);
+  }
+
+  body.dark-mode .dashboard-overview-icon--categories {
+    background: linear-gradient(135deg, rgba(216, 178, 124, 0.24), rgba(181, 138, 75, 0.12));
+  }
+
+  body.dark-mode .dashboard-overview-icon--posts {
+    background: linear-gradient(135deg, rgba(228, 208, 178, 0.18), rgba(181, 138, 75, 0.1));
+  }
+
+  body.dark-mode .dashboard-overview-icon--saved {
+    background: linear-gradient(135deg, rgba(241, 161, 173, 0.18), rgba(216, 178, 124, 0.1));
+  }
+
+  body.dark-mode .dashboard-overview-icon--feedback {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.16), rgba(216, 178, 124, 0.08));
+  }
+
+  body.dark-mode .dashboard-overview-value {
+    color: #f4eee4 !important;
+  }
+
+  body.dark-mode .dashboard-overview-meta {
+    color: #c5bbac !important;
+  }
+
+  body.dark-mode .dashboard-highlight-action {
+    background: linear-gradient(135deg, #1c1713 0%, #2c241d 48%, #151821 100%) !important;
+    border-color: rgba(216, 178, 124, 0.18) !important;
+    box-shadow: 0 22px 48px rgba(5, 7, 11, 0.3) !important;
+  }
+
+  body.dark-mode .dashboard-soft-action {
+    background: linear-gradient(180deg, rgba(16, 18, 27, 0.95), rgba(12, 14, 21, 0.92)) !important;
+    border-color: rgba(181, 138, 75, 0.2) !important;
+  }
+
+  body.dark-mode .dashboard-soft-action h4 {
+    color: #f4eee4 !important;
+  }
+
+  body.dark-mode .dashboard-soft-action p,
+  body.dark-mode .dashboard-soft-action .section-copy {
+    color: #c5bbac !important;
   }
 </style>
 
@@ -14,7 +213,7 @@
   {% include 'dashboard/sidebar.html' %}
 
   <main class="flex-1 min-w-0">
-    <section class="premium-card-soft p-6 md:p-8 mb-8">
+    <section class="premium-card-soft dashboard-hero-surface p-6 md:p-8 mb-8">
       <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div>
           <p class="section-kicker mb-3">Dashboard</p>
@@ -24,14 +223,14 @@
         </div>
 
         <div class="flex flex-wrap gap-3">
-          <div class="premium-stat min-w-[150px]">
-            <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#97723d;">Today</p>
-            <p class="font-display text-2xl font-black" style="color:#131110;">{% now "F j" %}</p>
+          <div class="premium-stat dashboard-hero-stat min-w-[150px]">
+            <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2 dashboard-hero-kicker">Today</p>
+            <p class="font-display text-2xl font-black dashboard-hero-value">{% now "F j" %}</p>
             <p class="premium-meta">{% now "Y" %}</p>
           </div>
-          <div class="premium-stat min-w-[150px]">
-            <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2" style="color:#97723d;">Workspace</p>
-            <p class="font-display text-2xl font-black" style="color:#131110;">
+          <div class="premium-stat dashboard-hero-stat min-w-[150px]">
+            <p class="text-xs font-bold uppercase tracking-[0.22em] mb-2 dashboard-hero-kicker">Workspace</p>
+            <p class="font-display text-2xl font-black dashboard-hero-value">
               {% if request.user.is_superuser %}Admin{% elif request.user.is_staff %}Manager{% else %}Editor{% endif %}
             </p>
             <p class="premium-meta">Publishing role</p>
@@ -49,53 +248,49 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        <a href="{% url 'categories' %}" class="premium-card editorial-card transition-all duration-300 p-6">
+        <a href="{% url 'categories' %}" class="premium-card editorial-card dashboard-overview-card transition-all duration-300 p-6">
           <div class="flex items-start justify-between gap-4 mb-6">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
-                 style="background:linear-gradient(135deg,#eee0c8,#e8d7bb);">
+            <div class="dashboard-overview-icon dashboard-overview-icon--categories">
               <i class="fa-solid fa-tag" style="color:#97723d;"></i>
             </div>
             <span class="premium-link text-xs">Manage</span>
           </div>
-          <p class="font-display text-5xl font-black mb-1" style="color:#131110;">{{ category_count }}</p>
-          <p class="premium-meta">Total categories</p>
+          <p class="dashboard-overview-value mb-2">{{ category_count }}</p>
+          <p class="dashboard-overview-meta">Total categories</p>
         </a>
 
-        <a href="{% url 'posts' %}" class="premium-card editorial-card transition-all duration-300 p-6">
+        <a href="{% url 'posts' %}" class="premium-card editorial-card dashboard-overview-card transition-all duration-300 p-6">
           <div class="flex items-start justify-between gap-4 mb-6">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
-                 style="background:linear-gradient(135deg,#f8f2e8,#e8d7bb);">
+            <div class="dashboard-overview-icon dashboard-overview-icon--posts">
               <i class="fa-regular fa-file-lines" style="color:#7b5b2e;"></i>
             </div>
             <span class="premium-link text-xs">Manage</span>
           </div>
-          <p class="font-display text-5xl font-black mb-1" style="color:#131110;">{{ blogs_count }}</p>
-          <p class="premium-meta">Published and draft posts</p>
+          <p class="dashboard-overview-value mb-2">{{ blogs_count }}</p>
+          <p class="dashboard-overview-meta">Published and draft posts</p>
         </a>
 
-        <a href="{% url 'saved_posts' %}" class="premium-card editorial-card transition-all duration-300 p-6">
+        <a href="{% url 'saved_posts' %}" class="premium-card editorial-card dashboard-overview-card transition-all duration-300 p-6">
           <div class="flex items-start justify-between gap-4 mb-6">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
-                 style="background:linear-gradient(135deg,#fee2e2,#fecaca);">
+            <div class="dashboard-overview-icon dashboard-overview-icon--saved">
               <i class="fa-regular fa-bookmark" style="color:#97723d;"></i>
             </div>
             <span class="premium-link text-xs">View</span>
           </div>
-          <p class="font-display text-5xl font-black mb-1" style="color:#131110;">{{ saved_count }}</p>
-          <p class="premium-meta">Saved stories</p>
+          <p class="dashboard-overview-value mb-2">{{ saved_count }}</p>
+          <p class="dashboard-overview-meta">Saved stories</p>
         </a>
 
         {% if request.user.is_superuser or request.user.is_staff %}
-        <a href="{% url 'dashboard_feedback' %}" class="premium-card editorial-card transition-all duration-300 p-6">
+        <a href="{% url 'dashboard_feedback' %}" class="premium-card editorial-card dashboard-overview-card transition-all duration-300 p-6">
           <div class="flex items-start justify-between gap-4 mb-6">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
-                 style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);">
+            <div class="dashboard-overview-icon dashboard-overview-icon--feedback">
               <i class="fa-regular fa-message" style="color:#2563eb;"></i>
             </div>
             <span class="premium-link text-xs">Review</span>
           </div>
-          <p class="font-display text-5xl font-black mb-1" style="color:#131110;">{{ feedback_count }}</p>
-          <p class="premium-meta">Feedback entries</p>
+          <p class="dashboard-overview-value mb-2">{{ feedback_count }}</p>
+          <p class="dashboard-overview-meta">Feedback entries</p>
         </a>
         {% endif %}
       </div>
@@ -108,26 +303,25 @@
           <h3 class="section-subtitle text-[2rem]">Move faster with better shortcuts</h3>
         </div>
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a href="{% url 'add_post' %}" class="rounded-[1.4rem] p-5 transition-all duration-300 hover:-translate-y-0.5"
-             style="background:linear-gradient(135deg,#141210 0%,#2a221b 100%); color:#fff; box-shadow:0 16px 36px rgba(19,17,16,0.2);">
+          <a href="{% url 'add_post' %}" class="dashboard-highlight-action rounded-[1.4rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
             <p class="text-xs uppercase tracking-[0.22em] mb-3" style="color:#d6c3a7;">Publishing</p>
             <h4 class="font-display text-2xl font-black mb-2">New Post</h4>
             <p class="text-sm leading-7" style="color:#e5d5bc;">Create and publish a new article.</p>
           </a>
 
-          <a href="{% url 'add_category' %}" class="premium-card-soft p-5 transition-all duration-300 hover:-translate-y-0.5">
+          <a href="{% url 'add_category' %}" class="premium-card-soft dashboard-soft-action p-5 transition-all duration-300 hover:-translate-y-0.5">
             <p class="text-xs uppercase tracking-[0.22em] mb-3" style="color:#97723d;">Structure</p>
             <h4 class="font-display text-2xl font-black mb-2" style="color:#131110;">New Category</h4>
             <p class="section-copy text-sm">Add a new category.</p>
           </a>
 
-          <a href="{% url 'analytics' %}" class="premium-card-soft p-5 transition-all duration-300 hover:-translate-y-0.5">
+          <a href="{% url 'analytics' %}" class="premium-card-soft dashboard-soft-action p-5 transition-all duration-300 hover:-translate-y-0.5">
             <p class="text-xs uppercase tracking-[0.22em] mb-3" style="color:#97723d;">Insight</p>
             <h4 class="font-display text-2xl font-black mb-2" style="color:#131110;">Analytics</h4>
             <p class="section-copy text-sm">View post performance.</p>
           </a>
 
-          <a href="{% url 'notifications' %}" class="premium-card-soft p-5 transition-all duration-300 hover:-translate-y-0.5">
+          <a href="{% url 'notifications' %}" class="premium-card-soft dashboard-soft-action p-5 transition-all duration-300 hover:-translate-y-0.5">
             <p class="text-xs uppercase tracking-[0.22em] mb-3" style="color:#97723d;">Alerts</p>
             <h4 class="font-display text-2xl font-black mb-2" style="color:#131110;">Notifications</h4>
             <p class="section-copy text-sm">View recent updates.</p>

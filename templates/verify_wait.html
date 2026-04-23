@@ -48,10 +48,17 @@
           <div class="flex-1 h-px" style="background:#e5d5bf;"></div>
         </div>
 
-        <a href="{% url 'resend_verification' %}"
-           class="text-sm font-semibold underline" style="color:#d97706;">
-          Resend verification email
-        </a>
+        <form action="{% url 'resend_verification' %}" method="POST" class="inline-flex justify-center">
+          {% csrf_token %}
+          <input type="hidden" name="email" value="{{ email }}">
+          <input type="hidden" name="user_id" value="{{ user_id }}">
+          <input type="hidden" name="return_to" value="verify_wait">
+          <button type="submit"
+                  class="text-sm font-semibold underline bg-transparent border-0 p-0 cursor-pointer"
+                  style="color:#d97706;">
+            Resend verification email
+          </button>
+        </form>
       </div>
 
       <!-- Verified state (hidden initially) -->

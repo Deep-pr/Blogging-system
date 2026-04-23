@@ -137,6 +137,7 @@ def get_default_seo(request):
             'login',
             'register',
             'resend_verification',
+            'verify_wait',
             'password_reset',
             'password_reset_done',
             'password_reset_confirm',

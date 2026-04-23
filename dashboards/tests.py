@@ -5,8 +5,9 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone
+from urllib.parse import urlparse
 
-from blogs.models import AuthorFollow, Blog, Category, ContentReport
+from blogs.models import AuthorFollow, Blog, Category, ContentReport, PendingRegistration
 from blog_main.forms import RegisterForm
 from dashboards.models import Feedback, Notification, Profile
 
@@ -187,8 +188,44 @@ class ProfileTests(TestCase):
             },
         )
 
-        user = User.objects.get(username='newuser')
-        self.assertRedirects(response, reverse('verify_wait', args=[user.id]))
+        pending = PendingRegistration.objects.get(username='newuser')
+        self.assertRedirects(response, reverse('verify_wait', args=[pending.id]))
+        self.assertFalse(User.objects.filter(username='newuser').exists())
+        self.assertEqual(pending.email, 'newuser@example.com')
+        self.assertTrue(pending.profile_image.name.startswith('profiles/'))
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_verifying_pending_registration_creates_user_and_profile_image(self):
+        image = SimpleUploadedFile(
+            'avatar.gif',
+            (
+                b'GIF87a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!'
+                b'\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00'
+                b'\x00\x02\x02D\x01\x00;'
+            ),
+            content_type='image/gif',
+        )
+
+        self.client.post(
+            reverse('register'),
+            {
+                'email': 'verifyme@example.com',
+                'username': 'verifyme',
+                'first_name': 'Verify',
+                'last_name': 'Me',
+                'password1': 'ComplexPass123!',
+                'password2': 'ComplexPass123!',
+                'profile_image': image,
+            },
+        )
+
+        pending = PendingRegistration.objects.get(username='verifyme')
+        response = self.client.get(reverse('verify_email', args=[pending.token]))
+
+        self.assertEqual(response.status_code, 200)
+        user = User.objects.get(username='verifyme')
+        self.assertEqual(user.email, 'verifyme@example.com')
+        self.assertTrue(user.is_active)
         self.assertTrue(user.profile.profile_image.name.startswith('profiles/'))
 
     def test_registration_form_places_email_first_and_focuses_email(self):
@@ -689,6 +726,70 @@ class AuthRecoveryTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('/password-reset/confirm/', mail.outbox[0].body)
 
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_password_reset_flow_updates_password(self):
+        user = User.objects.create_user(
+            username='recover-complete',
+            password='OldPass123!',
+            email='recover-complete@example.com',
+        )
+
+        response = self.client.post(
+            reverse('password_reset'),
+            {'email': user.email},
+        )
+
+        self.assertRedirects(response, reverse('password_reset_done'))
+        self.assertEqual(len(mail.outbox), 1)
+
+        reset_link = next(
+            line.strip()
+            for line in mail.outbox[0].body.splitlines()
+            if '/password-reset/confirm/' in line
+        )
+        confirm_path = urlparse(reset_link).path
+        landing_response = self.client.get(confirm_path)
+        self.assertEqual(landing_response.status_code, 302)
+
+        confirm_response = self.client.post(
+            landing_response['Location'],
+            {
+                'new_password1': 'BrandNewPass123!',
+                'new_password2': 'BrandNewPass123!',
+            },
+            follow=True,
+        )
+
+        self.assertRedirects(confirm_response, reverse('password_reset_complete'))
+        user.refresh_from_db()
+        self.assertTrue(user.check_password('BrandNewPass123!'))
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_password_reset_for_pending_registration_sends_verification_email(self):
+        self.client.post(
+            reverse('register'),
+            {
+                'email': 'pending-recover@example.com',
+                'username': 'pending-recover',
+                'first_name': 'Pending',
+                'last_name': 'Recover',
+                'password1': 'ComplexPass123!',
+                'password2': 'ComplexPass123!',
+            },
+        )
+        pending = PendingRegistration.objects.get(username='pending-recover')
+        mail.outbox.clear()
+
+        response = self.client.post(
+            reverse('password_reset'),
+            {'email': pending.email},
+        )
+
+        self.assertRedirects(response, reverse('password_reset_done'))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('/verify-email/', mail.outbox[0].body)
+        self.assertIn(str(pending.token), mail.outbox[0].body)
+
     def test_first_dashboard_login_shows_welcome_once(self):
         user = User.objects.create_user(username='first-login', password='pass1234', email='first@example.com')
 
@@ -704,3 +805,82 @@ class AuthRecoveryTests(TestCase):
 
         dashboard_response = self.client.get(reverse('dashboard'))
         self.assertContains(dashboard_response, 'Welcome back,')
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_pending_registration_shows_unverified_banner_on_login(self):
+        self.client.post(
+            reverse('register'),
+            {
+                'email': 'pending@example.com',
+                'username': 'pending-user',
+                'first_name': 'Pending',
+                'last_name': 'User',
+                'password1': 'ComplexPass123!',
+                'password2': 'ComplexPass123!',
+            },
+        )
+
+        response = self.client.post(
+            reverse('login'),
+            {'username': 'pending-user', 'password': 'ComplexPass123!'},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Your email is not verified yet.')
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_verify_wait_resend_button_resends_email_and_returns_to_wait_page(self):
+        self.client.post(
+            reverse('register'),
+            {
+                'email': 'resend@example.com',
+                'username': 'resend-user',
+                'first_name': 'Resend',
+                'last_name': 'User',
+                'password1': 'ComplexPass123!',
+                'password2': 'ComplexPass123!',
+            },
+        )
+        pending = PendingRegistration.objects.get(username='resend-user')
+        mail.outbox.clear()
+
+        response = self.client.post(
+            reverse('resend_verification'),
+            {
+                'email': pending.email,
+                'user_id': pending.id,
+                'return_to': 'verify_wait',
+            },
+            follow=True,
+        )
+
+        self.assertRedirects(response, reverse('verify_wait', args=[pending.id]))
+        self.assertContains(
+            response,
+            'If that email is registered and unverified, we sent a new verification link.',
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(str(pending.token), mail.outbox[0].body)
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_login_unverified_banner_includes_direct_resend_form(self):
+        self.client.post(
+            reverse('register'),
+            {
+                'email': 'banner@example.com',
+                'username': 'banner-user',
+                'first_name': 'Banner',
+                'last_name': 'User',
+                'password1': 'ComplexPass123!',
+                'password2': 'ComplexPass123!',
+            },
+        )
+
+        response = self.client.post(
+            reverse('login'),
+            {'username': 'banner-user', 'password': 'ComplexPass123!'},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'action="/resend-verification/"')
+        self.assertContains(response, 'name="email" value="banner@example.com"', html=False)

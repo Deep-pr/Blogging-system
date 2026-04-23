@@ -18,12 +18,22 @@
     <div class="p-6 md:p-8">
       {% if unverified %}
       <div class="rounded-2xl px-4 py-3 mb-5 border" style="background:#fffbeb; border-color:#fcd34d; color:#92400e;">
-        <p class="text-sm leading-6">
-          Your email is not verified yet.
+        <div class="text-sm leading-6">
+          <span>Your email is not verified yet.</span>
+          {% if resend_email %}
+          <form action="{% url 'resend_verification' %}" method="POST" class="inline">
+            {% csrf_token %}
+            <input type="hidden" name="email" value="{{ resend_email }}">
+            <button type="submit" class="font-bold underline bg-transparent border-0 p-0 cursor-pointer" style="color:#d97706;">
+              Resend verification email
+            </button>
+          </form>
+          {% else %}
           <a href="{% url 'resend_verification' %}" class="font-bold underline" style="color:#d97706;">
             Resend verification email
           </a>
-        </p>
+          {% endif %}
+        </div>
       </div>
       {% endif %}
 
