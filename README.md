@@ -2,7 +2,7 @@
 
 A full-featured blog platform built with Django 6.0.2, featuring email verification, role-based access control, and a responsive editorial design.
 
-🌐 **Live Demo:** [futureflux.pythonanywhere.com](https://futureflux.pythonanywhere.com)
+🌐 **Live Demo:** [futureflux.pythonanywhere.com](https://futurefluxblog.pythonanywhere.com)
 
 ---
 
